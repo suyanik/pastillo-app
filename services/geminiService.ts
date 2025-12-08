@@ -8,19 +8,19 @@ export const processReservationAI = async (
 ): Promise<GeminiResponse> => {
   try {
     const prompt = `
-      Aşağıdaki restoran rezervasyon detaylarını analiz et.
+      Analysiere die folgenden Details einer Restaurantreservierung.
       
-      Müşteri: ${reservation.name}
-      Kişi Sayısı: ${reservation.guests}
-      Tarih: ${reservation.date}
-      Saat: ${reservation.time}
-      Notlar: ${reservation.notes || "Yok"}
+      Kunde: ${reservation.name}
+      Anzahl der Personen: ${reservation.guests}
+      Datum: ${reservation.date}
+      Uhrzeit: ${reservation.time}
+      Anmerkungen: ${reservation.notes || "Keine"}
 
-      Görevler:
-      1. Müşteri için Türkçe, çok kibar, kısa ve samimi bir onay mesajı yaz (confirmationMessage).
-      2. Restoran sahibi/şef için kısa bir özet notu çıkar (chefNote). Eğer alerji veya özel istek varsa bunu vurgula. Eğer not yoksa "Standart Masa" yaz.
+      Aufgaben:
+      1. Verfasse eine sehr höfliche, kurze und freundliche Bestätigungsnachricht für den Kunden auf Deutsch (confirmationMessage).
+      2. Erstelle eine kurze Zusammenfassung für den Restaurantbesitzer/Koch (chefNote). Hebe Allergien oder Sonderwünsche hervor. Wenn keine Anmerkungen vorhanden sind, schreibe "Standardtisch".
 
-      Yanıtı JSON formatında ver.
+      Antworte im JSON-Format.
     `;
 
     const response = await ai.models.generateContent({
@@ -47,8 +47,8 @@ export const processReservationAI = async (
   } catch (error) {
     console.error("Gemini Error:", error);
     return {
-      confirmationMessage: "Rezervasyonunuz alındı. Sizi bekliyoruz!",
-      chefNote: reservation.notes || "Standart Masa",
+      confirmationMessage: "Ihre Reservierung wurde empfangen. Wir freuen uns auf Sie!",
+      chefNote: reservation.notes || "Standardtisch",
     };
   }
 };
