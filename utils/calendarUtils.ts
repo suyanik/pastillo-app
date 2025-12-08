@@ -29,16 +29,31 @@ TRIGGER:-PT15M
 END:VEVENT
 END:VCALENDAR`.trim();
 
-  // Dosya oluşturma ve indirme tetikleme
   const blob = new Blob([icsContent], { type: 'text/calendar;charset=utf-8' });
   const url = window.URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  // Dosya ismi temizleme
   const safeName = reservation.name.replace(/[^a-z0-9]/gi, '_').toLowerCase();
   link.setAttribute('download', `rezervasyon_${safeName}.ics`);
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
   window.URL.revokeObjectURL(url);
+};
+
+export const getGoogleCalendarUrl = (reservation: Reservation) => {
+  const startDateTime = new Date(`${reservation.date}T${reservation.time}`);
+  const endDateTime = new Date(startDateTime.getTime() + 2 * 60 * 60 * 1000); // 2 saat
+
+  const formatDate = (date: Date) => date.toISOString().replace(/-|:|\.\d+/g, '');
+
+  const params = new URLSearchParams({
+    action: 'TEMPLATE',
+    text: `🍽️ Rezervasyon: ${reservation.name} (${reservation.guests} Kişi)`,
+    details: `Müşteri: ${reservation.name}\nTel: ${reservation.phone}\nNot: ${reservation.notes || 'Yok'}\nŞef Notu: ${reservation.aiChefNote || ''}`,
+    location: 'Restoranım',
+    dates: `${formatDate(startDateTime)}/${formatDate(endDateTime)}`
+  });
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`;
 };
