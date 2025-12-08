@@ -1,7 +1,7 @@
 import React from 'react';
-import { CheckCircle, CalendarPlus, Home } from 'lucide-react';
+import { CheckCircle, CalendarPlus, Home, Smartphone } from 'lucide-react';
 import { Reservation } from '../types';
-import { downloadReservationICS } from '../utils/calendarUtils';
+import { downloadReservationICS, getGoogleCalendarUrl } from '../utils/calendarUtils';
 
 interface Props {
   reservation: Reservation;
@@ -10,8 +10,14 @@ interface Props {
 
 const SuccessView: React.FC<Props> = ({ reservation, onReset }) => {
 
-  const handleAddToCalendar = () => {
+  const handleAddToCalendarICS = () => {
+    if (navigator.vibrate) navigator.vibrate(50);
     downloadReservationICS(reservation);
+  };
+
+  const handleAddToGoogleCalendar = () => {
+    if (navigator.vibrate) navigator.vibrate(50);
+    window.open(getGoogleCalendarUrl(reservation), '_blank');
   };
 
   return (
@@ -42,19 +48,28 @@ const SuccessView: React.FC<Props> = ({ reservation, onReset }) => {
         </div>
       </div>
 
-      <button
-        onClick={handleAddToCalendar}
-        className="w-full bg-orange-600 hover:bg-orange-700 text-white py-4 rounded-xl font-bold shadow-lg shadow-orange-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3 mb-3"
-      >
-        <CalendarPlus size={22} />
-        Takvime Kaydet
-      </button>
+      <div className="grid grid-cols-1 gap-3 mb-3">
+        <button
+          onClick={handleAddToGoogleCalendar}
+          className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-bold shadow-lg shadow-blue-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+        >
+          <CalendarPlus size={20} />
+          Google Takvim'e Ekle
+        </button>
+
+        <button
+          onClick={handleAddToCalendarICS}
+          className="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-3.5 rounded-xl font-semibold active:scale-[0.98] transition-all flex items-center justify-center gap-3"
+        >
+          <Smartphone size={20} />
+          Takvim Dosyası İndir (.ics)
+        </button>
+      </div>
 
       <button
         onClick={onReset}
-        className="w-full bg-white border-2 border-slate-100 hover:bg-slate-50 text-slate-600 py-3.5 rounded-xl font-semibold active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+        className="w-full mt-4 text-slate-500 py-2 text-sm font-medium hover:text-slate-800 transition-colors"
       >
-        <Home size={20} />
         Ana Sayfaya Dön
       </button>
     </div>
