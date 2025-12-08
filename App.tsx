@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { LayoutDashboard, PlusCircle, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, PlusCircle } from 'lucide-react';
 import ReservationForm from './components/ReservationForm';
 import SuccessView from './components/SuccessView';
 import ManagerDashboard from './components/ManagerDashboard';
-import AdminLogin from './components/AdminLogin';
 import { Reservation } from './types';
 import { processReservationAI } from './services/geminiService';
 
@@ -13,10 +12,6 @@ const App: React.FC = () => {
   const [currentReservation, setCurrentReservation] = useState<Reservation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   
-  // Admin Authentication State
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [showAdminLogin, setShowAdminLogin] = useState(false);
-
   const triggerNotification = (reservation: Reservation) => {
     if (!('Notification' in window)) return;
     
@@ -61,33 +56,15 @@ const App: React.FC = () => {
     setReservations(prev => prev.filter(r => r.id !== id));
   };
 
-  // Yönetim paneline geçiş kontrolü
+  // Yönetim paneline geçiş
   const handleManagerClick = () => {
     if (navigator.vibrate) navigator.vibrate(10);
-    if (isAdminAuthenticated) {
-      setView('manager');
-    } else {
-      setShowAdminLogin(true);
-    }
-  };
-
-  const handleAdminLoginSuccess = () => {
-    setIsAdminAuthenticated(true);
-    setShowAdminLogin(false);
     setView('manager');
   };
 
   return (
     <div className="min-h-screen bg-[#111111] text-white font-sans pb-safe selection:bg-primary selection:text-black">
       
-      {/* Admin Login Modal */}
-      {showAdminLogin && (
-        <AdminLogin 
-          onLogin={handleAdminLoginSuccess} 
-          onCancel={() => setShowAdminLogin(false)} 
-        />
-      )}
-
       {/* Dynamic Header */}
       <header className={`sticky top-0 z-10 transition-all duration-300 px-6 py-5 flex items-center justify-between border-b border-white/10 ${view === 'manager' ? 'bg-[#1c1c1c]' : 'bg-[#111111]/80 backdrop-blur-md'}`}>
         <div className="flex items-center gap-3">
@@ -97,20 +74,9 @@ const App: React.FC = () => {
             </svg>
           </div>
           <div>
-             <h1 className="text-xl font-bold tracking-tight leading-none text-white">Pastillo</h1>
+             <h1 className="text-xl font-bold tracking-tight leading-none text-white">Pastillo <span className="text-primary font-light">&</span> Bar</h1>
           </div>
         </div>
-        {view === 'manager' && (
-          <button 
-            onClick={() => {
-              setIsAdminAuthenticated(false);
-              setView('form');
-            }}
-            className="text-xs font-bold text-white/60 bg-white/10 px-3 py-1.5 rounded-lg border border-white/5"
-          >
-            Abmelden
-          </button>
-        )}
       </header>
 
       {/* Main Content Area */}
