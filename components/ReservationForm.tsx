@@ -8,10 +8,19 @@ interface Props {
 }
 
 const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
+  // Varsayılan tarihi yerel saat dilimine göre ayarla (UTC hatasını önle)
+  const getLocalDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
-    date: new Date().toISOString().split('T')[0],
+    date: getLocalDate(),
     time: '19:00',
     guests: 2,
     notes: ''
