@@ -30,6 +30,7 @@ const App: React.FC = () => {
 
   const handleReservationSubmit = async (data: Omit<Reservation, "id" | "createdAt">) => {
     setIsLoading(true);
+    if (navigator.vibrate) navigator.vibrate(20);
     
     // Process with AI
     const aiResponse = await processReservationAI(data);
@@ -50,7 +51,12 @@ const App: React.FC = () => {
     triggerNotification(newReservation);
 
     setIsLoading(false);
+    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
     setView('success');
+  };
+
+  const handleDeleteReservation = (id: string) => {
+    setReservations(prev => prev.filter(r => r.id !== id));
   };
 
   return (
@@ -86,7 +92,10 @@ const App: React.FC = () => {
 
         {view === 'manager' && (
           <div className="animate-in fade-in duration-300">
-            <ManagerDashboard reservations={reservations} />
+            <ManagerDashboard 
+              reservations={reservations} 
+              onDelete={handleDeleteReservation}
+            />
           </div>
         )}
       </main>
@@ -94,7 +103,10 @@ const App: React.FC = () => {
       {/* Bottom Navigation (Simulating App Tab Bar) */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-6 py-3 pb-safe flex justify-around items-center z-20 max-w-md mx-auto">
         <button 
-          onClick={() => setView('form')}
+          onClick={() => {
+            if (navigator.vibrate) navigator.vibrate(10);
+            setView('form');
+          }}
           className={`flex flex-col items-center gap-1 transition-colors ${view === 'form' || view === 'success' ? 'text-orange-600' : 'text-slate-400'}`}
         >
           <PlusCircle size={24} />
@@ -102,13 +114,16 @@ const App: React.FC = () => {
         </button>
         
         <button 
-          onClick={() => setView('manager')}
+          onClick={() => {
+            if (navigator.vibrate) navigator.vibrate(10);
+            setView('manager');
+          }}
           className={`flex flex-col items-center gap-1 transition-colors relative ${view === 'manager' ? 'text-orange-600' : 'text-slate-400'}`}
         >
           <LayoutDashboard size={24} />
           <span className="text-[10px] font-medium">Yönetim</span>
           {reservations.length > 0 && (
-            <span className="absolute -top-1 right-2 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
+            <span className="absolute -top-1 right-2 w-4 h-4 bg-red-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center animate-pulse">
               {reservations.length}
             </span>
           )}
