@@ -4,7 +4,7 @@ import { GeminiResponse, Reservation } from "../types";
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export const processReservationAI = async (
-  reservation: Omit<Reservation, "id" | "createdAt" | "aiConfirmationMessage" | "aiChefNote">
+  reservation: Omit<Reservation, "id" | "createdAt" | "aiConfirmationMessage" | "aiChefNote" | "status">
 ): Promise<GeminiResponse> => {
   try {
     const prompt = `
