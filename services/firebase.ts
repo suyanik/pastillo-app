@@ -15,12 +15,13 @@ import { Reservation } from "../types";
 // LÜTFEN DİKKAT: Aşağıdaki alanları kendi Firebase Konsolunuzdan aldığınız bilgilerle doldurun.
 // Bu bilgiler olmadan veritabanı çalışmaz.
 const firebaseConfig = {
-  apiKey: "BURAYA_FIREBASE_API_KEY_GELECEK",
-  authDomain: "BURAYA_PROJECT_ID.firebaseapp.com",
-  projectId: "BURAYA_PROJECT_ID",
-  storageBucket: "BURAYA_PROJECT_ID.appspot.com",
-  messagingSenderId: "BURAYA_SENDER_ID",
-  appId: "BURAYA_APP_ID"
+  apiKey: "AIzaSyCdu-FAv6bQiaFJGZdescMJJKcq7a8vre8",
+  authDomain: "pastillo-app.firebaseapp.com",
+  projectId: "pastillo-app",
+  storageBucket: "pastillo-app.firebasestorage.app",
+  messagingSenderId: "382249192976",
+  appId: "1:382249192976:web:de235ec9d612324ca68495",
+  measurementId: "G-SFE0D0Z1ZW"
 };
 
 // Uygulamayı başlat
