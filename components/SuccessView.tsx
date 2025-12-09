@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Reservation } from '../types';
 import { downloadReservationICS, getGoogleCalendarUrl } from '../utils/calendarUtils';
-import { Calendar, CheckCircle2, Home } from 'lucide-react';
+import { Calendar, CheckCircle2, Home, Share2 } from 'lucide-react';
 
 interface Props {
   reservation: Reservation;
@@ -11,13 +11,8 @@ interface Props {
 const SuccessView: React.FC<Props> = ({ reservation, onReset }) => {
 
   // Sayfa açıldığında otomatik olarak takvime eklemeyi dene (Kullanıcı deneyimi için)
-  // Not: iOS Safari bazen kullanıcı etkileşimi olmadan indirmeyi engelleyebilir, bu yüzden buton hala gereklidir.
   useEffect(() => {
-    const timer = setTimeout(() => {
-       // Otomatik indirmeyi çok agresif yapmamak için yorum satırına aldım.
-       // İstenirse burası açılabilir: downloadReservationICS(reservation);
-    }, 1000);
-    return () => clearTimeout(timer);
+    // İstenirse burası açılabilir
   }, [reservation]);
 
   const handleAddToCalendarICS = () => {
@@ -28,6 +23,19 @@ const SuccessView: React.FC<Props> = ({ reservation, onReset }) => {
   const handleAddToGoogleCalendar = () => {
     if (navigator.vibrate) navigator.vibrate(50);
     window.open(getGoogleCalendarUrl(reservation), '_blank');
+  };
+
+  const handleShareWhatsapp = () => {
+    if (navigator.vibrate) navigator.vibrate(50);
+    
+    // Tarihi formatla
+    const dateObj = new Date(reservation.date);
+    const dateStr = dateObj.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
+
+    const text = `🍽️ Reservierung bei Pastillo\n\n📅 Datum: ${dateStr}\n⏰ Zeit: ${reservation.time}\n👤 Personen: ${reservation.guests}\n\nIch freue mich! 🥂`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    
+    window.open(url, '_blank');
   };
 
   return (
@@ -54,11 +62,13 @@ const SuccessView: React.FC<Props> = ({ reservation, onReset }) => {
         <div className="grid grid-cols-1 gap-y-1">
             <div className="flex justify-between py-2 border-b border-white/5 last:border-0">
                 <span className="text-white/50 text-sm">Datum</span>
-                <span className="text-white text-sm font-medium">{reservation.date}</span>
+                <span className="text-white text-sm font-medium">
+                  {new Date(reservation.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                </span>
             </div>
             <div className="flex justify-between py-2 border-b border-white/5 last:border-0">
                 <span className="text-white/50 text-sm">Uhrzeit</span>
-                <span className="text-white text-sm font-medium">{reservation.time}</span>
+                <span className="text-white text-sm font-medium">{reservation.time} Uhr</span>
             </div>
             <div className="flex justify-between py-2 border-b border-white/5 last:border-0">
                 <span className="text-white/50 text-sm">Name</span>
@@ -80,13 +90,23 @@ const SuccessView: React.FC<Props> = ({ reservation, onReset }) => {
              <Calendar size={20} strokeWidth={2.5} />
              In Kalender speichern
           </button>
-          
-          <button 
-             onClick={handleAddToGoogleCalendar}
-             className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white py-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2"
-          >
-             Google Kalender
-          </button>
+
+          <div className="grid grid-cols-2 gap-3">
+             <button 
+                onClick={handleAddToGoogleCalendar}
+                className="w-full bg-white/5 border border-white/10 hover:bg-white/10 text-white py-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2"
+              >
+                Google Kalender
+              </button>
+              
+              <button 
+                onClick={handleShareWhatsapp}
+                className="w-full bg-[#25D366]/20 border border-[#25D366]/30 hover:bg-[#25D366]/30 text-[#25D366] py-3 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2"
+              >
+                <Share2 size={16} />
+                WhatsApp
+              </button>
+          </div>
 
           <button 
             onClick={onReset}
