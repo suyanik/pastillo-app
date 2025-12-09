@@ -3,7 +3,7 @@ import { Users, Phone, User, Loader2, MessageSquare, Minus, Plus } from 'lucide-
 import { Reservation } from '../types';
 
 interface Props {
-  onSubmit: (data: Omit<Reservation, "id" | "createdAt">) => Promise<void>;
+  onSubmit: (data: Omit<Reservation, "id" | "createdAt" | "status" | "aiConfirmationMessage" | "aiChefNote">) => Promise<void>;
   isLoading: boolean;
 }
 
