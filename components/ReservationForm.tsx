@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Users, Phone, User, Loader2, MessageSquare, Minus, Plus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Users, Phone, User, Loader2, MessageSquare, Minus, Plus, Calendar, Clock } from 'lucide-react';
 import { Reservation } from '../types';
 
 interface Props {
@@ -21,10 +21,50 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
     name: '',
     phone: '',
     date: getLocalDate(),
-    time: '19:00',
+    time: '',
     guests: 2,
     notes: ''
   });
+
+  // Saat dilimlerini oluştur
+  const generateTimeSlots = () => {
+    const slots = [];
+    const startHour = 17; // Açılış 17:00
+    const endHour = 22;   // Son mutfak siparişi 22:00
+    
+    // Seçilen tarih bugün mü?
+    const isToday = formData.date === getLocalDate();
+    const now = new Date();
+    const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
+
+    for (let hour = startHour; hour <= endHour; hour++) {
+      const timeStringFull = `${hour}:00`;
+      const timeStringHalf = `${hour}:30`;
+
+      // Eğer bugün ise ve saat geçtiyse listeye ekleme
+      if (!isToday || hour > currentHour || (hour === currentHour && currentMinute < 0)) {
+         slots.push(timeStringFull);
+      }
+      
+      // Buçuklu saat kontrolü
+      if (hour !== endHour) { // 22:30 olmasın
+        if (!isToday || hour > currentHour || (hour === currentHour && currentMinute < 30)) {
+          slots.push(timeStringHalf);
+        }
+      }
+    }
+    return slots;
+  };
+
+  const timeSlots = generateTimeSlots();
+
+  // Eğer mevcut seçili saat artık geçerli değilse (örn: gün değişti), saati sıfırla
+  useEffect(() => {
+    if (formData.time && !timeSlots.includes(formData.time)) {
+      setFormData(prev => ({ ...prev, time: '' }));
+    }
+  }, [formData.date]);
 
   const handleGuestChange = (amount: number) => {
     setFormData(prev => ({
@@ -35,11 +75,15 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!formData.time) {
+      alert("Bitte wählen Sie eine Uhrzeit.");
+      return;
+    }
     onSubmit(formData);
   };
 
   return (
-    <div className="glass p-6 sm:p-8 rounded-xl w-full">
+    <div className="glass p-6 sm:p-8 rounded-xl w-full mb-12">
       <div className="flex items-center gap-4 mb-8">
         <div className="bg-primary/20 p-3 rounded-full text-primary">
             <svg fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
@@ -48,13 +92,90 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
         </div>
         <div>
            <h2 className="text-xl font-bold text-white leading-tight">Tisch reservieren</h2>
-           <p className="text-sm text-white/60">Sichern Sie sich Ihren Platz für genussvolle Momente.</p>
+           <p className="text-sm text-white/60">Sichern Sie sich Ihren Platz.</p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Name & Phone Group */}
-        <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-8">
+        
+        {/* Date Selection */}
+        <div className="space-y-3">
+          <label className="flex items-center gap-2 text-sm font-medium text-white/80">
+            <Calendar size={16} className="text-primary"/> 
+            Datum wählen
+          </label>
+          <input
+            required
+            type="date"
+            min={getLocalDate()} // Geçmiş tarih seçilemez
+            className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-base [color-scheme:dark] appearance-none"
+            value={formData.date}
+            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+          />
+        </div>
+
+        {/* Time Selection (Chips) */}
+        <div className="space-y-3">
+          <label className="flex items-center gap-2 text-sm font-medium text-white/80">
+            <Clock size={16} className="text-primary"/> 
+            Verfügbare Zeiten
+          </label>
+          
+          {timeSlots.length > 0 ? (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-48 overflow-y-auto no-scrollbar py-1">
+              {timeSlots.map((slot) => (
+                <button
+                  key={slot}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, time: slot })}
+                  className={`py-2.5 px-2 rounded-lg text-sm font-medium transition-all duration-200 border ${
+                    formData.time === slot
+                      ? 'bg-primary text-black border-primary shadow-lg scale-[1.02]'
+                      : 'bg-white/5 text-white border-white/10 hover:bg-white/10 hover:border-white/30'
+                  }`}
+                >
+                  {slot}
+                </button>
+              ))}
+            </div>
+          ) : (
+            <div className="p-4 bg-white/5 rounded-lg border border-white/10 text-center text-sm text-white/50">
+              Für heute sind leider keine Zeiten mehr verfügbar.
+            </div>
+          )}
+        </div>
+
+        {/* Guest Count */}
+        <div className="space-y-3">
+          <label className="flex items-center gap-2 text-sm font-medium text-white/80">
+            <Users size={16} className="text-primary"/> 
+            Anzahl der Personen
+          </label>
+          <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl p-2">
+             <button
+               type="button"
+               onClick={() => handleGuestChange(-1)}
+               className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center text-white hover:bg-white/20 active:scale-95 transition-all"
+             >
+               <Minus size={20} />
+             </button>
+             
+             <div className="flex-1 text-center">
+               <span className="text-2xl font-bold text-white">{formData.guests}</span>
+             </div>
+
+             <button
+               type="button"
+               onClick={() => handleGuestChange(1)}
+               className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center text-white hover:bg-white/20 active:scale-95 transition-all"
+             >
+               <Plus size={20} />
+             </button>
+          </div>
+        </div>
+
+        {/* Personal Details */}
+        <div className="space-y-4 pt-2">
           <div className="group relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <User className="text-white/40" size={18} />
@@ -68,7 +189,7 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             />
             <label className="absolute left-10 -top-2.5 bg-[#111111] px-1 text-xs text-primary transition-all peer-placeholder-shown:text-base peer-placeholder-shown:text-white/40 peer-placeholder-shown:top-3 peer-focus:-top-2.5 peer-focus:text-xs peer-focus:text-primary">
-              Name
+              Vor- und Nachname
             </label>
           </div>
 
@@ -88,89 +209,25 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
               Telefonnummer
             </label>
           </div>
-        </div>
 
-        {/* Date & Time Group */}
-        <div className="grid grid-cols-2 gap-4">
           <div className="relative">
-            <label className="block text-xs font-medium text-white/60 mb-1.5 ml-1">Datum</label>
-            <input
-              required
-              type="date"
-              className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm [color-scheme:dark]"
-              value={formData.date}
-              onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-            />
-          </div>
-          <div className="relative">
-            <label className="block text-xs font-medium text-white/60 mb-1.5 ml-1">Uhrzeit</label>
-            <input
-              required
-              type="time"
-              className="w-full bg-white/5 border border-white/10 rounded-lg py-3 px-3 text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm [color-scheme:dark]"
-              value={formData.time}
-              onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-            />
-          </div>
-        </div>
-
-        {/* Guest Count (Manual Input) */}
-        <div className="bg-white/5 border border-white/10 rounded-lg p-4">
-          <label className="text-xs font-medium text-white/60 mb-3 block">Anzahl der Personen</label>
-          <div className="flex items-center gap-4">
-             <button
-               type="button"
-               onClick={() => handleGuestChange(-1)}
-               className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center text-white hover:bg-white/20 active:scale-95 transition-all"
-             >
-               <Minus size={20} />
-             </button>
-             
-             <div className="relative flex-1">
-               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Users size={18} className="text-primary"/> 
-               </div>
-               <input
-                 type="number"
-                 min="1"
-                 required
-                 className="w-full bg-black/20 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-center text-xl font-bold text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
-                 value={formData.guests}
-                 onChange={(e) => {
-                   const val = parseInt(e.target.value);
-                   setFormData({ ...formData, guests: isNaN(val) ? 0 : val });
-                 }}
-               />
-             </div>
-
-             <button
-               type="button"
-               onClick={() => handleGuestChange(1)}
-               className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center text-white hover:bg-white/20 active:scale-95 transition-all"
-             >
-               <Plus size={20} />
-             </button>
-          </div>
-        </div>
-
-        {/* Notes */}
-        <div className="relative">
              <div className="absolute top-3 left-3 pointer-events-none">
               <MessageSquare className="text-white/40" size={18} />
             </div>
              <textarea
               placeholder="Anmerkungen (Allergien, Sonderwünsche...)"
-              rows={3}
+              rows={2}
               className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder-white/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-sm resize-none"
               value={formData.notes}
               onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             />
+          </div>
         </div>
 
         <button
           type="submit"
-          disabled={isLoading || formData.guests < 1}
-          className="w-full bg-primary hover:bg-primary/90 text-black py-4 rounded-lg font-bold text-lg shadow-lg shadow-primary/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed mt-4"
+          disabled={isLoading || !formData.time || timeSlots.length === 0}
+          className="w-full bg-primary hover:bg-primary/90 text-black py-4 rounded-xl font-bold text-lg shadow-lg shadow-primary/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
         >
           {isLoading ? (
             <>
@@ -178,7 +235,7 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading }) => {
               Wird verarbeitet...
             </>
           ) : (
-            'Reservierung bestätigen'
+            'Kostenpflichtig buchen'
           )}
         </button>
       </form>
