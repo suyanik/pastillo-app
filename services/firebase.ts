@@ -1,19 +1,7 @@
-import { initializeApp } from "firebase/app";
-import { 
-  getFirestore, 
-  collection, 
-  addDoc, 
-  deleteDoc, 
-  doc, 
-  onSnapshot, 
-  query, 
-  orderBy,
-  serverTimestamp 
-} from "firebase/firestore";
+import firebase from "firebase/app";
+import "firebase/firestore";
 import { Reservation } from "../types";
 
-// LÜTFEN DİKKAT: Aşağıdaki alanları kendi Firebase Konsolunuzdan aldığınız bilgilerle doldurun.
-// Bu bilgiler olmadan veritabanı çalışmaz.
 const firebaseConfig = {
   apiKey: "AIzaSyCdu-FAv6bQiaFJGZdescMJJKcq7a8vre8",
   authDomain: "pastillo-app.firebaseapp.com",
@@ -24,19 +12,18 @@ const firebaseConfig = {
   measurementId: "G-SFE0D0Z1ZW"
 };
 
-// Uygulamayı başlat
-// Eğer config boşsa (ilk kurulumda) hata vermemesi için kontrol
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+// Initialize Firebase
+const app = firebase.apps.length === 0 ? firebase.initializeApp(firebaseConfig) : firebase.app();
+const db = app.firestore();
 
 const COLLECTION_NAME = "reservations";
 
 // Rezervasyon Ekleme
 export const addReservationToDB = async (reservation: Omit<Reservation, "id" | "createdAt">) => {
   try {
-    await addDoc(collection(db, COLLECTION_NAME), {
+    await db.collection(COLLECTION_NAME).add({
       ...reservation,
-      createdAt: serverTimestamp() // Sunucu saatini kullan
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   } catch (error) {
     console.error("Error adding reservation: ", error);
@@ -47,7 +34,7 @@ export const addReservationToDB = async (reservation: Omit<Reservation, "id" | "
 // Rezervasyon Silme
 export const deleteReservationFromDB = async (id: string) => {
   try {
-    await deleteDoc(doc(db, COLLECTION_NAME, id));
+    await db.collection(COLLECTION_NAME).doc(id).delete();
   } catch (error) {
     console.error("Error deleting reservation: ", error);
     throw error;
@@ -56,17 +43,16 @@ export const deleteReservationFromDB = async (id: string) => {
 
 // Gerçek Zamanlı Dinleme (Realtime Listener)
 export const subscribeToReservations = (callback: (data: Reservation[]) => void) => {
-  const q = query(collection(db, COLLECTION_NAME), orderBy("createdAt", "desc"));
-  
-  // onSnapshot: Veritabanında bir değişiklik olduğunda otomatik tetiklenir
-  return onSnapshot(q, (snapshot) => {
-    const reservations = snapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data(),
-      // Firestore timestamp'i number'a çeviriyoruz (UI uyumluluğu için)
-      createdAt: doc.data().createdAt?.toMillis() || Date.now()
-    })) as Reservation[];
-    
-    callback(reservations);
-  });
+  return db.collection(COLLECTION_NAME)
+    .orderBy("createdAt", "desc")
+    .onSnapshot((snapshot) => {
+      const reservations = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+        // Firestore timestamp'i number'a çeviriyoruz (UI uyumluluğu için)
+        createdAt: (doc.data().createdAt as any)?.toMillis() || Date.now()
+      })) as Reservation[];
+      
+      callback(reservations);
+    });
 };
