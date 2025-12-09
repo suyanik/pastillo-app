@@ -1,3 +1,5 @@
+export type ReservationStatus = 'confirmed' | 'pending' | 'cancelled';
+
 export interface Reservation {
   id: string;
   name: string;
@@ -7,6 +9,7 @@ export interface Reservation {
   guests: number;
   notes: string;
   createdAt: number;
+  status: ReservationStatus;
   // AI Generated fields
   aiConfirmationMessage?: string;
   aiChefNote?: string; // Summary for the owner/kitchen
