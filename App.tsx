@@ -4,6 +4,7 @@ import ReservationForm from './components/ReservationForm';
 import SuccessView from './components/SuccessView';
 import ManagerDashboard from './components/ManagerDashboard';
 import AdminLogin from './components/AdminLogin';
+import InstallPrompt from './components/InstallPrompt';
 import { Reservation, ReservationStatus } from './types';
 import { processReservationAI } from './services/geminiService';
 import { addReservationToDB, deleteReservationFromDB, updateReservationStatus, subscribeToReservations } from './services/firebase';
@@ -132,6 +133,9 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#111111] text-white font-sans pb-safe selection:bg-primary selection:text-black">
       
+      {/* iOS Install Prompt */}
+      <InstallPrompt />
+
       {/* Admin Login Modal */}
       {showLogin && (
         <AdminLogin 
@@ -211,7 +215,7 @@ const App: React.FC = () => {
             {view === 'manager' && <span className="text-sm font-bold">Admin</span>}
             
             {/* Notification Badge - Sadece bekleyen/onaylı rezervasyonlar için */}
-            {reservations.filter(r => r.status !== 'cancelled').length > 0 && view !== 'manager' && (
+            {reservations.filter(r => r.status !== 'cancelled' && r.status !== 'seated').length > 0 && view !== 'manager' && (
               <span className="absolute top-2 right-8 w-2.5 h-2.5 bg-primary rounded-full border-2 border-black"></span>
             )}
           </button>
