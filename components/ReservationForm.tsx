@@ -9,7 +9,7 @@ interface Props {
 }
 
 // Mutfak / Servis kotası: Her 30 dakikalık blok için maksimum kişi sayısı
-const MAX_GUESTS_PER_SLOT = 16; 
+const MAX_GUESTS_PER_SLOT = 100; 
 
 const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReservations }) => {
   // Varsayılan tarihi yerel saat dilimine göre ayarla
