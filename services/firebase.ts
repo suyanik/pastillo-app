@@ -1,6 +1,6 @@
-import firebase from "firebase/app";
-import "firebase/firestore";
-import { Reservation } from "../types";
+import firebase from "firebase/compat/app";
+import "firebase/compat/firestore";
+import { Reservation, ReservationStatus } from "../types";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCdu-FAv6bQiaFJGZdescMJJKcq7a8vre8",
@@ -27,6 +27,16 @@ export const addReservationToDB = async (reservation: Omit<Reservation, "id" | "
     });
   } catch (error) {
     console.error("Error adding reservation: ", error);
+    throw error;
+  }
+};
+
+// Rezervasyon Durumu Güncelleme
+export const updateReservationStatus = async (id: string, status: ReservationStatus) => {
+  try {
+    await db.collection(COLLECTION_NAME).doc(id).update({ status });
+  } catch (error) {
+    console.error("Error updating reservation status: ", error);
     throw error;
   }
 };
