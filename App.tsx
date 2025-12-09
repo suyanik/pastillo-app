@@ -1,18 +1,40 @@
-import React, { useState } from 'react';
-import { LayoutDashboard, PlusCircle } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { LayoutDashboard, PlusCircle, AlertTriangle } from 'lucide-react';
 import ReservationForm from './components/ReservationForm';
 import SuccessView from './components/SuccessView';
 import ManagerDashboard from './components/ManagerDashboard';
-import { Reservation } from './types';
+import AdminLogin from './components/AdminLogin';
+import { Reservation, ReservationStatus } from './types';
 import { processReservationAI } from './services/geminiService';
+import { addReservationToDB, deleteReservationFromDB, updateReservationStatus, subscribeToReservations } from './services/firebase';
 
 const App: React.FC = () => {
   const [view, setView] = useState<'form' | 'success' | 'manager'>('form');
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [currentReservation, setCurrentReservation] = useState<Reservation | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [dbError, setDbError] = useState(false);
   
-  const triggerNotification = (reservation: Reservation) => {
+  // Admin Login State
+  const [showLogin, setShowLogin] = useState(false);
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  
+  // Firebase'i dinle (Realtime Updates)
+  useEffect(() => {
+    try {
+      const unsubscribe = subscribeToReservations((data) => {
+        setReservations(data);
+        setDbError(false);
+      });
+
+      return () => unsubscribe();
+    } catch (err) {
+      console.error("Firebase connection error:", err);
+      setDbError(true);
+    }
+  }, []);
+
+  const triggerNotification = (reservation: Omit<Reservation, "id" | "createdAt">) => {
     if (!('Notification' in window)) return;
     
     if (Notification.permission === 'granted') {
@@ -28,43 +50,96 @@ const App: React.FC = () => {
     }
   };
 
-  const handleReservationSubmit = async (data: Omit<Reservation, "id" | "createdAt">) => {
+  const handleReservationSubmit = async (data: Omit<Reservation, "id" | "createdAt" | "status">) => {
     setIsLoading(true);
     if (navigator.vibrate) navigator.vibrate(20);
     
-    // Process with AI
-    const aiResponse = await processReservationAI(data);
+    try {
+      // 1. Yapay Zeka ile İşle
+      const aiResponse = await processReservationAI(data);
 
-    const newReservation: Reservation = {
-      ...data,
-      id: Math.random().toString(36).substr(2, 9),
-      createdAt: Date.now(),
-      aiConfirmationMessage: aiResponse.confirmationMessage,
-      aiChefNote: aiResponse.chefNote
-    };
+      const reservationData = {
+        ...data,
+        status: 'confirmed' as ReservationStatus, // Varsayılan olarak onaylı
+        aiConfirmationMessage: aiResponse.confirmationMessage,
+        aiChefNote: aiResponse.chefNote
+      };
 
-    setReservations(prev => [newReservation, ...prev]);
-    setCurrentReservation(newReservation);
-    triggerNotification(newReservation);
+      // 2. Firebase'e Kaydet
+      await addReservationToDB(reservationData);
 
-    setIsLoading(false);
-    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
-    setView('success');
+      // UI Güncellemeleri
+      setCurrentReservation({
+        ...reservationData,
+        id: "temp-id",
+        createdAt: Date.now()
+      });
+      
+      triggerNotification(reservationData);
+
+      setIsLoading(false);
+      if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+      setView('success');
+    } catch (error) {
+      console.error("Reservation failed:", error);
+      alert("Hata: Rezervasyon kaydedilemedi. Lütfen internet bağlantınızı kontrol edin.");
+      setIsLoading(false);
+    }
   };
 
-  const handleDeleteReservation = (id: string) => {
-    setReservations(prev => prev.filter(r => r.id !== id));
+  const handleDeleteReservation = async (id: string) => {
+    try {
+      await deleteReservationFromDB(id);
+    } catch (error) {
+      alert("Silme işlemi başarısız oldu.");
+    }
   };
 
-  // Yönetim paneline geçiş
+  const handleStatusUpdate = async (id: string, status: ReservationStatus) => {
+    try {
+      await updateReservationStatus(id, status);
+    } catch (error) {
+      alert("Durum güncellemesi başarısız oldu.");
+    }
+  };
+
   const handleManagerClick = () => {
     if (navigator.vibrate) navigator.vibrate(10);
+    
+    if (isAdminLoggedIn) {
+      setView('manager');
+    } else {
+      setShowLogin(true);
+    }
+  };
+
+  const handleLoginSuccess = () => {
+    setIsAdminLoggedIn(true);
+    setShowLogin(false);
     setView('manager');
   };
+
+  if (dbError) {
+    return (
+      <div className="min-h-screen bg-[#111111] text-white flex flex-col items-center justify-center p-6 text-center">
+        <AlertTriangle className="text-primary mb-4" size={48} />
+        <h2 className="text-xl font-bold mb-2">Datenbankverbindung fehlt</h2>
+        <p className="text-white/60 mb-6">Bitte überprüfen Sie die Firebase-Konfiguration.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#111111] text-white font-sans pb-safe selection:bg-primary selection:text-black">
       
+      {/* Admin Login Modal */}
+      {showLogin && (
+        <AdminLogin 
+          onLogin={handleLoginSuccess}
+          onCancel={() => setShowLogin(false)}
+        />
+      )}
+
       {/* Dynamic Header */}
       <header className={`sticky top-0 z-10 transition-all duration-300 px-6 py-5 flex items-center justify-between border-b border-white/10 ${view === 'manager' ? 'bg-[#1c1c1c]' : 'bg-[#111111]/80 backdrop-blur-md'}`}>
         <div className="flex items-center gap-3">
@@ -103,6 +178,7 @@ const App: React.FC = () => {
             <ManagerDashboard 
               reservations={reservations} 
               onDelete={handleDeleteReservation}
+              onStatusUpdate={handleStatusUpdate}
             />
           </div>
         )}
@@ -130,8 +206,8 @@ const App: React.FC = () => {
             <LayoutDashboard size={20} strokeWidth={2.5} />
             {view === 'manager' && <span className="text-sm font-bold">Admin</span>}
             
-            {/* Notification Badge */}
-            {reservations.length > 0 && view !== 'manager' && (
+            {/* Notification Badge - Sadece bekleyen/onaylı rezervasyonlar için */}
+            {reservations.filter(r => r.status !== 'cancelled').length > 0 && view !== 'manager' && (
               <span className="absolute top-2 right-8 w-2.5 h-2.5 bg-primary rounded-full border-2 border-black"></span>
             )}
           </button>
