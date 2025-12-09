@@ -2,10 +2,14 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import { Reservation, ReservationStatus } from "../types";
 
+// ------------------------------------------------------------------
+// ÖNEMLİ: Kendi Firebase Proje Ayarlarınızı buraya yapıştırın.
+// Firebase Console -> Project Settings -> General -> Your Apps -> SDK Setup and Configuration
+// ------------------------------------------------------------------
 const firebaseConfig = {
-  apiKey: "AIzaSyCdu-FAv6bQiaFJGZdescMJJKcq7a8vre8",
-  authDomain: "pastillo-app.firebaseapp.com",
-  projectId: "pastillo-app",
+  apiKey: "AIzaSyCdu-FAv6bQiaFJGZdescMJJKcq7a8vre8", // Kendi API Key'inizi buraya yapıştırın
+  authDomain: "pastillo-app.firebaseapp.com",        // Kendi Auth Domain'iniz
+  projectId: "pastillo-app",                         // Kendi Project ID'niz
   storageBucket: "pastillo-app.firebasestorage.app",
   messagingSenderId: "382249192976",
   appId: "1:382249192976:web:de235ec9d612324ca68495",
@@ -16,6 +20,17 @@ const firebaseConfig = {
 const app = firebase.apps.length === 0 ? firebase.initializeApp(firebaseConfig) : firebase.app();
 const db = app.firestore();
 
+// Çevrimdışı Veri Kalıcılığını Aktif Et (Offline Persistence)
+// Restoran içinde internet gitse bile uygulamanın çalışmasını sağlar.
+db.enablePersistence()
+  .catch((err) => {
+    if (err.code == 'failed-precondition') {
+      console.warn("Offline persistence failed: Multiple tabs open.");
+    } else if (err.code == 'unimplemented') {
+      console.warn("Offline persistence is not available in this browser.");
+    }
+  });
+
 const COLLECTION_NAME = "reservations";
 
 // Rezervasyon Ekleme
@@ -23,7 +38,7 @@ export const addReservationToDB = async (reservation: Omit<Reservation, "id" | "
   try {
     await db.collection(COLLECTION_NAME).add({
       ...reservation,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: firebase.firestore.FieldValue.serverTimestamp() // Sunucu zamanı
     });
   } catch (error) {
     console.error("Error adding reservation: ", error);
@@ -56,13 +71,19 @@ export const subscribeToReservations = (callback: (data: Reservation[]) => void)
   return db.collection(COLLECTION_NAME)
     .orderBy("createdAt", "desc")
     .onSnapshot((snapshot) => {
-      const reservations = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        // Firestore timestamp'i number'a çeviriyoruz (UI uyumluluğu için)
-        createdAt: (doc.data().createdAt as any)?.toMillis() || Date.now()
-      })) as Reservation[];
+      const reservations = snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          ...data,
+          // Firestore timestamp'i number'a çeviriyoruz (UI uyumluluğu için)
+          // Veri henüz sunucuya yazılmadıysa (local write) timestamp null olabilir, bu durumda şimdiki zamanı kullan.
+          createdAt: (data.createdAt as any)?.toMillis() || Date.now()
+        };
+      }) as Reservation[];
       
       callback(reservations);
+    }, (error) => {
+      console.error("Firebase subscription error:", error);
     });
 };
