@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { Reservation, ReservationStatus } from '../types';
 import { getGoogleCalendarUrl } from '../utils/calendarUtils';
-import { Trash2, XCircle, Users, CalendarCheck, CalendarDays, FilterX } from 'lucide-react';
+import { Trash2, XCircle, Users, CalendarCheck, CalendarDays, FilterX, UserCheck, CheckCircle2 } from 'lucide-react';
 
 interface Props {
   reservations: Reservation[];
@@ -26,6 +26,11 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
       if (navigator.vibrate) navigator.vibrate(50);
       onStatusUpdate(id, 'cancelled');
     }
+  };
+
+  const handleCheckIn = (id: string) => {
+    if (navigator.vibrate) navigator.vibrate(50);
+    onStatusUpdate(id, 'seated');
   };
   
   const handleDelete = (id: string) => {
@@ -70,10 +75,13 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
     // İstatistikler her zaman seçili güne odaklanmalı (veya tarih seçili değilse tümüne)
     const targetReservations = filteredReservations.filter(r => r.status !== 'cancelled');
     
+    // Check-in yapmış (seated) misafir sayısı
+    const seatedGuests = targetReservations.filter(r => r.status === 'seated').reduce((sum, r) => sum + r.guests, 0);
     const totalGuests = targetReservations.reduce((sum, r) => sum + r.guests, 0);
+    
     const totalTables = targetReservations.length;
 
-    return { totalGuests, totalTables };
+    return { totalGuests, seatedGuests, totalTables };
   }, [filteredReservations]);
 
   return (
@@ -86,12 +94,15 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
             <Users size={64} className="text-primary" />
           </div>
           <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-1">
-            {dateFilter ? 'Gäste (Ausgewählt)' : 'Gäste (Gesamt)'}
+            {dateFilter ? 'Gäste (Heute)' : 'Gäste (Gesamt)'}
           </p>
           <div className="flex items-baseline gap-1">
-             <h3 className="text-4xl font-black text-white">{stats.totalGuests}</h3>
+             <h3 className="text-4xl font-black text-white">{stats.seatedGuests}<span className="text-white/30 text-2xl">/{stats.totalGuests}</span></h3>
              <span className="text-sm text-primary font-medium">Pers.</span>
           </div>
+          <p className="text-xs text-green-500 mt-1 font-medium">
+            {stats.totalGuests > 0 ? Math.round((stats.seatedGuests / stats.totalGuests) * 100) : 0}% anwesend
+          </p>
         </div>
 
         <div className="bg-card-dark border border-white/5 rounded-xl p-5 shadow-lg relative overflow-hidden group">
@@ -165,7 +176,8 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
                 className="w-full appearance-none rounded-lg border border-white/10 bg-white/5 text-white focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none h-12 pl-12 pr-10 text-base sm:w-auto transition-all"
               >
                 <option value="Alle">Alle Status</option>
-                <option value="confirmed">Bestätigt</option>
+                <option value="confirmed">Reserviert (Bestätigt)</option>
+                <option value="seated">Am Tisch (Seated)</option>
                 <option value="cancelled">Storniert</option>
               </select>
             </div>
@@ -196,7 +208,7 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
                 </tr>
               ) : (
                 sortedReservations.map((res) => (
-                  <tr key={res.id} className="hover:bg-white/5 transition-colors">
+                  <tr key={res.id} className={`hover:bg-white/5 transition-colors ${res.status === 'seated' ? 'bg-success/5' : ''}`}>
                     <td className="px-6 py-4 text-white font-bold text-base">{res.time}</td>
                     <td className="px-6 py-4 text-gray-400 font-medium">
                         {new Date(res.date).toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' })}
@@ -219,8 +231,13 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
                     </td>
                     <td className="px-6 py-4">
                       {(!res.status || res.status === 'confirmed') && (
+                        <span className="inline-flex items-center rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-500 border border-blue-500/20">
+                          Reserviert
+                        </span>
+                      )}
+                      {res.status === 'seated' && (
                         <span className="inline-flex items-center rounded-full bg-success/10 px-2.5 py-0.5 text-xs font-medium text-success border border-success/20">
-                          Bestätigt
+                          Am Tisch
                         </span>
                       )}
                       {res.status === 'cancelled' && (
@@ -231,6 +248,24 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-2">
+                        
+                        {/* Check-in Button */}
+                        {res.status === 'confirmed' && (
+                           <button 
+                            onClick={() => handleCheckIn(res.id)}
+                            className="flex items-center justify-center w-8 h-8 rounded-md text-success hover:text-green-300 transition-colors hover:bg-success/10 border border-success/20"
+                            title="Gast ist da (Check-in)"
+                          >
+                            <UserCheck size={18} />
+                          </button>
+                        )}
+
+                        {res.status === 'seated' && (
+                          <div className="flex items-center justify-center w-8 h-8 rounded-md text-success/50" title="Bereits eingecheckt">
+                             <CheckCircle2 size={18} />
+                          </div>
+                        )}
+
                          <a 
                           href={`tel:${res.phone}`}
                           className="flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:text-white transition-colors hover:bg-white/10"
@@ -248,7 +283,7 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
                         </button>
                         
                         {/* Cancel Button */}
-                        {res.status !== 'cancelled' && (
+                        {res.status !== 'cancelled' && res.status !== 'seated' && (
                           <button 
                             onClick={() => handleCancel(res.id)}
                             className="flex items-center justify-center w-8 h-8 rounded-md text-orange-400 hover:text-orange-300 transition-colors hover:bg-orange-400/10"
