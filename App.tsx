@@ -162,7 +162,11 @@ const App: React.FC = () => {
               <h2 className="text-3xl font-extrabold text-white tracking-tight">Willkommen</h2>
               <p className="text-white/60 font-medium text-lg mt-1">Wir freuen uns darauf, Sie heute Abend zu bedienen.</p>
             </div>
-            <ReservationForm onSubmit={handleReservationSubmit} isLoading={isLoading} />
+            <ReservationForm 
+              onSubmit={handleReservationSubmit} 
+              isLoading={isLoading} 
+              existingReservations={reservations}
+            />
           </div>
         )}
 
