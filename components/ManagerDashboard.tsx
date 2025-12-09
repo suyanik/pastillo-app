@@ -1,19 +1,27 @@
 import React, { useState } from 'react';
-import { Reservation } from '../types';
+import { Reservation, ReservationStatus } from '../types';
 import { getGoogleCalendarUrl } from '../utils/calendarUtils';
+import { Trash2, XCircle } from 'lucide-react';
 
 interface Props {
   reservations: Reservation[];
   onDelete: (id: string) => void;
+  onStatusUpdate: (id: string, status: ReservationStatus) => void;
 }
 
-const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete }) => {
+const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpdate }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('Alle');
+  const [statusFilter, setStatusFilter] = useState<ReservationStatus | 'Alle'>('confirmed');
 
-  const handleDelete = (id: string) => {
-    if(window.confirm("Sind Sie sicher, dass Sie diese Reservierung stornieren möchten?")) {
+  const handleCancel = (id: string) => {
+    if(window.confirm("Möchten Sie diese Reservierung stornieren?")) {
       if (navigator.vibrate) navigator.vibrate(50);
+      onStatusUpdate(id, 'cancelled');
+    }
+  };
+  
+  const handleDelete = (id: string) => {
+    if(window.confirm("Diese Reservierung dauerhaft löschen?")) {
       onDelete(id);
     }
   };
@@ -21,11 +29,12 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete }) => {
   const filteredReservations = reservations.filter(res => {
     const matchesSearch = res.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           res.date.includes(searchTerm);
-    // Since we don't have a real status field in types yet, we simulate logic or just return true for "Alle"
-    // For now, all existing reservations are considered "Bestätigt" (Confirmed)
-    if (statusFilter === 'Storniert') return false; 
-    if (statusFilter === 'Ausstehend') return false;
-    return matchesSearch;
+    
+    // Status check: Eğer veri tabanında status yoksa (eski veri) 'confirmed' varsayalım
+    const currentStatus = res.status || 'confirmed';
+    
+    if (statusFilter === 'Alle') return matchesSearch;
+    return matchesSearch && currentStatus === statusFilter;
   });
 
   const sortedReservations = [...filteredReservations].sort((a, b) => b.createdAt - a.createdAt);
@@ -35,8 +44,8 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete }) => {
       <div className="p-6 sm:p-8">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tighter text-white">Reservierungsverwaltung</h2>
-            <p className="text-sm sm:text-base font-normal text-gray-400">Anstehende Reservierungen anzeigen und verwalten</p>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tighter text-white">Verwaltung</h2>
+            <p className="text-sm sm:text-base font-normal text-gray-400">Übersicht aller Reservierungen</p>
           </div>
         </div>
         
@@ -49,7 +58,7 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete }) => {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full rounded-lg border border-white/10 bg-white/5 text-white placeholder-gray-400 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none h-12 pl-12 pr-4 text-base transition-all" 
-              placeholder="Suche nach Name oder Datum..." 
+              placeholder="Suche..." 
               type="text"
             />
           </div>
@@ -59,13 +68,12 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete }) => {
             </span>
             <select 
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
               className="w-full appearance-none rounded-lg border border-white/10 bg-white/5 text-white focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none h-12 pl-12 pr-10 text-base sm:w-auto transition-all"
             >
-              <option value="Alle">Alle Status</option>
-              <option value="Bestätigt">Bestätigt</option>
-              <option value="Ausstehend">Ausstehend</option>
-              <option value="Storniert">Storniert</option>
+              <option value="Alle">Alle</option>
+              <option value="confirmed">Bestätigt</option>
+              <option value="cancelled">Storniert</option>
             </select>
           </div>
         </div>
@@ -78,7 +86,6 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete }) => {
               <th className="px-6 py-4 font-medium">Datum</th>
               <th className="px-6 py-4 font-medium">Uhrzeit</th>
               <th className="px-6 py-4 font-medium">Name</th>
-              <th className="px-6 py-4 font-medium">Telefon</th>
               <th className="px-6 py-4 font-medium">Personen</th>
               <th className="px-6 py-4 font-medium">Status</th>
               <th className="px-6 py-4 font-medium text-right">Aktionen</th>
@@ -100,7 +107,7 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete }) => {
                     {res.name}
                     {res.notes && (
                       <div className="text-xs text-gray-500 mt-1 max-w-[200px] truncate" title={res.notes}>
-                        Note: {res.notes}
+                        {res.notes}
                       </div>
                     )}
                     {res.aiChefNote && (
@@ -109,30 +116,47 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete }) => {
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-gray-300">{res.phone}</td>
                   <td className="px-6 py-4 text-gray-300">{res.guests}</td>
                   <td className="px-6 py-4">
-                    <span className="inline-flex items-center rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success border border-success/20">
-                      Bestätigt
-                    </span>
+                    {(!res.status || res.status === 'confirmed') && (
+                      <span className="inline-flex items-center rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success border border-success/20">
+                        Bestätigt
+                      </span>
+                    )}
+                    {res.status === 'cancelled' && (
+                      <span className="inline-flex items-center rounded-full bg-error/10 px-3 py-1 text-xs font-semibold text-error border border-error/20">
+                        Storniert
+                      </span>
+                    )}
                   </td>
                   <td className="px-6 py-4">
-                    <div className="flex items-center justify-end gap-3">
+                    <div className="flex items-center justify-end gap-2">
                       <button 
                         onClick={() => window.open(getGoogleCalendarUrl(res), '_blank')}
-                        className="flex items-center gap-2 rounded-md px-3 py-2 text-white transition-colors hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-primary"
-                        title="Zum Kalender hinzufügen"
+                        className="flex items-center justify-center w-8 h-8 rounded-md text-white transition-colors hover:bg-white/10"
+                        title="Kalender"
                       >
-                        <span className="material-symbols-outlined text-base">calendar_today</span>
-                        <span>Kalender</span>
+                        <span className="material-symbols-outlined text-lg">calendar_today</span>
                       </button>
+                      
+                      {/* Cancel Button (Show only if not cancelled) */}
+                      {res.status !== 'cancelled' && (
+                        <button 
+                          onClick={() => handleCancel(res.id)}
+                          className="flex items-center justify-center w-8 h-8 rounded-md text-orange-400 transition-colors hover:bg-orange-400/10"
+                          title="Stornieren"
+                        >
+                          <XCircle size={18} />
+                        </button>
+                      )}
+
+                      {/* Delete Button */}
                       <button 
                         onClick={() => handleDelete(res.id)}
-                        className="flex items-center gap-2 rounded-md px-3 py-2 text-error transition-colors hover:bg-error/10 focus:outline-none focus:ring-2 focus:ring-error"
-                        title="Stornieren"
+                        className="flex items-center justify-center w-8 h-8 rounded-md text-error transition-colors hover:bg-error/10"
+                        title="Löschen"
                       >
-                        <span className="material-symbols-outlined text-base">cancel</span>
-                        <span>Stornieren</span>
+                        <Trash2 size={18} />
                       </button>
                     </div>
                   </td>
@@ -145,17 +169,8 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete }) => {
 
       <div className="flex items-center justify-between border-t border-white/10 px-6 py-4 bg-white/5 rounded-b-xl">
         <span className="text-sm text-gray-400">
-          Zeigt <span className="font-semibold text-white">{sortedReservations.length > 0 ? 1 : 0}</span>-
-          <span className="font-semibold text-white">{Math.min(10, sortedReservations.length)}</span> von <span className="font-semibold text-white">{reservations.length}</span> Reservierungen
+          Gesamt: <span className="font-semibold text-white">{sortedReservations.length}</span>
         </span>
-        <div className="inline-flex items-center gap-2">
-          <button className="inline-flex h-8 w-8 items-center justify-center rounded border border-white/10 bg-transparent text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-50">
-            <span className="material-symbols-outlined text-xl">chevron_left</span>
-          </button>
-          <button className="inline-flex h-8 w-8 items-center justify-center rounded border border-white/10 bg-transparent text-gray-400 hover:bg-white/10 hover:text-white disabled:opacity-50">
-            <span className="material-symbols-outlined text-xl">chevron_right</span>
-          </button>
-        </div>
       </div>
     </div>
   );
