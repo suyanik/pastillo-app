@@ -1,14 +1,24 @@
-import { GoogleGenAI, Type } from "@google/genai";
-import { GeminiResponse, Reservation } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+import { GoogleGenAI, Type } from "@google/genai";
+import { GeminiResponse, Reservation, Language } from "../types";
 
 export const processReservationAI = async (
-  reservation: Omit<Reservation, "id" | "createdAt" | "aiConfirmationMessage" | "aiChefNote" | "status">
+  reservation: Omit<Reservation, "id" | "createdAt" | "aiConfirmationMessage" | "aiChefNote" | "status">,
+  lang: Language = 'de'
 ): Promise<GeminiResponse> => {
+  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+  
   try {
+    const langMap: Record<Language, string> = {
+      tr: 'Türkisch',
+      de: 'Deutsch',
+      en: 'Englisch',
+      es: 'Spanisch'
+    };
+    const languageName = langMap[lang];
+    
     const prompt = `
-      Analysiere die folgenden Details einer Restaurantreservierung.
+      Analysiere die folgenden Details einer Restaurantreservierung für das Restaurant "Pastillo".
       
       Kunde: ${reservation.name}
       Anzahl der Personen: ${reservation.guests}
@@ -17,8 +27,8 @@ export const processReservationAI = async (
       Anmerkungen: ${reservation.notes || "Keine"}
 
       Aufgaben:
-      1. Verfasse eine sehr höfliche, kurze und freundliche Bestätigungsnachricht für den Kunden auf Deutsch (confirmationMessage).
-      2. Erstelle eine kurze Zusammenfassung für den Restaurantbesitzer/Koch (chefNote). Hebe Allergien oder Sonderwünsche hervor. Wenn keine Anmerkungen vorhanden sind, schreibe "Standardtisch".
+      1. Verfasse eine sehr höfliche, kurze und freundliche Bestätigungsnachricht für den Kunden auf ${languageName} (confirmationMessage).
+      2. Erstelle eine kurze Zusammenfassung für den Restaurantbesitzer/Koch (chefNote) auf ${languageName}. Hebe Allergien oder Sonderwünsche hervor. Wenn keine Anmerkungen vorhanden sind, schreibe "Standardtisch".
 
       Antworte im JSON-Format.
     `;
@@ -46,9 +56,12 @@ export const processReservationAI = async (
     throw new Error("No response from AI");
   } catch (error) {
     console.error("Gemini Error:", error);
-    return {
-      confirmationMessage: "Ihre Reservierung wurde empfangen. Wir freuen uns auf Sie!",
-      chefNote: reservation.notes || "Standardtisch",
+    const fallbacks: Record<Language, GeminiResponse> = {
+      tr: { confirmationMessage: "Rezervasyonunuz alındı. Sizi bekliyoruz!", chefNote: reservation.notes || "Standart Masa" },
+      de: { confirmationMessage: "Ihre Reservierung wurde empfangen. Wir freuen uns auf Sie!", chefNote: reservation.notes || "Standardtisch" },
+      en: { confirmationMessage: "Reservation received. We look forward to seeing you!", chefNote: reservation.notes || "Standard Table" },
+      es: { confirmationMessage: "Reserva recibida. ¡Esperamos verte pronto!", chefNote: reservation.notes || "Mesa Estándar" }
     };
+    return fallbacks[lang];
   }
 };
