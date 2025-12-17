@@ -1,4 +1,6 @@
+
 export type ReservationStatus = 'confirmed' | 'pending' | 'cancelled' | 'seated';
+export type Language = 'tr' | 'de' | 'en' | 'es';
 
 export interface Reservation {
   id: string;
