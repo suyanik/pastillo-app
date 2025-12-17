@@ -91,8 +91,8 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
 
   const timeSlots = useMemo(() => {
     if (dateError) return [];
-    const slots = [];
-    const startHour = 12; // 17:00'den 12:00'ye çekildi
+    const slots: string[] = []; // Burada tip tanımlandı
+    const startHour = 12;
     const endHour = 22;
     const isToday = formData.date === getLocalDate();
     const now = new Date();
@@ -166,3 +166,4 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
 };
 
 export default ReservationForm;
+
