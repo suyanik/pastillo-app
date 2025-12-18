@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Lock } from 'lucide-react';
 
@@ -17,7 +18,8 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel }) => {
       setError(false);
       
       if (newPin.length === 4) {
-        if (newPin === '1234') {
+        // PIN 0000 olarak güncellendi
+        if (newPin === '0000') {
           setTimeout(onLogin, 100);
         } else {
           setError(true);
