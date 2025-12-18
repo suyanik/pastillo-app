@@ -13,6 +13,7 @@ import ReservationForm from './components/ReservationForm';
 import PersonnelManagement from './components/PersonnelManagement';
 import InstallPrompt from './components/InstallPrompt';
 import SettingsManager from './components/SettingsManager';
+import InfoView from './components/InfoView';
 
 // Services & Types
 import { Reservation, Language, AppSettings, DailyTurnover, Expense } from './types';
@@ -31,6 +32,11 @@ const App: React.FC = () => {
   const [turnovers, setTurnovers] = useState<DailyTurnover[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [settings, setSettings] = useState<AppSettings>({
+    restaurantName: "Pastillo Butzbach",
+    address: "Marktplatz 23, 35510 Butzbach",
+    phone: "06033 974 7771",
+    openingHours: "Her gün: 11:00 - 23:00",
+    closedDay: "Salı: Kapalı",
     adminPin: "0000",
     maxCapacityPerSlot: 20,
     holidays: [],
@@ -54,15 +60,15 @@ const App: React.FC = () => {
   const translations: Record<Language, any> = {
     tr: {
       res: 'Buchung', fin: 'Finanz', staff: 'Personel', set: 'Ayar',
-      adminTitle: 'YÖNETİM SÜİTİ', customerTitle: 'PASTILLO BUTZBACH', customerSub: 'Masa Rezervasyonu'
+      adminTitle: 'YÖNETİM SÜİTİ'
     },
     de: {
       res: 'Buchung', fin: 'Finanzen', staff: 'Personal', set: 'Einst.',
-      adminTitle: 'MANAGEMENT SUITE', customerTitle: 'PASTILLO BUTZBACH', customerSub: 'Tischreservierung'
+      adminTitle: 'MANAGEMENT SUITE'
     },
     en: {
       res: 'Booking', fin: 'Finance', staff: 'Staff', set: 'Settings',
-      adminTitle: 'MANAGEMENT SUITE', customerTitle: 'PASTILLO BUTZBACH', customerSub: 'Table Reservation'
+      adminTitle: 'MANAGEMENT SUITE'
     }
   };
 
@@ -78,13 +84,18 @@ const App: React.FC = () => {
       
       <header className="sticky top-0 z-40 px-6 py-6 border-b border-white/5 bg-[#0a0a0a]/90 backdrop-blur-2xl">
         <div className="flex justify-between items-center">
-          <div>
-            <h1 className="text-xl font-black tracking-tighter text-white">
-              {view === 'admin' ? t.adminTitle : t.customerTitle}
-            </h1>
-            <p className="text-[10px] text-primary uppercase font-black tracking-[0.2em] mt-0.5">
-              {view === 'admin' ? adminView.toUpperCase() : t.customerSub}
-            </p>
+          <div className="flex items-center gap-3">
+            {view === 'public' && settings.restaurantLogo && (
+               <img src={settings.restaurantLogo} className="h-10 w-auto object-contain" alt="Logo" />
+            )}
+            <div>
+              <h1 className="text-xl font-black tracking-tighter text-white uppercase">
+                {view === 'admin' ? t.adminTitle : settings.restaurantName}
+              </h1>
+              <p className="text-[10px] text-primary uppercase font-black tracking-[0.2em] mt-0.5">
+                {view === 'admin' ? adminView.toUpperCase() : "Tischreservierung"}
+              </p>
+            </div>
           </div>
           
           <div className="flex items-center gap-2">
@@ -115,17 +126,20 @@ const App: React.FC = () => {
 
       <main className="max-w-md mx-auto p-5 animate-in fade-in duration-700">
         {view === 'public' ? (
-          <ReservationForm 
-            lang={lang} 
-            isLoading={false} 
-            onSubmit={async (data) => {
-              await addReservationToDB({...data, status: 'confirmed'});
-              const msg = lang === 'tr' ? 'Rezervasyonunuz alındı!' : (lang === 'en' ? 'Reservation received!' : 'Reservierung erfolgreich!');
-              alert(msg);
-            }} 
-            existingReservations={reservations}
-            settings={settings}
-          />
+          <div className="space-y-12">
+            <ReservationForm 
+              lang={lang} 
+              isLoading={false} 
+              onSubmit={async (data) => {
+                await addReservationToDB({...data, status: 'confirmed'});
+                const msg = lang === 'tr' ? 'Rezervasyonunuz alındı!' : (lang === 'en' ? 'Reservation received!' : 'Reservierung erfolgreich!');
+                alert(msg);
+              }} 
+              existingReservations={reservations}
+              settings={settings}
+            />
+            <InfoView lang={lang} settings={settings} />
+          </div>
         ) : (
           <div className="space-y-6">
             {adminView === 'reservations' && (

@@ -15,6 +15,7 @@ export interface Personnel {
   lastName: string;
   role: string;
   phone: string;
+  photo?: string; // Base64 image
   dateOfBirth: string;
   placeOfBirth: string;
   address: string;
@@ -54,6 +55,12 @@ export interface DailyTurnover {
 }
 
 export interface AppSettings {
+  restaurantName: string;
+  restaurantLogo?: string;
+  address: string;
+  phone: string;
+  openingHours: string;
+  closedDay: string;
   adminPin: string;
   maxCapacityPerSlot: number;
   holidays: string[]; // YYYY-MM-DD format

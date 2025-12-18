@@ -48,7 +48,13 @@ export const subscribeToSettings = (callback: (settings: AppSettings) => void) =
     if (doc.exists) {
       callback(doc.data() as AppSettings);
     } else {
+      // Fix: Added missing required properties for AppSettings
       const defaultSettings: AppSettings = {
+        restaurantName: "Pastillo Butzbach",
+        address: "Marktplatz 23, 35510 Butzbach",
+        phone: "06033 974 7771",
+        openingHours: "11:00 - 23:00",
+        closedDay: "Salı: Kapalı",
         adminPin: "0000",
         maxCapacityPerSlot: 20,
         holidays: [],

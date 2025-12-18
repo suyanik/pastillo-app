@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { Camera, Save, Plus, CreditCard, Wallet, Loader2, ShoppingBag } from 'lucide-react';
+import { Camera, Save, Plus, CreditCard, Wallet, Loader2, ShoppingBag, FileText } from 'lucide-react';
 import { analyzeReceiptAI } from '../services/geminiService';
 import { Language } from '../types';
 import { addTurnover, addExpense } from '../services/firebase';
@@ -19,18 +19,18 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
   const translations: Record<Language, any> = {
     tr: {
       turnover: 'GÜNLÜK CİRO', expense: 'GİDER EKLE', cash: 'Nakit Ciro', card: 'Kredi Kartı Ciro', lieferando: 'Lieferando', save: 'KAYDET',
-      scan: 'Fiş Tara (AI)', analyzing: 'AI Analiz Ediyor...', amount: 'Tutar', category: 'Kategori', desc: 'Açıklama',
-      add: 'GİDERİ EKLE', catOptions: ['Maaş/Avans', 'Tedarikçi', 'Kira/Fatura', 'Vergi', 'Diğer']
+      scan: 'Taramayı Başlat (AI)', analyzing: 'AI Analiz Ediyor...', amount: 'Tutar', category: 'Kategori', desc: 'Açıklama',
+      add: 'GİDERİ EKLE', catOptions: ['Maaş/Avans', 'Tedarikçi', 'Kira/Fatura', 'Vergi', 'Diğer'], fileHint: 'Resim veya PDF'
     },
     de: {
       turnover: 'TAGESUMSATZ', expense: 'AUSGABE HINZUFÜGEN', cash: 'Bargeldumsatz', card: 'Kartenzahlung', lieferando: 'Lieferando', save: 'SPEICHERN',
-      scan: 'Beleg scannen (KI)', analyzing: 'KI analysiert...', amount: 'Betrag', category: 'Kategorie', desc: 'Beschreibung',
-      add: 'HINZUFÜGEN', catOptions: ['Gehalt/Vorschuss', 'Lieferant', 'Miete/Nebenkosten', 'Steuer', 'Sonstiges']
+      scan: 'Scan starten (KI)', analyzing: 'KI analysiert...', amount: 'Betrag', category: 'Kategorie', desc: 'Beschreibung',
+      add: 'HINZÜFÜGEN', catOptions: ['Gehalt/Vorschuss', 'Lieferant', 'Miete/Nebenkosten', 'Steuer', 'Sonstiges'], fileHint: 'Bild oder PDF'
     },
     en: {
       turnover: 'DAILY TURNOVER', expense: 'ADD EXPENSE', cash: 'Cash Turnover', card: 'Credit Card Turnover', lieferando: 'Lieferando', save: 'SAVE',
-      scan: 'Scan Receipt (AI)', analyzing: 'AI Analyzing...', amount: 'Amount', category: 'Category', desc: 'Description',
-      add: 'ADD EXPENSE', catOptions: ['Salary/Advance', 'Supplier', 'Rent/Bills', 'Tax', 'Other']
+      scan: 'Start Scan (AI)', analyzing: 'AI Analyzing...', amount: 'Amount', category: 'Category', desc: 'Description',
+      add: 'ADD EXPENSE', catOptions: ['Salary/Advance', 'Supplier', 'Rent/Bills', 'Tax', 'Other'], fileHint: 'Image or PDF'
     }
   };
 
@@ -73,11 +73,14 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
   const handleCapture = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    
     setIsAnalyzing(true);
+    const mimeType = file.type || "image/jpeg";
+    
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64 = (reader.result as string).split(',')[1];
-      const result = await analyzeReceiptAI(base64, lang);
+      const result = await analyzeReceiptAI(base64, mimeType, lang);
       if (result) {
         setGider({
           ...gider,
@@ -123,11 +126,32 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
       ) : (
         <div className="space-y-4">
           <div className="glass p-8 rounded-[2.5rem] border border-white/5 space-y-6">
-            <button onClick={() => fileInputRef.current?.click()} disabled={isAnalyzing} className="w-full bg-white/5 border-2 border-dashed border-white/10 rounded-3xl py-12 flex flex-col items-center justify-center gap-4">
-              {isAnalyzing ? <Loader2 className="animate-spin text-primary" /> : <Camera size={40} className="text-primary" />}
-              <span className="text-xs font-black uppercase tracking-[0.2em] text-white/60">{isAnalyzing ? t.analyzing : t.scan}</span>
+            <button 
+              onClick={() => fileInputRef.current?.click()} 
+              disabled={isAnalyzing} 
+              className="w-full bg-white/5 border-2 border-dashed border-white/10 rounded-3xl py-12 flex flex-col items-center justify-center gap-4 active:bg-white/10 transition-colors"
+            >
+              {isAnalyzing ? (
+                <Loader2 className="animate-spin text-primary" size={40} />
+              ) : (
+                <div className="flex flex-col items-center gap-2">
+                  <div className="flex gap-2 text-primary">
+                    <Camera size={32} />
+                    <FileText size={32} />
+                  </div>
+                  <span className="text-xs font-black uppercase tracking-[0.2em] text-white/60">{t.scan}</span>
+                  <span className="text-[9px] text-white/20 font-black uppercase tracking-widest">{t.fileHint}</span>
+                </div>
+              )}
             </button>
-            <input type="file" accept="image/*" capture="environment" hidden ref={fileInputRef} onChange={handleCapture} />
+            <input 
+              type="file" 
+              accept="image/*,application/pdf" 
+              capture="environment" 
+              hidden 
+              ref={fileInputRef} 
+              onChange={handleCapture} 
+            />
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t.amount}</label>
@@ -136,7 +160,7 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
               <div className="space-y-2">
                 <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t.category}</label>
                 <select className="w-full bg-white/10 border border-white/10 rounded-2xl py-4 px-3 text-white text-xs font-black" value={gider.category} onChange={e => setGider({...gider, category: e.target.value})}>
-                  {t.catOptions.map((opt: string) => <option key={opt}>{opt}</option>)}
+                  {t.catOptions.map((opt: string) => <option key={opt} value={opt}>{opt}</option>)}
                 </select>
               </div>
             </div>
