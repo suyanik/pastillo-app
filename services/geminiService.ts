@@ -5,7 +5,7 @@ import { Language } from "../types";
 export const analyzeReceiptAI = async (base64Image: string, lang: Language = 'tr') => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  const prompts: Record<string, string> = {
+  const prompts: any = {
     tr: `Bu bir restoran harcama fişi/faturasıdır. Lütfen verileri analiz et ve JSON formatında döndür. 
          Çıkarılacak Veriler: 
          - totalAmount (Sadece sayı)

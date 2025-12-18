@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { Camera, Save, X, Plus, Users, Receipt, CreditCard, Wallet, Loader2, Info } from 'lucide-react';
+import { Camera, Save, Plus, Users, CreditCard, Wallet, Loader2 } from 'lucide-react';
 import { analyzeReceiptAI } from '../services/geminiService';
 import { Language } from '../types';
 
@@ -14,7 +14,7 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const translations: Record<Language, any> = {
+  const translations: any = {
     tr: {
       turnover: 'GÜNLÜK CİRO',
       expense: 'GİDER EKLE',
@@ -83,10 +83,7 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
 
   const t = translations[lang] || translations.tr;
 
-  // Ciro Form State
   const [ciro, setCiro] = useState({ cash: '', card: '' });
-
-  // Gider Form State
   const [gider, setGider] = useState({ 
     amount: '', 
     description: '', 
@@ -118,139 +115,51 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex bg-white/5 p-1.5 rounded-[2rem] border border-white/10 shadow-inner">
-        <button 
-          onClick={() => setActiveTab('ciro')}
-          className={`flex-1 py-4 rounded-[1.8rem] text-[11px] font-black tracking-widest transition-all duration-300 ${activeTab === 'ciro' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/30 hover:text-white/50'}`}
-        >
-          {t.turnover}
-        </button>
-        <button 
-          onClick={() => setActiveTab('gider')}
-          className={`flex-1 py-4 rounded-[1.8rem] text-[11px] font-black tracking-widest transition-all duration-300 ${activeTab === 'gider' ? 'bg-primary text-black shadow-lg shadow-primary/20' : 'text-white/30 hover:text-white/50'}`}
-        >
-          {t.expense}
-        </button>
+      <div className="flex bg-white/5 p-1.5 rounded-[2rem] border border-white/10">
+        <button onClick={() => setActiveTab('ciro')} className={`flex-1 py-4 rounded-[1.8rem] text-[11px] font-black tracking-widest transition-all ${activeTab === 'ciro' ? 'bg-primary text-black' : 'text-white/30'}`}>{t.turnover}</button>
+        <button onClick={() => setActiveTab('gider')} className={`flex-1 py-4 rounded-[1.8rem] text-[11px] font-black tracking-widest transition-all ${activeTab === 'gider' ? 'bg-primary text-black' : 'text-white/30'}`}>{t.expense}</button>
       </div>
 
       {activeTab === 'ciro' ? (
-        <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
+        <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
           <div className="glass p-8 rounded-[2.5rem] border border-white/5 space-y-8">
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-2">
-                <Wallet size={12} strokeWidth={3} /> {t.cash} (€)
-              </label>
-              <input 
-                type="number" 
-                inputMode="decimal"
-                placeholder="0.00" 
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 px-6 text-4xl font-black text-white focus:ring-2 focus:ring-primary/50 outline-none transition-all placeholder:text-white/5"
-                value={ciro.cash}
-                onChange={e => setCiro({...ciro, cash: e.target.value})}
-              />
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-2"><Wallet size={12} /> {t.cash}</label>
+              <input type="number" placeholder="0.00" className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 px-6 text-4xl font-black text-white focus:outline-none" value={ciro.cash} onChange={e => setCiro({...ciro, cash: e.target.value})}/>
             </div>
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-2">
-                <CreditCard size={12} strokeWidth={3} /> {t.card} (€)
-              </label>
-              <input 
-                type="number" 
-                inputMode="decimal"
-                placeholder="0.00" 
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 px-6 text-4xl font-black text-white focus:ring-2 focus:ring-primary/50 outline-none transition-all placeholder:text-white/5"
-                value={ciro.card}
-                onChange={e => setCiro({...ciro, card: e.target.value})}
-              />
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-2"><CreditCard size={12} /> {t.card}</label>
+              <input type="number" placeholder="0.00" className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 px-6 text-4xl font-black text-white focus:outline-none" value={ciro.card} onChange={e => setCiro({...ciro, card: e.target.value})}/>
             </div>
           </div>
-          <button 
-            onClick={() => { if(navigator.vibrate) navigator.vibrate(50); onSave(); }}
-            className="w-full bg-primary text-black py-6 rounded-3xl font-black text-lg flex items-center justify-center gap-3 shadow-2xl shadow-primary/10 active:scale-[0.97] transition-all"
-          >
-            <Save size={24} strokeWidth={2.5} /> {t.save}
-          </button>
+          <button onClick={onSave} className="w-full bg-primary text-black py-6 rounded-3xl font-black text-lg shadow-xl"><Save size={24} /> {t.save}</button>
         </div>
       ) : (
-        <div className="space-y-4 animate-in fade-in slide-in-from-left-4 duration-500">
+        <div className="space-y-4 animate-in fade-in slide-in-from-left-4">
           <div className="glass p-8 rounded-[2.5rem] border border-white/5 space-y-6">
-            <button 
-              onClick={() => { if(navigator.vibrate) navigator.vibrate(10); fileInputRef.current?.click(); }}
-              disabled={isAnalyzing}
-              className={`w-full bg-white/5 border-2 border-dashed border-white/10 rounded-3xl py-12 flex flex-col items-center justify-center gap-4 hover:bg-white/10 transition-all ${isAnalyzing ? 'cursor-not-allowed opacity-50' : 'cursor-pointer active:scale-[0.98]'}`}
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 size={40} className="animate-spin text-primary" />
-                  <span className="text-xs font-black uppercase tracking-[0.2em] text-primary">{t.analyzing}</span>
-                </>
-              ) : (
-                <>
-                  <div className="p-4 bg-primary/10 rounded-full text-primary">
-                    <Camera size={40} strokeWidth={1.5} />
-                  </div>
-                  <span className="text-xs font-black uppercase tracking-[0.2em] text-white/60">{t.scan}</span>
-                </>
-              )}
+            <button onClick={() => fileInputRef.current?.click()} disabled={isAnalyzing} className="w-full bg-white/5 border-2 border-dashed border-white/10 rounded-3xl py-12 flex flex-col items-center justify-center gap-4">
+              {isAnalyzing ? <Loader2 className="animate-spin text-primary" /> : <Camera size={40} className="text-primary" />}
+              <span className="text-xs font-black uppercase tracking-[0.2em] text-white/60">{isAnalyzing ? t.analyzing : t.scan}</span>
             </button>
             <input type="file" accept="image/*" capture="environment" hidden ref={fileInputRef} onChange={handleCapture} />
-
-            <div className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t.amount} (€)</label>
-                  <input 
-                    type="number" 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-black text-xl focus:ring-1 focus:ring-primary" 
-                    value={gider.amount}
-                    onChange={e => setGider({...gider, amount: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t.category}</label>
-                  <select 
-                    className="w-full bg-white/10 border border-white/10 rounded-2xl py-4 px-3 text-white font-black text-xs outline-none focus:ring-1 focus:ring-primary [color-scheme:dark]"
-                    value={gider.category}
-                    onChange={e => setGider({...gider, category: e.target.value})}
-                  >
-                    {(t.catOptions as string[]).map((opt: string) => <option key={opt}>{opt}</option>)}
-                  </select>
-                </div>
-              </div>
-              
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t.desc}</label>
-                <input 
-                  type="text" 
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-5 text-white font-bold placeholder:text-white/10" 
-                  placeholder={t.placeholderDesc}
-                  value={gider.description}
-                  onChange={e => setGider({...gider, description: e.target.value})}
-                />
+                <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t.amount}</label>
+                <input type="number" className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-black" value={gider.amount} onChange={e => setGider({...gider, amount: e.target.value})}/>
               </div>
-
-              {(gider.category.includes('Maaş') || gider.category.includes('Gehalt') || gider.category.includes('Salary') || gider.category.includes('Salario')) && (
-                <div className="p-5 bg-primary/5 border border-primary/20 rounded-3xl space-y-4 animate-in zoom-in duration-300">
-                   <div className="flex items-center gap-2 text-primary">
-                      <Users size={18} strokeWidth={2.5} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">{t.personnel}</span>
-                   </div>
-                   <input 
-                    type="text" 
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 px-4 text-white text-sm font-bold" 
-                    placeholder="..."
-                    value={gider.personnelName}
-                    onChange={e => setGider({...gider, personnelName: e.target.value})}
-                  />
-                </div>
-              )}
+              <div className="space-y-2">
+                <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t.category}</label>
+                <select className="w-full bg-white/10 border border-white/10 rounded-2xl py-4 px-3 text-white text-xs font-black [color-scheme:dark]" value={gider.category} onChange={e => setGider({...gider, category: e.target.value})}>
+                  {(t.catOptions as string[]).map((opt: string) => <option key={opt}>{opt}</option>)}
+                </select>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-widest">{t.desc}</label>
+              <input type="text" className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-5 text-white font-bold" placeholder={t.placeholderDesc} value={gider.description} onChange={e => setGider({...gider, description: e.target.value})}/>
             </div>
           </div>
-          <button 
-            onClick={() => { if(navigator.vibrate) navigator.vibrate(50); onSave(); }}
-            className="w-full bg-white text-black py-6 rounded-3xl font-black text-lg flex items-center justify-center gap-3 shadow-2xl active:scale-[0.97] transition-all"
-          >
-            <Plus size={24} strokeWidth={3} /> {t.add}
-          </button>
+          <button onClick={onSave} className="w-full bg-white text-black py-6 rounded-3xl font-black text-lg shadow-xl"><Plus size={24} /> {t.add}</button>
         </div>
       )}
     </div>

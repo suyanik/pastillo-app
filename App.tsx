@@ -1,21 +1,20 @@
 
 import React, { useState, useEffect } from 'react';
 import { 
-  Users, TrendingUp, Calendar, LayoutDashboard, 
-  Settings, LogOut, Plus, PlusCircle, UserCog
+  Users, TrendingUp, Calendar, 
+  Settings, LogOut, UserCog
 } from 'lucide-react';
 
 // Components
 import AdminLogin from './components/AdminLogin';
 import Dashboard from './components/Dashboard';
-import EntryForm from './components/EntryForm';
 import ManagerDashboard from './components/ManagerDashboard';
 import ReservationForm from './components/ReservationForm';
 import PersonnelManagement from './components/PersonnelManagement';
 import InstallPrompt from './components/InstallPrompt';
 
 // Services & Types
-import { Reservation, Language, ReservationStatus } from './types';
+import { Reservation, Language } from './types';
 import { subscribeToReservations, addReservationToDB, updateReservationStatus, deleteReservationFromDB } from './services/firebase';
 
 const App: React.FC = () => {
@@ -32,7 +31,7 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  const translations: Record<Language, any> = {
+  const translations: any = {
     tr: {
       res: 'Buchung',
       fin: 'Finanz',
@@ -73,7 +72,6 @@ const App: React.FC = () => {
 
   const t = translations[lang] || translations.tr;
 
-  // Handle Admin Access
   if (view === 'admin' && !isAdminLoggedIn) {
     return <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} onCancel={() => setView('public')} lang={lang} />;
   }
@@ -82,7 +80,6 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-32 overflow-x-hidden">
       <InstallPrompt lang={lang} />
       
-      {/* Header */}
       <header className="sticky top-0 z-40 px-6 py-6 border-b border-white/5 bg-[#0a0a0a]/90 backdrop-blur-2xl">
         <div className="flex justify-between items-center">
           <div>
@@ -96,7 +93,7 @@ const App: React.FC = () => {
           
           <div className="flex items-center gap-2">
             <div className="flex bg-white/5 rounded-xl p-1 border border-white/10 mr-2">
-              {(['tr', 'de', 'en', 'es'] as Language[]).map((l) => (
+              {(['tr', 'de', 'en', 'es'] as Language[]).map((l: Language) => (
                 <button
                   key={l}
                   onClick={() => setLang(l)}
@@ -108,17 +105,11 @@ const App: React.FC = () => {
             </div>
 
             {view === 'public' ? (
-              <button 
-                onClick={() => setView('admin')}
-                className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-primary active:scale-90 transition-all"
-              >
+              <button onClick={() => setView('admin')} className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-primary active:scale-90 transition-all">
                 <UserCog size={20} />
               </button>
             ) : (
-              <button 
-                onClick={() => { setIsAdminLoggedIn(false); setView('public'); }}
-                className="p-2.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 active:scale-90 transition-all"
-              >
+              <button onClick={() => { setIsAdminLoggedIn(false); setView('public'); }} className="p-2.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 active:scale-90 transition-all">
                 <LogOut size={20} />
               </button>
             )}
@@ -128,17 +119,15 @@ const App: React.FC = () => {
 
       <main className="max-w-md mx-auto p-5 animate-in fade-in duration-700">
         {view === 'public' ? (
-          <div className="space-y-6">
-            <ReservationForm 
-              lang={lang} 
-              isLoading={false} 
-              onSubmit={async (data) => {
-                await addReservationToDB({...data, status: 'confirmed'});
-                alert(lang === 'tr' ? 'Rezervasyonunuz alındı!' : 'Reservierung erfolgreich!');
-              }} 
-              existingReservations={reservations} 
-            />
-          </div>
+          <ReservationForm 
+            lang={lang} 
+            isLoading={false} 
+            onSubmit={async (data) => {
+              await addReservationToDB({...data, status: 'confirmed'});
+              alert(lang === 'tr' ? 'Rezervasyonunuz alındı!' : 'Reservierung erfolgreich!');
+            }} 
+            existingReservations={reservations} 
+          />
         ) : (
           <div className="space-y-6">
             {adminView === 'reservations' && (
@@ -152,40 +141,29 @@ const App: React.FC = () => {
             {adminView === 'finance' && <Dashboard lang={lang} records={[]} />}
             {adminView === 'personnel' && <PersonnelManagement lang={lang} />}
             {adminView === 'settings' && (
-              <div className="space-y-4">
-                 <div className="glass p-6 rounded-[2rem] border border-white/5">
-                    <h3 className="text-lg font-black text-white mb-2">
-                      {lang === 'tr' ? 'Restoran Ayarları' : lang === 'de' ? 'Restaurant Einstellungen' : 'Restaurant Settings'}
-                    </h3>
-                    <p className="text-white/40 text-sm">
-                      {lang === 'tr' ? 'Burası yönetim ayarlarını yapacağınız bölüm.' : lang === 'de' ? 'Hier können Sie die Verwaltungseinstellungen vornehmen.' : 'This is where you can make management settings.'}
-                    </p>
-                 </div>
+              <div className="glass p-6 rounded-[2rem] border border-white/5">
+                <h3 className="text-lg font-black text-white mb-2">{lang === 'tr' ? 'Ayarlar' : 'Settings'}</h3>
+                <p className="text-white/40 text-sm">Yönetim paneli yapılandırması.</p>
               </div>
             )}
           </div>
         )}
       </main>
 
-      {/* Admin Tab Bar */}
       {view === 'admin' && (
         <nav className="fixed bottom-8 left-6 right-6 z-50 max-w-sm mx-auto">
           <div className="glass bg-[#161616]/95 p-2 rounded-[2.5rem] shadow-2xl flex justify-between items-center border border-white/10">
             <button onClick={() => setAdminView('reservations')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'reservations' ? 'bg-primary text-black' : 'text-white/30'}`}>
-              <Calendar size={20} />
-              <span className="text-[8px] font-black uppercase tracking-widest">{t.res}</span>
+              <Calendar size={20} /><span className="text-[8px] font-black uppercase tracking-widest">{t.res}</span>
             </button>
             <button onClick={() => setAdminView('finance')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'finance' ? 'bg-primary text-black' : 'text-white/30'}`}>
-              <TrendingUp size={20} />
-              <span className="text-[8px] font-black uppercase tracking-widest">{t.fin}</span>
+              <TrendingUp size={20} /><span className="text-[8px] font-black uppercase tracking-widest">{t.fin}</span>
             </button>
             <button onClick={() => setAdminView('personnel')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'personnel' ? 'bg-primary text-black' : 'text-white/30'}`}>
-              <Users size={20} />
-              <span className="text-[8px] font-black uppercase tracking-widest">{t.staff}</span>
+              <Users size={20} /><span className="text-[8px] font-black uppercase tracking-widest">{t.staff}</span>
             </button>
             <button onClick={() => setAdminView('settings')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'settings' ? 'bg-primary text-black' : 'text-white/30'}`}>
-              <Settings size={20} />
-              <span className="text-[8px] font-black uppercase tracking-widest">{t.set}</span>
+              <Settings size={20} /><span className="text-[8px] font-black uppercase tracking-widest">{t.set}</span>
             </button>
           </div>
         </nav>
