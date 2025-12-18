@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Reservation, ReservationStatus, Language } from '../types';
 import { getGoogleCalendarUrl } from '../utils/calendarUtils';
-import { Trash2, XCircle, Users, CalendarCheck, CalendarDays, FilterX, UserCheck, CheckCircle2, Phone } from 'lucide-react';
+import { Trash2, XCircle, Users, CalendarCheck, CalendarDays, FilterX, UserCheck, CheckCircle2, Phone, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface Props {
   reservations: Reservation[];
@@ -11,9 +11,13 @@ interface Props {
   lang: Language;
 }
 
+type SortField = 'time' | 'date' | 'name';
+type SortDirection = 'asc' | 'desc';
+
 const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpdate, lang }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<ReservationStatus | 'Alle'>('Alle');
+  const [sortConfig, setSortConfig] = useState<{ field: SortField, direction: SortDirection }>({ field: 'date', direction: 'desc' });
   
   const todayStr = useMemo(() => {
     const today = new Date();
@@ -38,7 +42,11 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
       deleteConfirm: 'Bu rezervasyonu silmek istediğinize emin misiniz?',
       cancelConfirm: 'İptal etmek istiyor musunuz?',
       noRes: 'Rezervasyon bulunamadı.',
-      present: 'burada'
+      present: 'burada',
+      colTime: 'Saat',
+      colDate: 'Tarih',
+      colName: 'İsim',
+      colGuests: 'Kişi'
     },
     de: {
       title: 'Verwaltung',
@@ -55,7 +63,11 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
       deleteConfirm: 'Diese Reservierung dauerhaft löschen?',
       cancelConfirm: 'Möchten Sie diese Reservierung stornieren?',
       noRes: 'Keine Reservierungen gefunden.',
-      present: 'anwesend'
+      present: 'anwesend',
+      colTime: 'Uhrzeit',
+      colDate: 'Datum',
+      colName: 'Name',
+      colGuests: 'Pers.'
     },
     en: {
       title: 'Management',
@@ -72,7 +84,11 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
       deleteConfirm: 'Permanently delete this reservation?',
       cancelConfirm: 'Do you want to cancel this reservation?',
       noRes: 'No reservations found.',
-      present: 'present'
+      present: 'present',
+      colTime: 'Time',
+      colDate: 'Date',
+      colName: 'Name',
+      colGuests: 'Guests'
     },
     es: {
       title: 'Gestión',
@@ -89,7 +105,11 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
       deleteConfirm: '¿Eliminar permanentemente esta reserva?',
       cancelConfirm: '¿Desea cancelar esta reserva?',
       noRes: 'No se encontraron reservas.',
-      present: 'presente'
+      present: 'presente',
+      colTime: 'Hora',
+      colDate: 'Fecha',
+      colName: 'Nombre',
+      colGuests: 'Personas'
     }
   };
 
@@ -106,6 +126,14 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
     }
   };
 
+  const handleSort = (field: SortField) => {
+    setSortConfig(prev => ({
+      field,
+      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
+    }));
+    if (navigator.vibrate) navigator.vibrate(10);
+  };
+
   const filteredReservations = useMemo(() => {
     return reservations.filter(res => {
       const matchesSearch = res.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -118,13 +146,22 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
   }, [reservations, searchTerm, statusFilter, dateFilter]);
 
   const sortedReservations = useMemo(() => {
+    const { field, direction } = sortConfig;
     return [...filteredReservations].sort((a, b) => {
-        if (!dateFilter) {
-            return b.date.localeCompare(a.date) || a.time.localeCompare(b.time);
-        }
-        return a.time.localeCompare(b.time);
+      let comparison = 0;
+      if (field === 'date') {
+        comparison = a.date.localeCompare(b.date);
+        if (comparison === 0) comparison = a.time.localeCompare(b.time);
+      } else if (field === 'time') {
+        comparison = a.time.localeCompare(b.time);
+        if (comparison === 0) comparison = a.date.localeCompare(b.date);
+      } else if (field === 'name') {
+        comparison = a.name.localeCompare(b.name);
+      }
+
+      return direction === 'asc' ? comparison : -comparison;
     });
-  }, [filteredReservations, dateFilter]);
+  }, [filteredReservations, sortConfig]);
 
   const stats = useMemo(() => {
     const targetReservations = filteredReservations.filter(r => r.status !== 'cancelled');
@@ -133,6 +170,11 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
     const totalTables = targetReservations.length;
     return { totalGuests, seatedGuests, totalTables };
   }, [filteredReservations]);
+
+  const SortIcon = ({ field }: { field: SortField }) => {
+    if (sortConfig.field !== field) return <ArrowUpDown size={14} className="opacity-30 ml-1" />;
+    return sortConfig.direction === 'asc' ? <ArrowUp size={14} className="ml-1 text-primary" /> : <ArrowDown size={14} className="ml-1 text-primary" />;
+  };
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in zoom-in duration-300 mb-24">
@@ -216,10 +258,25 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
           <table className="w-full min-w-[800px] text-left text-sm">
             <thead className="border-b border-t border-white/10 bg-white/5 text-xs uppercase text-gray-400">
               <tr>
-                <th className="px-6 py-4 font-medium">{lang === 'tr' ? 'Saat' : 'Uhrzeit'}</th>
-                <th className="px-6 py-4 font-medium">{lang === 'tr' ? 'Tarih' : 'Datum'}</th>
-                <th className="px-6 py-4 font-medium">{lang === 'tr' ? 'İsim' : 'Name'}</th>
-                <th className="px-6 py-4 font-medium">{lang === 'tr' ? 'Kişi' : 'Pers.'}</th>
+                <th 
+                  className="px-6 py-4 font-medium cursor-pointer hover:bg-white/10 transition-colors select-none"
+                  onClick={() => handleSort('time')}
+                >
+                  <div className="flex items-center">{t.colTime} <SortIcon field="time" /></div>
+                </th>
+                <th 
+                  className="px-6 py-4 font-medium cursor-pointer hover:bg-white/10 transition-colors select-none"
+                  onClick={() => handleSort('date')}
+                >
+                  <div className="flex items-center">{t.colDate} <SortIcon field="date" /></div>
+                </th>
+                <th 
+                  className="px-6 py-4 font-medium cursor-pointer hover:bg-white/10 transition-colors select-none"
+                  onClick={() => handleSort('name')}
+                >
+                  <div className="flex items-center">{t.colName} <SortIcon field="name" /></div>
+                </th>
+                <th className="px-6 py-4 font-medium">{t.colGuests}</th>
                 <th className="px-6 py-4 font-medium">Status</th>
                 <th className="px-6 py-4 font-medium text-right">{t.actions}</th>
               </tr>
