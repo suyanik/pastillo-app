@@ -52,7 +52,13 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
       save: 'KAYDET',
       cancel: 'İPTAL',
       roles: ['Şef', 'Garson', 'Mutfak', 'Komi', 'Barista', 'Temizlik'],
-      type: { salary: 'Maaş Ödemesi', advance: 'Avans' }
+      type: { salary: 'Maaş Ödemesi', advance: 'Avans' },
+      paid: 'ÖDENDİ',
+      recordsHeader: 'Sicil & Kayıt Bilgileri',
+      noRecords: 'Kayıt Bulunmuyor',
+      deleteRecord: 'KAYDI SİL',
+      deleteConfirm: 'Kayıt silinsin mi?',
+      errorName: 'Lütfen en azından ad ve soyad girin.'
     },
     de: {
       title: 'Personalverwaltung',
@@ -86,7 +92,13 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
       save: 'SPEICHERN',
       cancel: 'ABBRECHEN',
       roles: ['Küchenchef', 'Kellner', 'Küche', 'Hilfskraft', 'Barista', 'Reinigung'],
-      type: { salary: 'Gehaltszahlung', advance: 'Vorschuss' }
+      type: { salary: 'Gehaltszahlung', advance: 'Vorschuss' },
+      paid: 'BEZAHLT',
+      recordsHeader: 'Stamm- & Registerdaten',
+      noRecords: 'Keine Einträge',
+      deleteRecord: 'DATENSATZ LÖSCHEN',
+      deleteConfirm: 'Datensatz löschen?',
+      errorName: 'Bitte Vor- und Nachnamen eingeben.'
     },
     en: {
       title: 'Staff Management',
@@ -120,7 +132,13 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
       save: 'SAVE',
       cancel: 'CANCEL',
       roles: ['Chef', 'Waiter', 'Kitchen', 'Assistant', 'Barista', 'Cleaning'],
-      type: { salary: 'Salary', advance: 'Advance' }
+      type: { salary: 'Salary', advance: 'Advance' },
+      paid: 'PAID',
+      recordsHeader: 'Service & Record Info',
+      noRecords: 'No Records Found',
+      deleteRecord: 'DELETE RECORD',
+      deleteConfirm: 'Delete this record?',
+      errorName: 'Please enter at least first and last name.'
     }
   };
 
@@ -129,7 +147,7 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
   const [staff, setStaff] = useState<Personnel[]>([
     { 
       id: '1', firstName: 'Ahmet', lastName: 'Yılmaz', role: t.roles[0], phone: '0176 1234567', startDate: '2023-01-15',
-      dateOfBirth: '1990-05-20', placeOfBirth: 'İstanbul', address: 'Musterstr. 1, 35510 Butzbach', nationality: 'Türkisch',
+      dateOfBirth: '1990-05-20', placeOfBirth: 'İstanbul', address: 'Musterstr. 1, 35510 Butzbach', nationality: 'TR',
       healthInsurance: 'AOK Hessen', taxId: '123/456/78901', socialSecurityNumber: '65 200590 Y 001', bankName: 'Sparkasse Oberhessen',
       iban: 'DE12 5005 0000 1234 5678 90', bic: 'HELADEF1', baseSalary: 2800,
       payments: [
@@ -165,7 +183,7 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
 
   const handleSaveNewPersonnel = () => {
     if (!newPerson.firstName || !newPerson.lastName) {
-      alert(lang === 'tr' ? 'Lütfen en azından ad ve soyad girin.' : 'Bitte Vor- und Nachnamen eingeben.');
+      alert(t.errorName);
       return;
     }
     const personToAdd = {
@@ -204,7 +222,6 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
         </div>
 
         <div className="space-y-8">
-          {/* Kişisel Bilgiler */}
           <section className="glass p-6 rounded-[2.5rem] border border-white/5 space-y-4">
             <div className="flex items-center gap-2 text-primary/60 mb-2">
               <Users size={16} />
@@ -231,7 +248,6 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
             </div>
           </section>
 
-          {/* Resmi Bilgiler */}
           <section className="glass p-6 rounded-[2.5rem] border border-white/5 space-y-4">
             <div className="flex items-center gap-2 text-primary/60 mb-2">
               <ShieldCheck size={16} />
@@ -244,7 +260,6 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
             </div>
           </section>
 
-          {/* Banka ve Maaş */}
           <section className="glass p-6 rounded-[2.5rem] border border-white/5 space-y-4">
             <div className="flex items-center gap-2 text-primary/60 mb-2">
               <Banknote size={16} />
@@ -259,7 +274,6 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
             <input placeholder={t.bic} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold" value={newPerson.bic || ''} onChange={e => setNewPerson({...newPerson, bic: e.target.value})}/>
           </section>
 
-          {/* Tarihler */}
           <section className="glass p-6 rounded-[2.5rem] border border-white/5 space-y-4">
             <div className="flex items-center gap-2 text-primary/60 mb-2">
               <Calendar size={16} />
@@ -290,7 +304,6 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
           <h2 className="text-xl font-black text-white uppercase">{selectedPersonnel.firstName} {selectedPersonnel.lastName}</h2>
         </div>
 
-        {/* 1. Finansal Özet (Maaş & Avans) */}
         <div className="bg-gradient-to-br from-[#1a1a1a] to-[#0a0a0a] p-6 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden">
            <div className="absolute top-0 right-0 p-8 opacity-5"><Wallet size={120} className="text-white" /></div>
            <div className="relative z-10 space-y-6">
@@ -305,7 +318,7 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
                  </div>
                  <div className={`p-4 rounded-3xl border ${salaryStats.paidSalary ? 'bg-green-500/10 border-green-500/20' : 'bg-primary/5 border-primary/20'}`}>
                     <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${salaryStats.paidSalary ? 'text-green-500' : 'text-primary'}`}>
-                      {salaryStats.paidSalary ? 'ÖDENDİ' : t.remaining}
+                      {salaryStats.paidSalary ? t.paid : t.remaining}
                     </p>
                     <p className="text-xl font-black text-white">€{salaryStats.remaining}</p>
                  </div>
@@ -319,11 +332,10 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
            </div>
         </div>
 
-        {/* 2. Sicil Bilgileri (Detaylı Liste) */}
         <div className="space-y-4">
            <div className="flex items-center gap-2 px-1">
               <Info size={16} className="text-white/30" />
-              <h3 className="text-[10px] font-black uppercase text-white/30 tracking-widest">Sicil & Kayıt Bilgileri</h3>
+              <h3 className="text-[10px] font-black uppercase text-white/30 tracking-widest">{t.recordsHeader}</h3>
            </div>
            <div className="glass p-6 rounded-[2.5rem] border border-white/5 space-y-4">
               <div className="grid grid-cols-1 gap-y-3">
@@ -355,7 +367,6 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
            </div>
         </div>
 
-        {/* 3. Ödeme Geçmişi */}
         <div className="space-y-4">
            <div className="flex items-center gap-2 px-1">
               <History size={16} className="text-white/30" />
@@ -363,7 +374,7 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
            </div>
            <div className="space-y-2">
               {selectedPersonnel.payments.length === 0 ? (
-                <p className="text-center py-8 text-white/10 text-xs font-bold uppercase tracking-widest">Kayıt Bulunmuyor</p>
+                <p className="text-center py-8 text-white/10 text-xs font-bold uppercase tracking-widest">{t.noRecords}</p>
               ) : (
                 selectedPersonnel.payments.map(payment => (
                   <div key={payment.id} className="glass p-4 rounded-2xl border border-white/5 flex items-center justify-between">
@@ -385,9 +396,8 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
            </div>
         </div>
 
-        <button onClick={() => { if(window.confirm('Kayıt silinsin mi?')) { setStaff(staff.filter(s => s.id !== selectedPersonnel.id)); setSelectedPersonnel(null); } }} className="w-full bg-red-500/10 text-red-500 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-red-500/20">KAYDI SİL</button>
+        <button onClick={() => { if(window.confirm(t.deleteConfirm)) { setStaff(staff.filter(s => s.id !== selectedPersonnel.id)); setSelectedPersonnel(null); } }} className="w-full bg-red-500/10 text-red-500 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest border border-red-500/20">{t.deleteRecord}</button>
 
-        {/* Ödeme Modalı */}
         {showPaymentModal && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
              <div className="w-full max-w-xs glass p-8 rounded-[3rem] border border-white/10 space-y-6 shadow-2xl">
@@ -449,4 +459,3 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
 };
 
 export default PersonnelManagement;
-

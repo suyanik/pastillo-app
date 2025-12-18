@@ -161,4 +161,3 @@ const InfoView: React.FC<Props> = ({ lang }) => {
 };
 
 export default InfoView;
-

@@ -344,4 +344,3 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
 };
 
 export default ManagerDashboard;
-

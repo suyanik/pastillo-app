@@ -1,15 +1,46 @@
 
 import React, { useState } from 'react';
 import { Lock } from 'lucide-react';
+import { Language } from '../types';
 
 interface Props {
   onLogin: () => void;
   onCancel: () => void;
+  lang: Language;
 }
 
-const AdminLogin: React.FC<Props> = ({ onLogin, onCancel }) => {
+const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang }) => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
+
+  const translations = {
+    tr: {
+      title: 'Yönetici Girişi',
+      sub: 'Devam etmek için PIN girin',
+      delete: 'Sil',
+      cancel: 'Vazgeç'
+    },
+    de: {
+      title: 'Admin Login',
+      sub: 'PIN eingeben um fortzufahren',
+      delete: 'Löschen',
+      cancel: 'Abbrechen'
+    },
+    en: {
+      title: 'Admin Login',
+      sub: 'Enter PIN to continue',
+      delete: 'Delete',
+      cancel: 'Cancel'
+    },
+    es: {
+      title: 'Acceso Admin',
+      sub: 'Ingrese PIN para continuar',
+      delete: 'Borrar',
+      cancel: 'Cancelar'
+    }
+  };
+
+  const t = translations[lang] || translations.tr;
 
   const handleNumClick = (num: string) => {
     if (pin.length < 4) {
@@ -18,7 +49,6 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel }) => {
       setError(false);
       
       if (newPin.length === 4) {
-        // PIN 0000 olarak güncellendi
         if (newPin === '0000') {
           setTimeout(onLogin, 100);
         } else {
@@ -41,8 +71,8 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel }) => {
           <div className="w-16 h-16 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-white/5">
             <Lock className="text-primary" size={24} />
           </div>
-          <h2 className="text-xl font-bold text-white">Admin Login</h2>
-          <p className="text-sm text-white/50 mt-2">PIN eingeben um fortzufahren</p>
+          <h2 className="text-xl font-bold text-white">{t.title}</h2>
+          <p className="text-sm text-white/50 mt-2">{t.sub}</p>
         </div>
 
         <div className="flex justify-center gap-4 mb-8 h-4">
@@ -68,7 +98,7 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel }) => {
               {num}
             </button>
           ))}
-          <div className="w-16 h-16"></div> {/* Spacer */}
+          <div className="w-16 h-16"></div>
           <button
             onClick={() => handleNumClick('0')}
             className="w-16 h-16 rounded-full bg-white/5 text-2xl font-medium text-white shadow-sm border border-white/10 active:bg-white/20 transition-colors mx-auto flex items-center justify-center"
@@ -79,7 +109,7 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel }) => {
             onClick={handleDelete}
             className="w-16 h-16 rounded-full flex items-center justify-center text-white/50 active:text-white mx-auto text-sm font-medium"
           >
-            Löschen
+            {t.delete}
           </button>
         </div>
 
@@ -87,7 +117,7 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel }) => {
           onClick={onCancel}
           className="mt-12 text-white/40 text-sm font-medium hover:text-white"
         >
-          Abbrechen
+          {t.cancel}
         </button>
       </div>
     </div>
