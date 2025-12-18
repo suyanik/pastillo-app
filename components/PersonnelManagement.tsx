@@ -19,7 +19,7 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
   const [showPaymentModal, setShowPaymentModal] = useState<'salary' | 'advance' | null>(null);
   const [paymentAmount, setPaymentAmount] = useState('');
 
-  const translations = {
+  const translations: Record<Language, any> = {
     tr: {
       title: 'Personel Yönetimi',
       count: 'Çalışan Sayısı',
@@ -139,6 +139,46 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
       deleteRecord: 'DELETE RECORD',
       deleteConfirm: 'Delete this record?',
       errorName: 'Please enter at least first and last name.'
+    },
+    es: {
+      title: 'Gestión de Personal',
+      count: 'Número de empleados',
+      add: 'Nuevo Empleado',
+      search: 'Buscar...',
+      personalInfo: 'Info Personal',
+      legalInfo: 'Info Legal',
+      bankInfo: 'Info Bancaria',
+      salaryInfo: 'Estado Salario',
+      firstName: 'Nombre',
+      lastName: 'Apellido',
+      dob: 'Fecha de Nac.',
+      pob: 'Lugar de Nac.',
+      address: 'Dirección',
+      nationality: 'Nacionalidad',
+      healthIns: 'Seguro Médico',
+      taxId: 'ID Fiscal',
+      ssn: 'No. Seguridad Social',
+      bank: 'Banco',
+      iban: 'IBAN',
+      bic: 'BIC',
+      startDate: 'Fecha Inicio',
+      endDate: 'Fecha Fin',
+      baseSalary: 'Salario Neto',
+      advances: 'Adelantos',
+      remaining: 'Restante',
+      history: 'Historial',
+      paySalary: 'Pagar Salario',
+      giveAdvance: 'Dar Adelanto',
+      save: 'GUARDAR',
+      cancel: 'CANCELAR',
+      roles: ['Chef', 'Camarero', 'Cocina', 'Asistente', 'Barista', 'Limpieza'],
+      type: { salary: 'Salario', advance: 'Adelanto' },
+      paid: 'PAGADO',
+      recordsHeader: 'Registro de Servicio',
+      noRecords: 'Sin registros',
+      deleteRecord: 'ELIMINAR REGISTRO',
+      deleteConfirm: '¿Eliminar registro?',
+      errorName: 'Ingrese nombre y apellido.'
     }
   };
 
@@ -284,7 +324,7 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
               <input type="date" className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white [color-scheme:dark]" value={newPerson.endDate || ''} onChange={e => setNewPerson({...newPerson, endDate: e.target.value})}/>
             </div>
             <select className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold [color-scheme:dark]" value={newPerson.role} onChange={e => setNewPerson({...newPerson, role: e.target.value})}>
-               {t.roles.map(r => <option key={r} value={r}>{r}</option>)}
+               {(t.roles as string[]).map((r: string) => <option key={r} value={r}>{r}</option>)}
             </select>
           </section>
 
@@ -459,3 +499,4 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
 };
 
 export default PersonnelManagement;
+
