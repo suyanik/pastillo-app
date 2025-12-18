@@ -9,7 +9,7 @@ interface Props {
 }
 
 const Dashboard: React.FC<Props> = ({ records, lang }) => {
-  const translations = {
+  const translations: Record<Language, any> = {
     tr: {
       net: 'Bugünkü Net Kasa',
       income: 'Gelir',
@@ -39,6 +39,16 @@ const Dashboard: React.FC<Props> = ({ records, lang }) => {
       recent: 'Recent Expenses',
       all: 'ALL',
       empty: 'No Transactions'
+    },
+    es: {
+      net: 'Caja Neta de Hoy',
+      income: 'Ingresos',
+      expense: 'Gastos',
+      cash: 'Efectivo',
+      card: 'Tarjeta',
+      recent: 'Gastos Recientes',
+      all: 'TODO',
+      empty: 'Sin transacciones'
     }
   };
 
@@ -134,3 +144,4 @@ const Dashboard: React.FC<Props> = ({ records, lang }) => {
 };
 
 export default Dashboard;
+
