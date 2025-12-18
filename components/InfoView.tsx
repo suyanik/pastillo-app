@@ -47,23 +47,10 @@ const InfoView: React.FC<Props> = ({ lang }) => {
       contact: 'Direct Contact',
       call: 'Call Us',
       whatsapp: 'WhatsApp Line'
-    },
-    es: {
-      title: 'Contacto e Info',
-      sub: 'No dude en contactarnos en cualquier momento.',
-      address: 'Dirección',
-      addressFull: 'Marktplatz 23, 35510 Butzbach',
-      hours: 'Horarios',
-      weekdays: 'Diario: 11:00 - 23:00',
-      closedDay: 'Martes: Cerrado',
-      social: 'Redes Sociales',
-      contact: 'Contacto Directo',
-      call: 'Llámanos',
-      whatsapp: 'WhatsApp'
     }
   };
 
-  const t = translations[lang];
+  const t = translations[lang] || translations.de;
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-20">

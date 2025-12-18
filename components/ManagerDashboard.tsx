@@ -89,31 +89,10 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
       colDate: 'Date',
       colName: 'Name',
       colGuests: 'Guests'
-    },
-    es: {
-      title: 'Gestión',
-      subTitle: 'Reservas',
-      all: 'Todos',
-      search: 'Buscar por nombre...',
-      allStatus: 'Todos los estados',
-      confirmed: 'Confirmado',
-      seated: 'En mesa',
-      cancelled: 'Cancelado',
-      guests: 'Invitados',
-      tables: 'Mesas',
-      actions: 'Acciones',
-      deleteConfirm: '¿Eliminar permanentemente esta reserva?',
-      cancelConfirm: '¿Desea cancelar esta reserva?',
-      noRes: 'No se encontraron reservas.',
-      present: 'presente',
-      colTime: 'Hora',
-      colDate: 'Fecha',
-      colName: 'Nombre',
-      colGuests: 'Personas'
     }
   };
 
-  const t = translations[lang];
+  const t = translations[lang] || translations.de;
 
   const handleCheckIn = (id: string) => {
     if (navigator.vibrate) navigator.vibrate(50);

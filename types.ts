@@ -40,24 +40,27 @@ export interface Expense {
   receiptImage?: string;
   personnelId?: string;
   personnelName?: string;
+  createdAt: number;
 }
 
 export interface DailyTurnover {
+  id?: string;
   date: string;
   cash: number;
   creditCard: number;
+  lieferando: number;
   total: number;
+  createdAt: number;
 }
 
-export interface FinancialRecord {
-  id: string;
-  date: string;
-  turnover: DailyTurnover;
-  expenses: Expense[];
-  notes?: string;
+export interface AppSettings {
+  adminPin: string;
+  maxCapacityPerSlot: number;
+  holidays: string[]; // YYYY-MM-DD format
+  managerEmail: string;
 }
 
-export type Language = 'tr' | 'de' | 'en' | 'es';
+export type Language = 'tr' | 'de' | 'en';
 export type ReservationStatus = 'confirmed' | 'seated' | 'cancelled';
 
 export interface Reservation {

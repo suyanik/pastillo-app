@@ -1,7 +1,8 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 import { Language } from "../types";
 
-export const analyzeReceiptAI = async (base64Image: string, lang: Language = 'tr') => {
+export const analyzeReceiptAI = async (base64Image: string, lang: Language = 'de') => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
   const prompts: Record<Language, string> = {
@@ -22,16 +23,10 @@ export const analyzeReceiptAI = async (base64Image: string, lang: Language = 'tr
          - totalAmount (Number only)
          - description (E.g.: Metro Market Groceries)
          - category ('Salary/Advance', 'Supplier', 'Rent/Bills', 'Tax', 'Other')
-         Return only JSON.`,
-    es: `Este es un recibo/factura de gastos de un restaurante. Analice los datos y devuélvalos en formato JSON.
-         Datos:
-         - totalAmount (Solo número)
-         - description (Ej: Compras Supermercado)
-         - category ('Salario/Adelanto', 'Proveedor', 'Renta/Facturas', 'Impuestos', 'Otros')
-         Devolver solo JSON.`
+         Return only JSON.`
   };
 
-  const prompt = prompts[lang] || prompts.tr;
+  const prompt = prompts[lang] || prompts.de;
 
   try {
     const response = await ai.models.generateContent({

@@ -1,11 +1,7 @@
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
-import { Reservation, ReservationStatus } from "../types";
-
-// ------------------------------------------------------------------
-// Firebase Config
-// ------------------------------------------------------------------
+import { Reservation, ReservationStatus, DailyTurnover, Expense, AppSettings } from "../types";
 
 const keyParts = ["AIzaSyCdu", "-FAv6bQiaFJGZdescMJJKcq7a8vre8"];
 
@@ -19,78 +15,124 @@ const firebaseConfig = {
   measurementId: "G-SFE0D0Z1ZW"
 };
 
-// Initialize Firebase
 const app = firebase.apps.length === 0 ? firebase.initializeApp(firebaseConfig) : firebase.app();
 const db = app.firestore();
 
-// Connectivity fix: Use long-polling instead of standard streaming.
-// Removed 'merge: true' as it is not a valid Firestore setting and can cause issues.
-// We only set experimentalForceLongPolling to avoid conflict with experimentalAutoDetectLongPolling.
-db.settings({
-  experimentalForceLongPolling: true
+// Only apply settings if they haven't been applied before to avoid the "overriding host" warning
+try {
+  db.settings({ 
+    experimentalForceLongPolling: true,
+    merge: true // This satisfies the Firestore 12.6 requirement mentioned in your warning
+  });
+} catch (e) {
+  // Settings already applied, safe to ignore
+}
+
+// persistence warning is safe to ignore in compat mode, but we keep it for offline support
+db.enablePersistence({ synchronizeTabs: true }).catch((err) => {
+  if (err.code === 'failed-precondition') {
+    console.warn("Multiple tabs open, persistence can only be enabled in one tab at a time.");
+  } else if (err.code === 'unimplemented') {
+    console.warn("The current browser doesn't support all of the features needed to enable persistence.");
+  }
 });
 
-// Çevrimdışı Veri Kalıcılığını Aktif Et (Offline Persistence)
-db.enablePersistence({ synchronizeTabs: true })
-  .catch((err) => {
-    if (err.code == 'failed-precondition') {
-      console.warn("Offline persistence failed: Multiple tabs open.");
-    } else if (err.code == 'unimplemented') {
-      console.warn("Offline persistence is not available in this browser.");
+const COLL_RESERVATIONS = "reservations";
+const COLL_TURNOVER = "turnover";
+const COLL_EXPENSES = "expenses";
+const COLL_SETTINGS = "settings";
+
+// --- Settings ---
+export const subscribeToSettings = (callback: (settings: AppSettings) => void) => {
+  return db.collection(COLL_SETTINGS).doc("main").onSnapshot((doc) => {
+    if (doc.exists) {
+      callback(doc.data() as AppSettings);
+    } else {
+      const defaultSettings: AppSettings = {
+        adminPin: "0000",
+        maxCapacityPerSlot: 20,
+        holidays: [],
+        managerEmail: "info@pastillo.de"
+      };
+      db.collection(COLL_SETTINGS).doc("main").set(defaultSettings);
+      callback(defaultSettings);
     }
   });
+};
 
-const COLLECTION_NAME = "reservations";
+export const updateSettings = async (settings: Partial<AppSettings>) => {
+  await db.collection(COLL_SETTINGS).doc("main").update(settings);
+};
 
-// Rezervasyon Ekleme
+// --- Reservations ---
 export const addReservationToDB = async (reservation: Omit<Reservation, "id" | "createdAt">) => {
   try {
-    await db.collection(COLLECTION_NAME).add({
+    const res = await db.collection(COLL_RESERVATIONS).add({
       ...reservation,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+      createdAt: Date.now()
     });
+    
+    // Simulate Email Notification trigger
+    console.log(`Notification: New Reservation for ${reservation.name} on ${reservation.date} at ${reservation.time}. Emailing info@pastillo.de...`);
+    
+    return res.id;
   } catch (error) {
     console.error("Error adding reservation: ", error);
     throw error;
   }
 };
 
-// Rezervasyon Durumu Güncelleme
-export const updateReservationStatus = async (id: string, status: ReservationStatus) => {
-  try {
-    await db.collection(COLLECTION_NAME).doc(id).update({ status });
-  } catch (error) {
-    console.error("Error updating reservation status: ", error);
-    throw error;
-  }
-};
-
-// Rezervasyon Silme
-export const deleteReservationFromDB = async (id: string) => {
-  try {
-    await db.collection(COLLECTION_NAME).doc(id).delete();
-  } catch (error) {
-    console.error("Error deleting reservation: ", error);
-    throw error;
-  }
-};
-
-// Gerçek Zamanlı Dinleme (Realtime Listener)
 export const subscribeToReservations = (callback: (data: Reservation[]) => void) => {
-  return db.collection(COLLECTION_NAME)
+  return db.collection(COLL_RESERVATIONS)
     .orderBy("createdAt", "desc")
     .onSnapshot((snapshot) => {
-      const reservations = snapshot.docs.map(doc => {
-        const data = doc.data();
-        return {
-          id: doc.id,
-          ...data,
-          createdAt: (data.createdAt as any)?.toMillis() || Date.now()
-        };
-      }) as Reservation[];
-      
+      const reservations = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      })) as Reservation[];
       callback(reservations);
-    }, (error) => {
-      console.error("Firebase subscription error:", error);
     });
+};
+
+export const updateReservationStatus = async (id: string, status: ReservationStatus) => {
+  await db.collection(COLL_RESERVATIONS).doc(id).update({ status });
+};
+
+export const deleteReservationFromDB = async (id: string) => {
+  await db.collection(COLL_RESERVATIONS).doc(id).delete();
+};
+
+// --- Finance ---
+export const addTurnover = async (turnover: Omit<DailyTurnover, "createdAt">) => {
+  const existing = await db.collection(COLL_TURNOVER).where("date", "==", turnover.date).get();
+  if (!existing.empty) {
+    await db.collection(COLL_TURNOVER).doc(existing.docs[0].id).update({
+      ...turnover,
+      createdAt: Date.now()
+    });
+  } else {
+    await db.collection(COLL_TURNOVER).add({
+      ...turnover,
+      createdAt: Date.now()
+    });
+  }
+};
+
+export const subscribeToTurnover = (callback: (data: DailyTurnover[]) => void) => {
+  return db.collection(COLL_TURNOVER).orderBy("date", "desc").onSnapshot(snap => {
+    callback(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as DailyTurnover[]);
+  });
+};
+
+export const addExpense = async (expense: Omit<Expense, "id" | "createdAt">) => {
+  await db.collection(COLL_EXPENSES).add({
+    ...expense,
+    createdAt: Date.now()
+  });
+};
+
+export const subscribeToExpenses = (callback: (data: Expense[]) => void) => {
+  return db.collection(COLL_EXPENSES).orderBy("createdAt", "desc").onSnapshot(snap => {
+    callback(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Expense[]);
+  });
 };

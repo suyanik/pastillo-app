@@ -30,11 +30,10 @@ const SuccessView: React.FC<Props> = ({ reservation, onReset, lang }) => {
     const messages = {
       tr: `🍽️ Pastillo Rezervasyonu\n\n📅 Tarih: ${dateStr}\n⏰ Saat: ${reservation.time}\n👤 Kişi: ${reservation.guests}\n\nGörüşmek üzere! 🥂`,
       de: `🍽️ Reservierung bei Pastillo\n\n📅 Datum: ${dateStr}\n⏰ Zeit: ${reservation.time}\n👤 Personen: ${reservation.guests}\n\nIch freue mich! 🥂`,
-      en: `🍽️ Reservation at Pastillo\n\n📅 Date: ${dateStr}\n⏰ Time: ${reservation.time}\n👤 Guests: ${reservation.guests}\n\nSee you there! 🥂`,
-      es: `🍽️ Reserva en Pastillo\n\n📅 Fecha: ${dateStr}\n⏰ Hora: ${reservation.time}\n👤 Personas: ${reservation.guests}\n\n¡Nos vemos! 🥂`
+      en: `🍽️ Reservation at Pastillo\n\n📅 Date: ${dateStr}\n⏰ Time: ${reservation.time}\n👤 Guests: ${reservation.guests}\n\nSee you there! 🥂`
     };
 
-    const text = messages[lang];
+    const text = messages[lang] || messages.de;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     window.open(url, '_blank');
   };
@@ -42,11 +41,10 @@ const SuccessView: React.FC<Props> = ({ reservation, onReset, lang }) => {
   const labels = {
     tr: { title: 'Onaylandı!', details: 'Detaylar', date: 'Tarih', time: 'Saat', name: 'İsim', guests: 'Kişi', save: 'Takvime Kaydet', google: 'Google Takvim', home: 'Anasayfa' },
     de: { title: 'Bestätigt!', details: 'Details', date: 'Datum', time: 'Uhrzeit', name: 'Name', guests: 'Gäste', save: 'In Kalender speichern', google: 'Google Kalender', home: 'Zurück zur Startseite' },
-    en: { title: 'Confirmed!', details: 'Details', date: 'Date', time: 'Time', name: 'Name', guests: 'Guests', save: 'Save to Calendar', google: 'Google Calendar', home: 'Back Home' },
-    es: { title: '¡Confirmado!', details: 'Detalles', date: 'Fecha', time: 'Hora', name: 'Nombre', guests: 'Personas', save: 'Guardar en Calendario', google: 'Google Calendar', home: 'Volver al Inicio' }
+    en: { title: 'Confirmed!', details: 'Details', date: 'Date', time: 'Time', name: 'Name', guests: 'Guests', save: 'Save to Calendar', google: 'Google Calendar', home: 'Back Home' }
   };
 
-  const l = labels[lang];
+  const l = labels[lang] || labels.de;
 
   return (
     <div className="flex flex-col items-center justify-start rounded-xl bg-white/5 border border-white/10 shadow-lg w-full p-6 sm:p-8 text-center animate-in fade-in zoom-in duration-300">

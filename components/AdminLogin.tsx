@@ -7,40 +7,20 @@ interface Props {
   onLogin: () => void;
   onCancel: () => void;
   lang: Language;
+  currentPin: string;
 }
 
-const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang }) => {
+const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang, currentPin }) => {
   const [pin, setPin] = useState('');
   const [error, setError] = useState(false);
 
   const translations = {
-    tr: {
-      title: 'Yönetici Girişi',
-      sub: 'Devam etmek için PIN girin',
-      delete: 'Sil',
-      cancel: 'Vazgeç'
-    },
-    de: {
-      title: 'Admin Login',
-      sub: 'PIN eingeben um fortzufahren',
-      delete: 'Löschen',
-      cancel: 'Abbrechen'
-    },
-    en: {
-      title: 'Admin Login',
-      sub: 'Enter PIN to continue',
-      delete: 'Delete',
-      cancel: 'Cancel'
-    },
-    es: {
-      title: 'Acceso Admin',
-      sub: 'Ingrese PIN para continuar',
-      delete: 'Borrar',
-      cancel: 'Cancelar'
-    }
+    tr: { title: 'Yönetici Girişi', sub: 'Devam etmek için PIN girin', delete: 'Sil', cancel: 'Vazgeç' },
+    de: { title: 'Admin Login', sub: 'PIN eingeben um fortzufahren', delete: 'Löschen', cancel: 'Abbrechen' },
+    en: { title: 'Admin Login', sub: 'Enter PIN to continue', delete: 'Delete', cancel: 'Cancel' }
   };
 
-  const t = translations[lang] || translations.tr;
+  const t = translations[lang] || translations.de;
 
   const handleNumClick = (num: string) => {
     if (pin.length < 4) {
@@ -49,7 +29,7 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang }) => {
       setError(false);
       
       if (newPin.length === 4) {
-        if (newPin === '0000') {
+        if (newPin === currentPin) {
           setTimeout(onLogin, 100);
         } else {
           setError(true);
@@ -99,26 +79,11 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang }) => {
             </button>
           ))}
           <div className="w-16 h-16"></div>
-          <button
-            onClick={() => handleNumClick('0')}
-            className="w-16 h-16 rounded-full bg-white/5 text-2xl font-medium text-white shadow-sm border border-white/10 active:bg-white/20 transition-colors mx-auto flex items-center justify-center"
-          >
-            0
-          </button>
-          <button
-            onClick={handleDelete}
-            className="w-16 h-16 rounded-full flex items-center justify-center text-white/50 active:text-white mx-auto text-sm font-medium"
-          >
-            {t.delete}
-          </button>
+          <button onClick={() => handleNumClick('0')} className="w-16 h-16 rounded-full bg-white/5 text-2xl font-medium text-white shadow-sm border border-white/10 active:bg-white/20 transition-colors mx-auto flex items-center justify-center">0</button>
+          <button onClick={handleDelete} className="w-16 h-16 rounded-full flex items-center justify-center text-white/50 active:text-white mx-auto text-sm font-medium">{t.delete}</button>
         </div>
 
-        <button 
-          onClick={onCancel}
-          className="mt-12 text-white/40 text-sm font-medium hover:text-white"
-        >
-          {t.cancel}
-        </button>
+        <button onClick={onCancel} className="mt-12 text-white/40 text-sm font-medium hover:text-white">{t.cancel}</button>
       </div>
     </div>
   );

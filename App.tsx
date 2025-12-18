@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { 
   Users, TrendingUp, Calendar, 
@@ -11,68 +12,64 @@ import ManagerDashboard from './components/ManagerDashboard';
 import ReservationForm from './components/ReservationForm';
 import PersonnelManagement from './components/PersonnelManagement';
 import InstallPrompt from './components/InstallPrompt';
+import SettingsManager from './components/SettingsManager';
 
 // Services & Types
-import { Reservation, Language } from './types';
-import { subscribeToReservations, addReservationToDB, updateReservationStatus, deleteReservationFromDB } from './services/firebase';
+import { Reservation, Language, AppSettings, DailyTurnover, Expense } from './types';
+import { 
+  subscribeToReservations, addReservationToDB, updateReservationStatus, 
+  deleteReservationFromDB, subscribeToSettings, subscribeToTurnover, subscribeToExpenses 
+} from './services/firebase';
 
 const App: React.FC = () => {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [adminView, setAdminView] = useState<'reservations' | 'finance' | 'personnel' | 'settings'>('reservations');
   const [view, setView] = useState<'public' | 'admin'>('public');
-  const [lang, setLang] = useState<Language>('tr');
+  const [lang, setLang] = useState<Language>('de');
+  
   const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [turnovers, setTurnovers] = useState<DailyTurnover[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [settings, setSettings] = useState<AppSettings>({
+    adminPin: "0000",
+    maxCapacityPerSlot: 20,
+    holidays: [],
+    managerEmail: "info@pastillo.de"
+  });
 
   useEffect(() => {
-    const unsubscribe = subscribeToReservations((data) => {
-      setReservations(data);
-    });
-    return () => unsubscribe();
+    const unsubRes = subscribeToReservations(setReservations);
+    const unsubSet = subscribeToSettings(setSettings);
+    const unsubTurn = subscribeToTurnover(setTurnovers);
+    const unsubExp = subscribeToExpenses(setExpenses);
+
+    return () => {
+      unsubRes();
+      unsubSet();
+      unsubTurn();
+      unsubExp();
+    };
   }, []);
 
   const translations: Record<Language, any> = {
     tr: {
-      res: 'Buchung',
-      fin: 'Finanz',
-      staff: 'Personel',
-      set: 'Ayar',
-      adminTitle: 'YÖNETİM SÜİTİ',
-      customerTitle: 'PASTILLO BUTZBACH',
-      customerSub: 'Masa Rezervasyonu'
+      res: 'Buchung', fin: 'Finanz', staff: 'Personel', set: 'Ayar',
+      adminTitle: 'YÖNETİM SÜİTİ', customerTitle: 'PASTILLO BUTZBACH', customerSub: 'Masa Rezervasyonu'
     },
     de: {
-      res: 'Buchung',
-      fin: 'Finanzen',
-      staff: 'Personal',
-      set: 'Einst.',
-      adminTitle: 'MANAGEMENT SUITE',
-      customerTitle: 'PASTILLO BUTZBACH',
-      customerSub: 'Tischreservierung'
+      res: 'Buchung', fin: 'Finanzen', staff: 'Personal', set: 'Einst.',
+      adminTitle: 'MANAGEMENT SUITE', customerTitle: 'PASTILLO BUTZBACH', customerSub: 'Tischreservierung'
     },
     en: {
-      res: 'Booking',
-      fin: 'Finance',
-      staff: 'Staff',
-      set: 'Settings',
-      adminTitle: 'MANAGEMENT SUITE',
-      customerTitle: 'PASTILLO BUTZBACH',
-      customerSub: 'Table Reservation'
-    },
-    es: {
-      res: 'Reserva',
-      fin: 'Finanzas',
-      staff: 'Personal',
-      set: 'Ajustes',
-      adminTitle: 'SUITE DE GESTIÓN',
-      customerTitle: 'PASTILLO BUTZBACH',
-      customerSub: 'Reserva de Mesa'
+      res: 'Booking', fin: 'Finance', staff: 'Staff', set: 'Settings',
+      adminTitle: 'MANAGEMENT SUITE', customerTitle: 'PASTILLO BUTZBACH', customerSub: 'Table Reservation'
     }
   };
 
-  const t = translations[lang] || translations.tr;
+  const t = translations[lang] || translations.de;
 
   if (view === 'admin' && !isAdminLoggedIn) {
-    return <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} onCancel={() => setView('public')} lang={lang} />;
+    return <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} onCancel={() => setView('public')} lang={lang} currentPin={settings.adminPin} />;
   }
 
   return (
@@ -92,7 +89,7 @@ const App: React.FC = () => {
           
           <div className="flex items-center gap-2">
             <div className="flex bg-white/5 rounded-xl p-1 border border-white/10 mr-2">
-              {(['tr', 'de', 'en', 'es'] as Language[]).map((l: Language) => (
+              {(['tr', 'de', 'en'] as Language[]).map((l: Language) => (
                 <button
                   key={l}
                   onClick={() => setLang(l)}
@@ -123,9 +120,11 @@ const App: React.FC = () => {
             isLoading={false} 
             onSubmit={async (data) => {
               await addReservationToDB({...data, status: 'confirmed'});
-              alert(lang === 'tr' ? 'Rezervasyonunuz alındı!' : 'Reservierung erfolgreich!');
+              const msg = lang === 'tr' ? 'Rezervasyonunuz alındı!' : (lang === 'en' ? 'Reservation received!' : 'Reservierung erfolgreich!');
+              alert(msg);
             }} 
-            existingReservations={reservations} 
+            existingReservations={reservations}
+            settings={settings}
           />
         ) : (
           <div className="space-y-6">
@@ -137,14 +136,9 @@ const App: React.FC = () => {
                 onStatusUpdate={updateReservationStatus} 
               />
             )}
-            {adminView === 'finance' && <Dashboard lang={lang} records={[]} />}
+            {adminView === 'finance' && <Dashboard lang={lang} turnovers={turnovers} expenses={expenses} />}
             {adminView === 'personnel' && <PersonnelManagement lang={lang} />}
-            {adminView === 'settings' && (
-              <div className="glass p-6 rounded-[2rem] border border-white/5">
-                <h3 className="text-lg font-black text-white mb-2">{lang === 'tr' ? 'Ayarlar' : 'Settings'}</h3>
-                <p className="text-white/40 text-sm">Yönetim paneli yapılandırması.</p>
-              </div>
-            )}
+            {adminView === 'settings' && <SettingsManager lang={lang} settings={settings} />}
           </div>
         )}
       </main>

@@ -28,16 +28,10 @@ const InstallPrompt: React.FC<Props> = ({ lang }) => {
       desc: 'Add Pastillo to your home screen for the best experience.',
       step1: '1. Tap the Share button below',
       step2: '2. Select "Add to Home Screen"'
-    },
-    es: {
-      title: 'Instalar App',
-      desc: 'Agregue Pastillo a su pantalla de inicio para una mejor experiencia.',
-      step1: '1. Toque el botón Compartir abajo',
-      step2: '2. Seleccione "Agregar a pantalla de inicio"'
     }
   };
 
-  const t = translations[lang] || translations.tr;
+  const t = translations[lang] || translations.de;
 
   useEffect(() => {
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;

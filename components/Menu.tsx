@@ -34,25 +34,15 @@ const menuData = {
       { name: "Pasta", icon: <Utensils size={20}/>, items: ["Carbonara - 12.50€", "Tagliatelle al Tartufo - 18.50€", "Lasagna Classica - 13.00€"] },
       { name: "Drinks", icon: <Wine size={20}/>, items: ["Aperol Spritz - 8.50€", "Espresso - 2.50€", "House Wine (0.2l) - 6.50€"] }
     ]
-  },
-  es: {
-    title: "Menú Digital",
-    categories: [
-      { name: "Antipasti", icon: <Utensils size={20}/>, items: ["Bruschetta Classica - 8.50€", "Carpaccio di Manzo - 14.50€", "Burrata & Pomodori - 12.00€"] },
-      { name: "Pizza", icon: <Pizza size={20}/>, items: ["Margherita - 10.50€", "Diavola - 13.50€", "Quattro Formaggi - 14.00€"] },
-      { name: "Pasta", icon: <Utensils size={20}/>, items: ["Carbonara - 12.50€", "Tagliatelle al Tartufo - 18.50€", "Lasagna Classica - 13.00€"] },
-      { name: "Bebidas", icon: <Wine size={20}/>, items: ["Aperol Spritz - 8.50€", "Espresso - 2.50€", "Vino de la Casa (0.2l) - 6.50€"] }
-    ]
   }
 };
 
 const Menu: React.FC<Props> = ({ lang }) => {
-  const data = menuData[lang];
+  const data = menuData[lang] || menuData.de;
   const subtitles = {
     tr: 'Pastillo lezzetlerini keşfedin.',
     de: 'Entdecken Sie unsere Spezialitäten.',
-    en: 'Discover our specialties.',
-    es: 'Descubre nuestras especialidades.'
+    en: 'Discover our specialties.'
   };
 
   return (
@@ -60,7 +50,7 @@ const Menu: React.FC<Props> = ({ lang }) => {
       <div className="px-2">
         <h2 className="text-3xl font-extrabold text-white tracking-tight">{data.title}</h2>
         <p className="text-white/60 font-medium text-lg mt-1">
-          {subtitles[lang]}
+          {subtitles[lang] || subtitles.de}
         </p>
       </div>
 
