@@ -1,134 +1,183 @@
 
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, PlusCircle, Info, Globe } from 'lucide-react';
-import ReservationForm from './components/ReservationForm';
-import SuccessView from './components/SuccessView';
-import ManagerDashboard from './components/ManagerDashboard';
+import { 
+  Users, TrendingUp, Calendar, LayoutDashboard, 
+  Settings, LogOut, Plus, PlusCircle, UserCog
+} from 'lucide-react';
+
+// Components
 import AdminLogin from './components/AdminLogin';
+import Dashboard from './components/Dashboard';
+import EntryForm from './components/EntryForm';
+import ManagerDashboard from './components/ManagerDashboard';
+import ReservationForm from './components/ReservationForm';
+import PersonnelManagement from './components/PersonnelManagement';
 import InstallPrompt from './components/InstallPrompt';
-import InfoView from './components/InfoView';
-import { Reservation, ReservationStatus, Language } from './types';
-import { processReservationAI } from './services/geminiService';
-import { addReservationToDB, deleteReservationFromDB, updateReservationStatus, subscribeToReservations } from './services/firebase';
+
+// Services & Types
+import { Reservation, Language, ReservationStatus } from './types';
+import { subscribeToReservations, addReservationToDB, updateReservationStatus, deleteReservationFromDB } from './services/firebase';
 
 const App: React.FC = () => {
-  const [view, setView] = useState<'form' | 'success' | 'manager' | 'info'>('form');
+  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
+  const [adminView, setAdminView] = useState<'reservations' | 'finance' | 'personnel' | 'settings'>('reservations');
+  const [view, setView] = useState<'public' | 'admin'>('public');
   const [lang, setLang] = useState<Language>('tr');
   const [reservations, setReservations] = useState<Reservation[]>([]);
-  const [currentReservation, setCurrentReservation] = useState<Reservation | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  
-  const [showLogin, setShowLogin] = useState(false);
-  const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
-  
+
   useEffect(() => {
-    try {
-      const unsubscribe = subscribeToReservations((data) => {
-        setReservations(data);
-      });
-      return () => unsubscribe();
-    } catch (err) {
-      console.error(err);
-    }
+    const unsubscribe = subscribeToReservations((data) => {
+      setReservations(data);
+    });
+    return () => unsubscribe();
   }, []);
 
-  const toggleLanguage = () => {
-    const langs: Language[] = ['tr', 'de', 'en', 'es'];
-    const currentIndex = langs.indexOf(lang);
-    const nextIndex = (currentIndex + 1) % langs.length;
-    setLang(langs[nextIndex]);
-    if (navigator.vibrate) navigator.vibrate(5);
-  };
-
-  const handleReservationSubmit = async (data: Omit<Reservation, "id" | "createdAt" | "status" | "aiConfirmationMessage" | "aiChefNote">) => {
-    setIsLoading(true);
-    if (navigator.vibrate) navigator.vibrate(20);
-    
-    try {
-      const aiResponse = await processReservationAI(data, lang);
-      const reservationData = {
-        ...data,
-        status: 'confirmed' as ReservationStatus,
-        aiConfirmationMessage: aiResponse.confirmationMessage,
-        aiChefNote: aiResponse.chefNote
-      };
-
-      await addReservationToDB(reservationData);
-      setCurrentReservation({ ...reservationData, id: "temp-id", createdAt: Date.now() });
-      setIsLoading(false);
-      if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
-      setView('success');
-    } catch (error) {
-      const errorMsg = {
-        tr: "Hata oluştu!",
-        de: "Ein Fehler ist aufgetreten!",
-        en: "An error occurred!",
-        es: "¡Ocurrió un error!"
-      };
-      alert(errorMsg[lang]);
-      setIsLoading(false);
+  const translations = {
+    tr: {
+      res: 'Rezervasyon',
+      fin: 'Finans',
+      staff: 'Personel',
+      set: 'Ayar',
+      adminTitle: 'YÖNETİM SÜİTİ',
+      customerTitle: 'PASTILLO BUTZBACH',
+      customerSub: 'Masa Rezervasyonu'
+    },
+    de: {
+      res: 'Buchung',
+      fin: 'Finanzen',
+      staff: 'Personal',
+      set: 'Einst.',
+      adminTitle: 'MANAGEMENT SUITE',
+      customerTitle: 'PASTILLO BUTZBACH',
+      customerSub: 'Tischreservierung'
+    },
+    en: {
+      res: 'Booking',
+      fin: 'Finance',
+      staff: 'Staff',
+      set: 'Settings',
+      adminTitle: 'MANAGEMENT SUITE',
+      customerTitle: 'PASTILLO BUTZBACH',
+      customerSub: 'Table Reservation'
     }
   };
 
-  const handleManagerClick = () => {
-    if (isAdminLoggedIn) setView('manager');
-    else setShowLogin(true);
-  };
+  const t = translations[lang] || translations.tr;
 
-  const texts = {
-    tr: { welcome: 'Hoş Geldiniz', sub: 'Harika bir akşam yemeği için yerinizi ayırtın.' },
-    de: { welcome: 'Willkommen', sub: 'Sichern Sie sich einen Tisch für heute Abend.' },
-    en: { welcome: 'Welcome', sub: 'Reserve your table for a wonderful dinner.' },
-    es: { welcome: 'Bienvenidos', sub: 'Reserve su mesa para una cena maravillosa.' }
-  };
+  // Handle Admin Access
+  if (view === 'admin' && !isAdminLoggedIn) {
+    return <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} onCancel={() => setView('public')} />;
+  }
 
   return (
-    <div className="min-h-screen bg-[#111111] text-white font-sans pb-safe selection:bg-primary overflow-x-hidden">
+    <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-32 overflow-x-hidden">
       <InstallPrompt />
-      {showLogin && <AdminLogin onLogin={() => { setIsAdminLoggedIn(true); setShowLogin(false); setView('manager'); }} onCancel={() => setShowLogin(false)} />}
-
-      <header className="sticky top-0 z-10 px-6 py-5 flex items-center justify-between border-b border-white/10 bg-[#111111]/80 backdrop-blur-md">
-        <div className="flex items-center gap-3">
-          <div className="size-5 text-primary">
-            <svg fill="none" viewBox="0 0 48 48" className="w-full h-full"><path d="M24 4C25.7818 14.2173 33.7827 22.2182 44 24C33.7827 25.7818 25.7818 33.7827 24 44C22.2182 33.7827 14.2173 25.7818 4 24C14.2173 22.2182 22.2182 14.2173 24 4Z" fill="currentColor"></path></svg>
+      
+      {/* Header */}
+      <header className="sticky top-0 z-40 px-6 py-6 border-b border-white/5 bg-[#0a0a0a]/90 backdrop-blur-2xl">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-xl font-black tracking-tighter text-white">
+              {view === 'admin' ? t.adminTitle : t.customerTitle}
+            </h1>
+            <p className="text-[10px] text-primary uppercase font-black tracking-[0.2em] mt-0.5">
+              {view === 'admin' ? adminView.toUpperCase() : t.customerSub}
+            </p>
           </div>
-          <h1 className="text-xl font-bold text-white">Pastillo <span className="text-primary font-light">&</span> Bar</h1>
+          
+          <div className="flex items-center gap-2">
+            {/* Language Toggle */}
+            <div className="flex bg-white/5 rounded-xl p-1 border border-white/10 mr-2">
+              {(['tr', 'de', 'en'] as Language[]).map((l) => (
+                <button
+                  key={l}
+                  onClick={() => setLang(l)}
+                  className={`px-2 py-1 rounded-lg text-[9px] font-black uppercase transition-all ${lang === l ? 'bg-primary text-black' : 'text-white/30'}`}
+                >
+                  {l}
+                </button>
+              ))}
+            </div>
+
+            {view === 'public' ? (
+              <button 
+                onClick={() => setView('admin')}
+                className="p-2.5 bg-white/5 border border-white/10 rounded-xl text-primary active:scale-90 transition-all"
+              >
+                <UserCog size={20} />
+              </button>
+            ) : (
+              <button 
+                onClick={() => { setIsAdminLoggedIn(false); setView('public'); }}
+                className="p-2.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 active:scale-90 transition-all"
+              >
+                <LogOut size={20} />
+              </button>
+            )}
+          </div>
         </div>
-        <button onClick={toggleLanguage} className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-full text-xs font-bold hover:bg-white/10 transition-colors">
-          <Globe size={14} className="text-primary" />
-          {lang.toUpperCase()}
-        </button>
       </header>
 
-      <main className="max-w-md mx-auto p-5 pt-8">
-        {view === 'form' && (
-          <div className="animate-in fade-in slide-in-from-bottom-8 duration-700">
-            <div className="mb-8 px-2">
-              <h2 className="text-3xl font-extrabold text-white tracking-tight">{texts[lang].welcome}</h2>
-              <p className="text-white/60 font-medium text-lg mt-1">{texts[lang].sub}</p>
-            </div>
-            <ReservationForm onSubmit={handleReservationSubmit} isLoading={isLoading} existingReservations={reservations} lang={lang} />
+      <main className="max-w-md mx-auto p-5 animate-in fade-in duration-700">
+        {view === 'public' ? (
+          <div className="space-y-6">
+            <ReservationForm 
+              lang={lang} 
+              isLoading={false} 
+              onSubmit={async (data) => {
+                await addReservationToDB({...data, status: 'confirmed'});
+                alert(lang === 'tr' ? 'Rezervasyonunuz alındı!' : 'Reservierung erfolgreich!');
+              }} 
+              existingReservations={reservations} 
+            />
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {adminView === 'reservations' && (
+              <ManagerDashboard 
+                lang={lang} 
+                reservations={reservations} 
+                onDelete={deleteReservationFromDB} 
+                onStatusUpdate={updateReservationStatus} 
+              />
+            )}
+            {adminView === 'finance' && <Dashboard lang={lang} records={[]} />}
+            {adminView === 'personnel' && <PersonnelManagement lang={lang} />}
+            {adminView === 'settings' && (
+              <div className="space-y-4">
+                 <div className="glass p-6 rounded-[2rem] border border-white/5">
+                    <h3 className="text-lg font-black text-white mb-2">Restoran Ayarları</h3>
+                    <p className="text-white/40 text-sm">Burası yönetim ayarlarını yapacağınız bölüm.</p>
+                 </div>
+              </div>
+            )}
           </div>
         )}
-        {view === 'info' && <InfoView lang={lang} />}
-        {view === 'success' && currentReservation && <SuccessView reservation={currentReservation} onReset={() => setView('form')} lang={lang} />}
-        {view === 'manager' && <ManagerDashboard reservations={reservations} onDelete={deleteReservationFromDB} onStatusUpdate={updateReservationStatus} lang={lang} />}
       </main>
 
-      <div className="fixed bottom-6 left-6 right-6 z-20 max-w-sm mx-auto">
-        <nav className="glass bg-[#1c1c1c]/90 p-1.5 rounded-[2rem] shadow-2xl flex justify-between items-center border border-white/10">
-          <button onClick={() => setView('form')} className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.5rem] transition-all ${view === 'form' || view === 'success' ? 'bg-primary text-black font-bold' : 'text-white/40'}`}>
-            <PlusCircle size={20} />
-          </button>
-          <button onClick={() => setView('info')} className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.5rem] transition-all ${view === 'info' ? 'bg-primary text-black font-bold' : 'text-white/40'}`}>
-            <Info size={20} />
-          </button>
-          <button onClick={handleManagerClick} className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.5rem] transition-all relative ${view === 'manager' ? 'bg-white text-black font-bold' : 'text-white/40'}`}>
-            <LayoutDashboard size={20} />
-            {reservations.filter(r => r.status === 'confirmed').length > 0 && view !== 'manager' && <span className="absolute top-2 right-8 w-2 h-2 bg-primary rounded-full border border-black"></span>}
-          </button>
+      {/* Admin Tab Bar */}
+      {view === 'admin' && (
+        <nav className="fixed bottom-8 left-6 right-6 z-50 max-w-sm mx-auto">
+          <div className="glass bg-[#161616]/95 p-2 rounded-[2.5rem] shadow-2xl flex justify-between items-center border border-white/10">
+            <button onClick={() => setAdminView('reservations')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'reservations' ? 'bg-primary text-black' : 'text-white/30'}`}>
+              <Calendar size={20} />
+              <span className="text-[8px] font-black uppercase tracking-widest">{t.res}</span>
+            </button>
+            <button onClick={() => setAdminView('finance')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'finance' ? 'bg-primary text-black' : 'text-white/30'}`}>
+              <TrendingUp size={20} />
+              <span className="text-[8px] font-black uppercase tracking-widest">{t.fin}</span>
+            </button>
+            <button onClick={() => setAdminView('personnel')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'personnel' ? 'bg-primary text-black' : 'text-white/30'}`}>
+              <Users size={20} />
+              <span className="text-[8px] font-black uppercase tracking-widest">{t.staff}</span>
+            </button>
+            <button onClick={() => setAdminView('settings')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'settings' ? 'bg-primary text-black' : 'text-white/30'}`}>
+              <Settings size={20} />
+              <span className="text-[8px] font-black uppercase tracking-widest">{t.set}</span>
+            </button>
+          </div>
         </nav>
-      </div>
+      )}
     </div>
   );
 };
