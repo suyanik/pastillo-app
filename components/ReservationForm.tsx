@@ -91,12 +91,13 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
 
   const timeSlots = useMemo(() => {
     if (dateError) return [];
-    const slots: string[] = []; // Burada tip tanımlandı
+    const slots: string[] = [];
     const startHour = 12;
     const endHour = 22;
     const isToday = formData.date === getLocalDate();
     const now = new Date();
     const currentHour = now.getHours();
+    const currentMinute = now.getMinutes();
     
     const dailyRes = existingReservations.filter(r => r.date === formData.date && r.status !== 'cancelled');
 
@@ -104,9 +105,20 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
       [":00", ":30"].forEach(m => {
         if (hour === 22 && m === ":30") return;
         const time = `${hour}${m}`;
+        const slotHour = hour;
+        const slotMinute = m === ":30" ? 30 : 0;
+
         const alreadyBooked = dailyRes.filter(r => r.time === time).reduce((s, r) => s + r.guests, 0);
+        
         if (alreadyBooked + formData.guests <= MAX_GUESTS_PER_SLOT) {
-            if (!isToday || hour > currentHour) slots.push(time);
+            if (!isToday) {
+                slots.push(time);
+            } else {
+                // Bugün için sadece 1 saat sonrasını göster
+                if (slotHour > currentHour + 1 || (slotHour === currentHour + 1 && slotMinute >= currentMinute)) {
+                    slots.push(time);
+                }
+            }
         }
       });
     }
@@ -114,13 +126,21 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
   }, [formData.date, formData.guests, existingReservations, dateError]);
 
   return (
-    <div className="glass p-6 sm:p-8 rounded-xl w-full mb-12">
-      <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-8">
-        <div className="space-y-3">
+    <div className="glass p-6 sm:p-8 rounded-xl w-full mb-12 box-border">
+      <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-8 max-w-full overflow-hidden">
+        <div className="space-y-3 w-full">
           <label className="flex items-center gap-2 text-sm font-medium text-white/80">
             <Calendar size={16} className="text-primary"/> {t.date}
           </label>
-          <input required type="date" min={getLocalDate()} className="w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 text-white [color-scheme:dark]" value={formData.date} onChange={handleDateChange} />
+          {/* iOS Taşma Düzeltmesi: block, w-full ve box-sizing eklendi */}
+          <input 
+            required 
+            type="date" 
+            min={getLocalDate()} 
+            className="block w-full max-w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 text-white text-base [color-scheme:dark] box-border focus:ring-1 focus:ring-primary focus:outline-none" 
+            value={formData.date} 
+            onChange={handleDateChange} 
+          />
           {dateError && <p className="text-red-400 text-sm flex items-center gap-2 mt-2"><AlertCircle size={14}/> {dateError}</p>}
         </div>
 
@@ -129,9 +149,9 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
             <Users size={16} className="text-primary"/> {t.guests}
           </label>
           <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl p-2">
-             <button type="button" onClick={() => setFormData(p => ({...p, guests: Math.max(1, p.guests-1)}))} className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center text-white"><Minus size={20}/></button>
+             <button type="button" onClick={() => setFormData(p => ({...p, guests: Math.max(1, p.guests-1)}))} className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center text-white active:scale-95 transition-all"><Minus size={20}/></button>
              <div className="flex-1 text-center"><span className="text-2xl font-bold text-white">{formData.guests}</span></div>
-             <button type="button" onClick={() => setFormData(p => ({...p, guests: p.guests+1}))} className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center text-white"><Plus size={20}/></button>
+             <button type="button" onClick={() => setFormData(p => ({...p, guests: p.guests+1}))} className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center text-white active:scale-95 transition-all"><Plus size={20}/></button>
           </div>
         </div>
 
@@ -141,23 +161,33 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
           </label>
           <div className="grid grid-cols-3 gap-2">
             {timeSlots.map(s => (
-              <button key={s} type="button" onClick={() => setFormData({...formData, time: s})} className={`py-2.5 rounded-lg text-sm font-medium border transition-all ${formData.time === s ? 'bg-primary text-black border-primary' : 'bg-white/5 text-white border-white/10'}`}>{s}</button>
+              <button 
+                key={s} 
+                type="button" 
+                onClick={() => {
+                  setFormData({...formData, time: s});
+                  if (navigator.vibrate) navigator.vibrate(10);
+                }} 
+                className={`py-3 rounded-xl text-sm font-bold border transition-all ${formData.time === s ? 'bg-primary text-black border-primary scale-[1.02] shadow-lg shadow-primary/20' : 'bg-white/5 text-white border-white/10'}`}
+              >
+                {s}
+              </button>
             ))}
           </div>
         </div>
 
         <div className="space-y-4">
           <div className="relative">
-            <User className="absolute left-3 top-3.5 text-white/40" size={18} />
-            <input required type="text" placeholder={t.name} className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
+            <User className="absolute left-3 top-4 text-white/40" size={18} />
+            <input required type="text" placeholder={t.name} className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-10 pr-4 text-white text-base focus:ring-1 focus:ring-primary focus:outline-none" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
           </div>
           <div className="relative">
-            <Phone className="absolute left-3 top-3.5 text-white/40" size={18} />
-            <input required type="tel" placeholder={t.phone} className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white" value={formData.phone} onChange={handlePhoneChange} />
+            <Phone className="absolute left-3 top-4 text-white/40" size={18} />
+            <input required type="tel" placeholder={t.phone} className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-10 pr-4 text-white text-base focus:ring-1 focus:ring-primary focus:outline-none" value={formData.phone} onChange={handlePhoneChange} />
           </div>
         </div>
 
-        <button type="submit" disabled={isLoading || !formData.time} className="w-full bg-primary hover:bg-primary/90 text-black py-4 rounded-xl font-bold text-lg disabled:opacity-50">
+        <button type="submit" disabled={isLoading || !formData.time} className="w-full bg-primary hover:bg-primary/90 text-black py-4 rounded-xl font-extrabold text-lg disabled:opacity-50 active:scale-[0.98] transition-all shadow-xl shadow-primary/10">
           {isLoading ? <Loader2 className="animate-spin mx-auto"/> : t.submit}
         </button>
       </form>
