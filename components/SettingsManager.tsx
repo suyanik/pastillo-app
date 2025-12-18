@@ -1,8 +1,9 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { 
   Shield, Users, Calendar, Mail, Save, Plus, X, Check, Loader2, 
-  Store, MapPin, Phone, Clock, Image as ImageIcon, Camera
+  Store, MapPin, Phone, Clock, Image as ImageIcon, Camera, 
+  Crop, Move, ZoomIn
 } from 'lucide-react';
 import { Language, AppSettings } from '../types';
 import { updateSettings } from '../services/firebase';
@@ -18,41 +19,114 @@ const SettingsManager: React.FC<Props> = ({ lang, settings }) => {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const logoInputRef = useRef<HTMLInputElement>(null);
 
+  // Crop States
+  const [showCropper, setShowCropper] = useState(false);
+  const [tempImage, setTempImage] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [startPos, setStartPos] = useState({ x: 0, y: 0 });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
+
   const translations: Record<Language, any> = {
     tr: { 
       branding: 'Marka & Kimlik', contact: 'İletişim Bilgileri', system: 'Sistem Ayarları',
       name: 'Restoran İsmi', logo: 'Logo Yükle', address: 'Adres', phone: 'Telefon',
       hours: 'Çalışma Saatleri', closed: 'Kapalı Gün', pin: 'Yönetici PIN', 
       cap: 'Max Kapasite', email: 'E-posta', holidays: 'Tatil Günleri', 
-      save: 'AYARLARI KAYDET', add: 'Ekle', saved: 'KAYDEDİLDİ' 
+      save: 'AYARLARI KAYDET', add: 'Ekle', saved: 'KAYDEDİLDİ',
+      cropTitle: 'Logoyu Düzenle', cropConfirm: 'KIRPMAYI ONAYLA', cropHint: 'Logoyu sürükleyerek ve büyüterek hizalayın'
     },
     de: { 
       branding: 'Markenidentität', contact: 'Kontaktinformationen', system: 'Systemeinstellungen',
       name: 'Restaurant Name', logo: 'Logo hochladen', address: 'Adresse', phone: 'Telefon',
       hours: 'Öffnungszeiten', closed: 'Ruhetag', pin: 'Admin PIN', 
       cap: 'Max. Kapazität', email: 'Manager E-Mail', holidays: 'Ruhetage', 
-      save: 'EINSTELLUNGEN SPEICHERN', add: 'Hinzufügen', saved: 'GESPEICHERT' 
+      save: 'EINSTELLUNGEN SPEICHERN', add: 'Hinzufügen', saved: 'GESPEICHERT',
+      cropTitle: 'Logo bearbeiten', cropConfirm: 'ZUSCHNITT BESTÄTIGEN', cropHint: 'Logo ziehen und zoomen zum Ausrichten'
     },
     en: { 
       branding: 'Branding', contact: 'Contact Info', system: 'System Settings',
       name: 'Restaurant Name', logo: 'Upload Logo', address: 'Address', phone: 'Phone',
       hours: 'Opening Hours', closed: 'Closed Day', pin: 'Admin PIN', 
       cap: 'Max Capacity', email: 'Email', holidays: 'Holidays', 
-      save: 'SAVE SETTINGS', add: 'Add', saved: 'SAVED' 
+      save: 'SAVE SETTINGS', add: 'Add', saved: 'SAVED',
+      cropTitle: 'Edit Logo', cropConfirm: 'CONFIRM CROP', cropHint: 'Drag and zoom to align the logo'
     }
   };
 
   const t = translations[lang] || translations.de;
 
-  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleLogoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onloadend = () => {
-      setLocalSettings({ ...localSettings, restaurantLogo: reader.result as string });
+      setTempImage(reader.result as string);
+      setShowCropper(true);
+      setZoom(1);
+      setOffset({ x: 0, y: 0 });
     };
     reader.readAsDataURL(file);
   };
+
+  const applyCrop = () => {
+    const canvas = canvasRef.current;
+    const img = imageRef.current;
+    if (!canvas || !img) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const size = 300; // Output size
+    canvas.width = size;
+    canvas.height = size;
+
+    // Clear and fill transparent or background color
+    ctx.clearRect(0, 0, size, size);
+
+    // Calculate source dimensions and destination
+    // Based on the visual cropper logic
+    const drawWidth = img.naturalWidth * zoom;
+    const drawHeight = img.naturalHeight * zoom;
+    
+    // We want to center the image and apply offsets
+    const centerX = size / 2;
+    const centerY = size / 2;
+
+    ctx.drawImage(
+      img, 
+      centerX - (drawWidth / 2) + offset.x, 
+      centerY - (drawHeight / 2) + offset.y, 
+      drawWidth, 
+      drawHeight
+    );
+
+    const croppedBase64 = canvas.toDataURL('image/png');
+    setLocalSettings({ ...localSettings, restaurantLogo: croppedBase64 });
+    setShowCropper(false);
+    setTempImage(null);
+  };
+
+  const handleMouseDown = (e: React.MouseEvent | React.TouchEvent) => {
+    setIsDragging(true);
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    setStartPos({ x: clientX - offset.x, y: clientY - offset.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent | React.TouchEvent) => {
+    if (!isDragging) return;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+    setOffset({
+      x: clientX - startPos.x,
+      y: clientY - startPos.y
+    });
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
 
   const handleSave = async () => {
     setSaveStatus('saving');
@@ -69,6 +143,75 @@ const SettingsManager: React.FC<Props> = ({ lang, settings }) => {
 
   return (
     <div className="space-y-6 pb-24 animate-in fade-in duration-500">
+      {/* Cropper Modal */}
+      {showCropper && tempImage && (
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-center p-6 animate-in fade-in duration-300">
+          <div className="w-full max-w-sm space-y-8">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-black text-white uppercase tracking-tighter">{t.cropTitle}</h2>
+              <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">{t.cropHint}</p>
+            </div>
+
+            <div 
+              className="relative w-full aspect-square bg-white/5 rounded-[2.5rem] overflow-hidden border border-white/10 touch-none cursor-move"
+              onMouseDown={handleMouseDown}
+              onMouseMove={handleMouseMove}
+              onMouseUp={handleMouseUp}
+              onMouseLeave={handleMouseUp}
+              onTouchStart={handleMouseDown}
+              onTouchMove={handleMouseMove}
+              onTouchEnd={handleMouseUp}
+            >
+              <img 
+                ref={imageRef}
+                src={tempImage} 
+                alt="Crop preview" 
+                className="absolute pointer-events-none transition-transform duration-75"
+                style={{
+                  transform: `translate(-50%, -50%) translate(${offset.x}px, ${offset.y}px) scale(${zoom})`,
+                  top: '50%',
+                  left: '50%',
+                  maxWidth: 'none'
+                }}
+              />
+              {/* Target Area Overlay */}
+              <div className="absolute inset-0 border-4 border-primary/50 pointer-events-none rounded-[2.5rem] ring-[1000px] ring-black/60 shadow-[inset_0_0_100px_rgba(0,0,0,0.5)]"></div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="flex items-center gap-4 bg-white/5 p-4 rounded-2xl border border-white/10">
+                <ZoomIn className="text-white/30" size={18} />
+                <input 
+                  type="range" 
+                  min="0.1" 
+                  max="3" 
+                  step="0.01" 
+                  value={zoom} 
+                  onChange={(e) => setZoom(parseFloat(e.target.value))}
+                  className="flex-1 accent-primary h-1.5 bg-white/10 rounded-full appearance-none"
+                />
+              </div>
+
+              <div className="flex flex-col gap-3">
+                <button 
+                  onClick={applyCrop}
+                  className="w-full bg-primary text-black py-5 rounded-2xl font-black text-sm tracking-widest active:scale-95 transition-all shadow-lg shadow-primary/20"
+                >
+                  {t.cropConfirm}
+                </button>
+                <button 
+                  onClick={() => { setShowCropper(false); setTempImage(null); }}
+                  className="w-full py-3 text-white/30 font-black text-[10px] uppercase tracking-widest"
+                >
+                  {translations[lang].cancel}
+                </button>
+              </div>
+            </div>
+          </div>
+          <canvas ref={canvasRef} style={{ display: 'none' }} />
+        </div>
+      )}
+
       {/* Branding Section */}
       <section className="glass p-6 rounded-[2.5rem] space-y-6">
         <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-primary flex items-center gap-2">
@@ -78,7 +221,7 @@ const SettingsManager: React.FC<Props> = ({ lang, settings }) => {
         <div className="flex flex-col items-center gap-4">
           <div 
             onClick={() => logoInputRef.current?.click()}
-            className="w-24 h-24 rounded-3xl bg-white/5 border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-all overflow-hidden relative group"
+            className="w-28 h-28 rounded-3xl bg-white/5 border-2 border-dashed border-white/10 flex flex-col items-center justify-center cursor-pointer hover:bg-white/10 transition-all overflow-hidden relative group"
           >
             {localSettings.restaurantLogo ? (
               <img src={localSettings.restaurantLogo} className="w-full h-full object-contain p-2" alt="Logo" />
@@ -86,10 +229,10 @@ const SettingsManager: React.FC<Props> = ({ lang, settings }) => {
               <ImageIcon className="text-white/20" size={32} />
             )}
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-               <Camera size={20} className="text-primary"/>
+               <Camera size={24} className="text-primary"/>
             </div>
           </div>
-          <input type="file" ref={logoInputRef} hidden accept="image/*" onChange={handleLogoUpload} />
+          <input type="file" ref={logoInputRef} hidden accept="image/*" onChange={handleLogoSelect} />
           <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">{t.logo}</p>
         </div>
 

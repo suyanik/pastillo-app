@@ -1,7 +1,7 @@
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
-import { Reservation, ReservationStatus, DailyTurnover, Expense, AppSettings } from "../types";
+import { Reservation, ReservationStatus, DailyTurnover, Expense, AppSettings, Personnel } from "../types";
 
 const keyParts = ["AIzaSyCdu", "-FAv6bQiaFJGZdescMJJKcq7a8vre8"];
 
@@ -41,6 +41,7 @@ const COLL_RESERVATIONS = "reservations";
 const COLL_TURNOVER = "turnover";
 const COLL_EXPENSES = "expenses";
 const COLL_SETTINGS = "settings";
+const COLL_PERSONNEL = "personnel";
 
 // --- Settings ---
 export const subscribeToSettings = (callback: (settings: AppSettings) => void) => {
@@ -140,5 +141,13 @@ export const addExpense = async (expense: Omit<Expense, "id" | "createdAt">) => 
 export const subscribeToExpenses = (callback: (data: Expense[]) => void) => {
   return db.collection(COLL_EXPENSES).orderBy("createdAt", "desc").onSnapshot(snap => {
     callback(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Expense[]);
+  });
+};
+
+// --- Personnel ---
+// Fixed: Added missing subscribeToPersonnel export
+export const subscribeToPersonnel = (callback: (data: Personnel[]) => void) => {
+  return db.collection(COLL_PERSONNEL).onSnapshot(snap => {
+    callback(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Personnel[]);
   });
 };

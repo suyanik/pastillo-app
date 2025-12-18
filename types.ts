@@ -1,4 +1,5 @@
 
+export type UserRole = 'none' | 'staff' | 'admin';
 export type ExpenseCategory = 'Maaş/Avans' | 'Tedarikçi' | 'Kira/Fatura' | 'Vergi' | 'Diğer';
 
 export interface PersonnelPayment {
