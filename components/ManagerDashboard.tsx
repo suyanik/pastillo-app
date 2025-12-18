@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Reservation, ReservationStatus, Language } from '../types';
 import { getGoogleCalendarUrl } from '../utils/calendarUtils';
-import { Trash2, XCircle, Users, CalendarCheck, CalendarDays, FilterX, UserCheck, CheckCircle2 } from 'lucide-react';
+import { Trash2, XCircle, Users, CalendarCheck, CalendarDays, FilterX, UserCheck, CheckCircle2, Phone } from 'lucide-react';
 
 interface Props {
   reservations: Reservation[];
@@ -94,13 +94,6 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
   };
 
   const t = translations[lang];
-
-  const handleCancel = (id: string) => {
-    if(window.confirm(t.cancelConfirm)) {
-      if (navigator.vibrate) navigator.vibrate(50);
-      onStatusUpdate(id, 'cancelled');
-    }
-  };
 
   const handleCheckIn = (id: string) => {
     if (navigator.vibrate) navigator.vibrate(50);
@@ -293,6 +286,5 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
   );
 };
 
-import { Phone } from 'lucide-react';
-
 export default ManagerDashboard;
+
