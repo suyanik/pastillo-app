@@ -1,15 +1,12 @@
+
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import { Reservation, ReservationStatus } from "../types";
 
 // ------------------------------------------------------------------
 // Firebase Config
-// Not: API Key güvenlik tarayıcılarına (Secrets Scanner) takılmaması için
-// parçalara bölünmüştür. Bu bir güvenlik açığı değildir, Firebase keyleri
-// client-side kullanım için tasarlanmıştır ve domain kısıtlaması ile korunur.
 // ------------------------------------------------------------------
 
-// Tarayıcıları atlatmak için anahtarı birleştiriyoruz
 const keyParts = ["AIzaSyCdu", "-FAv6bQiaFJGZdescMJJKcq7a8vre8"];
 
 const firebaseConfig = {
@@ -26,9 +23,15 @@ const firebaseConfig = {
 const app = firebase.apps.length === 0 ? firebase.initializeApp(firebaseConfig) : firebase.app();
 const db = app.firestore();
 
+// Connectivity fix: Use long-polling instead of standard streaming.
+// Removed 'merge: true' as it is not a valid Firestore setting and can cause issues.
+// We only set experimentalForceLongPolling to avoid conflict with experimentalAutoDetectLongPolling.
+db.settings({
+  experimentalForceLongPolling: true
+});
+
 // Çevrimdışı Veri Kalıcılığını Aktif Et (Offline Persistence)
-// Restoran içinde internet gitse bile uygulamanın çalışmasını sağlar.
-db.enablePersistence()
+db.enablePersistence({ synchronizeTabs: true })
   .catch((err) => {
     if (err.code == 'failed-precondition') {
       console.warn("Offline persistence failed: Multiple tabs open.");
@@ -44,7 +47,7 @@ export const addReservationToDB = async (reservation: Omit<Reservation, "id" | "
   try {
     await db.collection(COLLECTION_NAME).add({
       ...reservation,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp() // Sunucu zamanı
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   } catch (error) {
     console.error("Error adding reservation: ", error);
@@ -82,8 +85,6 @@ export const subscribeToReservations = (callback: (data: Reservation[]) => void)
         return {
           id: doc.id,
           ...data,
-          // Firestore timestamp'i number'a çeviriyoruz (UI uyumluluğu için)
-          // Veri henüz sunucuya yazılmadıysa (local write) timestamp null olabilir, bu durumda şimdiki zamanı kullan.
           createdAt: (data.createdAt as any)?.toMillis() || Date.now()
         };
       }) as Reservation[];

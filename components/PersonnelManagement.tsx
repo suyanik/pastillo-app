@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { 
   Users, Calendar, UserPlus, Search, X, ChevronRight, CreditCard, 
@@ -18,7 +17,7 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
   const [showPaymentModal, setShowPaymentModal] = useState<'salary' | 'advance' | null>(null);
   const [paymentAmount, setPaymentAmount] = useState('');
 
-  const translations: any = {
+  const translations: Record<Language, any> = {
     tr: {
       title: 'Personel Yönetimi',
       count: 'Çalışan Sayısı',
@@ -292,7 +291,7 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
                     <p className="text-xl font-black text-white">€{salaryStats.totalAdvances}</p>
                  </div>
                  <div className="bg-primary/5 p-4 rounded-3xl border border-primary/20">
-                    <p className="text-[9px] font-black uppercase tracking-widest mb-1 text-primary">{salaryStats.paidSalary ? t.paid : t.remaining}</p>
+                    <p className={`text-[9px] font-black uppercase tracking-widest mb-1 ${salaryStats.paidSalary ? 'text-green-500' : 'text-primary'}`}>{salaryStats.paidSalary ? t.paid : t.remaining}</p>
                     <p className="text-xl font-black text-white">€{salaryStats.remaining}</p>
                  </div>
               </div>
@@ -322,10 +321,13 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
         <button onClick={() => { if(window.confirm(t.deleteConfirm)) { setStaff(staff.filter((s: Personnel) => s.id !== selectedPersonnel.id)); setSelectedPersonnel(null); } }} className="w-full bg-red-500/10 text-red-500 py-4 rounded-2xl font-black text-[10px] uppercase border border-red-500/20">{t.deleteRecord}</button>
         {showPaymentModal && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm">
-             <div className="w-full max-w-xs glass p-8 rounded-[3rem] space-y-6">
-                <input autoFocus type="number" className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 text-white text-3xl font-black text-center focus:outline-none" value={paymentAmount} onChange={e => setPaymentAmount(e.target.value)}/>
+             <div className="w-full max-w-xs glass p-8 rounded-[3rem] border border-white/10 space-y-6">
+                <div className="text-center">
+                   <h3 className="text-white font-black uppercase tracking-widest text-sm">{showPaymentModal === 'salary' ? t.paySalary : t.giveAdvance}</h3>
+                </div>
+                <input type="number" className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 text-white text-3xl font-black text-center" value={paymentAmount} onChange={e => setPaymentAmount(e.target.value)}/>
                 <div className="flex gap-3">
-                   <button onClick={() => setShowPaymentModal(null)} className="flex-1 text-[10px] font-black uppercase text-white/40">{t.cancel}</button>
+                   <button onClick={() => setShowPaymentModal(null)} className="flex-1 py-4 text-[10px] font-black uppercase text-white/40">{t.cancel}</button>
                    <button onClick={handleAddPayment} className="flex-1 bg-primary text-black py-4 rounded-2xl text-[10px] font-black uppercase">{t.save}</button>
                 </div>
              </div>
@@ -336,26 +338,33 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in">
+    <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex justify-between items-end">
-        <div><h2 className="text-2xl font-black text-white uppercase">{t.title}</h2></div>
-        <button onClick={() => setShowAddForm(true)} className="bg-primary p-3 rounded-2xl text-black shadow-lg"><UserPlus size={24} /></button>
+        <div>
+          <h2 className="text-2xl font-black tracking-tighter text-white uppercase">{t.title}</h2>
+          <p className="text-[10px] text-white/30 font-black uppercase tracking-widest">{t.count}: {staff.length}</p>
+        </div>
+        <button onClick={() => setShowAddForm(true)} className="bg-primary p-3 rounded-2xl text-black">
+          <UserPlus size={24} />
+        </button>
       </div>
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/20" size={18} />
-        <input type="text" placeholder={t.search} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 text-white font-bold focus:outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
+        <input type="text" placeholder={t.search} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white font-bold outline-none" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)}/>
       </div>
       <div className="space-y-3">
         {filteredStaff.map((person: Personnel) => (
-          <div key={person.id} onClick={() => setSelectedPersonnel(person)} className="glass p-5 rounded-[2rem] border border-white/5 flex items-center justify-between group cursor-pointer active:scale-[0.98] transition-all">
+          <div key={person.id} onClick={() => setSelectedPersonnel(person)} className="glass p-5 rounded-[2rem] border border-white/5 flex items-center justify-between group cursor-pointer">
             <div className="flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center text-primary font-black text-xl">{person.firstName.charAt(0)}</div>
+              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-white/10 to-transparent flex items-center justify-center text-primary font-black text-xl">{person.firstName.charAt(0)}</div>
               <div>
                 <h3 className="text-white font-bold text-lg">{person.firstName} {person.lastName}</h3>
-                <span className="text-[9px] bg-primary/10 text-primary px-2 py-0.5 rounded-md font-black uppercase">{person.role}</span>
+                <div className="flex items-center gap-2 mt-1">
+                  <span className="text-[9px] bg-primary/10 text-primary px-2 py-0.5 rounded-md font-black uppercase">{person.role}</span>
+                </div>
               </div>
             </div>
-            <ChevronRight className="text-white/20" size={20} />
+            <ChevronRight className="text-white/20 group-hover:text-primary transition-colors" size={20} />
           </div>
         ))}
       </div>

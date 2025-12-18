@@ -1,6 +1,7 @@
-
 {
   "name": "Pastillo-Finance",
   "description": "Intelligente Finanz- und Ausgabenverwaltung für Pastillo.",
-  "requestFramePermissions": ["camera"]
+  "requestFramePermissions": [
+    "camera"
+  ]
 }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { 
   Users, TrendingUp, Calendar, 
@@ -31,7 +30,7 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  const translations: any = {
+  const translations: Record<Language, any> = {
     tr: {
       res: 'Buchung',
       fin: 'Finanz',

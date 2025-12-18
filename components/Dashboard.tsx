@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TrendingUp, TrendingDown, Wallet, CreditCard, ArrowRight, Receipt } from 'lucide-react';
 import { FinancialRecord, Language } from '../types';
@@ -9,7 +8,7 @@ interface Props {
 }
 
 const Dashboard: React.FC<Props> = ({ lang }) => {
-  const translations: any = {
+  const translations: Record<Language, any> = {
     tr: {
       net: 'Bugünkü Net Kasa',
       income: 'Gelir',

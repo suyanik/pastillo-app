@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Camera, Save, Plus, Users, CreditCard, Wallet, Loader2 } from 'lucide-react';
 import { analyzeReceiptAI } from '../services/geminiService';
@@ -14,7 +13,7 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const translations: any = {
+  const translations: Record<Language, any> = {
     tr: {
       turnover: 'GÜNLÜK CİRO',
       expense: 'GİDER EKLE',
@@ -115,20 +114,34 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex bg-white/5 p-1.5 rounded-[2rem] border border-white/10">
-        <button onClick={() => setActiveTab('ciro')} className={`flex-1 py-4 rounded-[1.8rem] text-[11px] font-black tracking-widest transition-all ${activeTab === 'ciro' ? 'bg-primary text-black' : 'text-white/30'}`}>{t.turnover}</button>
-        <button onClick={() => setActiveTab('gider')} className={`flex-1 py-4 rounded-[1.8rem] text-[11px] font-black tracking-widest transition-all ${activeTab === 'gider' ? 'bg-primary text-black' : 'text-white/30'}`}>{t.expense}</button>
+      <div className="flex bg-white/5 p-1.5 rounded-[2rem] border border-white/10 shadow-inner">
+        <button 
+          onClick={() => setActiveTab('ciro')}
+          className={`flex-1 py-4 rounded-[1.8rem] text-[11px] font-black tracking-widest transition-all ${activeTab === 'ciro' ? 'bg-primary text-black' : 'text-white/30'}`}
+        >
+          {t.turnover}
+        </button>
+        <button 
+          onClick={() => setActiveTab('gider')}
+          className={`flex-1 py-4 rounded-[1.8rem] text-[11px] font-black tracking-widest transition-all ${activeTab === 'gider' ? 'bg-primary text-black' : 'text-white/30'}`}
+        >
+          {t.expense}
+        </button>
       </div>
 
       {activeTab === 'ciro' ? (
         <div className="space-y-4 animate-in fade-in slide-in-from-right-4">
           <div className="glass p-8 rounded-[2.5rem] border border-white/5 space-y-8">
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-2"><Wallet size={12} /> {t.cash}</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-2">
+                <Wallet size={12} strokeWidth={3} /> {t.cash}
+              </label>
               <input type="number" placeholder="0.00" className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 px-6 text-4xl font-black text-white focus:outline-none" value={ciro.cash} onChange={e => setCiro({...ciro, cash: e.target.value})}/>
             </div>
             <div className="space-y-3">
-              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-2"><CreditCard size={12} /> {t.card}</label>
+              <label className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] flex items-center gap-2">
+                <CreditCard size={12} strokeWidth={3} /> {t.card}
+              </label>
               <input type="number" placeholder="0.00" className="w-full bg-white/5 border border-white/10 rounded-2xl py-6 px-6 text-4xl font-black text-white focus:outline-none" value={ciro.card} onChange={e => setCiro({...ciro, card: e.target.value})}/>
             </div>
           </div>
