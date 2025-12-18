@@ -1,18 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, PlusCircle, AlertTriangle, UtensilsCrossed, Globe } from 'lucide-react';
+import { LayoutDashboard, PlusCircle, Info, Globe } from 'lucide-react';
 import ReservationForm from './components/ReservationForm';
 import SuccessView from './components/SuccessView';
 import ManagerDashboard from './components/ManagerDashboard';
 import AdminLogin from './components/AdminLogin';
 import InstallPrompt from './components/InstallPrompt';
-import Menu from './components/Menu';
+import InfoView from './components/InfoView';
 import { Reservation, ReservationStatus, Language } from './types';
 import { processReservationAI } from './services/geminiService';
 import { addReservationToDB, deleteReservationFromDB, updateReservationStatus, subscribeToReservations } from './services/firebase';
 
 const App: React.FC = () => {
-  const [view, setView] = useState<'form' | 'success' | 'manager' | 'menu'>('form');
+  const [view, setView] = useState<'form' | 'success' | 'manager' | 'info'>('form');
   const [lang, setLang] = useState<Language>('tr');
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [currentReservation, setCurrentReservation] = useState<Reservation | null>(null);
@@ -40,7 +40,7 @@ const App: React.FC = () => {
     if (navigator.vibrate) navigator.vibrate(5);
   };
 
-  const handleReservationSubmit = async (data: Omit<Reservation, "id" | "createdAt" | "status">) => {
+  const handleReservationSubmit = async (data: Omit<Reservation, "id" | "createdAt" | "status" | "aiConfirmationMessage" | "aiChefNote">) => {
     setIsLoading(true);
     if (navigator.vibrate) navigator.vibrate(20);
     
@@ -83,7 +83,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#111111] text-white font-sans pb-safe selection:bg-primary">
+    <div className="min-h-screen bg-[#111111] text-white font-sans pb-safe selection:bg-primary overflow-x-hidden">
       <InstallPrompt />
       {showLogin && <AdminLogin onLogin={() => { setIsAdminLoggedIn(true); setShowLogin(false); setView('manager'); }} onCancel={() => setShowLogin(false)} />}
 
@@ -110,7 +110,7 @@ const App: React.FC = () => {
             <ReservationForm onSubmit={handleReservationSubmit} isLoading={isLoading} existingReservations={reservations} lang={lang} />
           </div>
         )}
-        {view === 'menu' && <Menu lang={lang} />}
+        {view === 'info' && <InfoView lang={lang} />}
         {view === 'success' && currentReservation && <SuccessView reservation={currentReservation} onReset={() => setView('form')} lang={lang} />}
         {view === 'manager' && <ManagerDashboard reservations={reservations} onDelete={deleteReservationFromDB} onStatusUpdate={updateReservationStatus} lang={lang} />}
       </main>
@@ -120,8 +120,8 @@ const App: React.FC = () => {
           <button onClick={() => setView('form')} className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.5rem] transition-all ${view === 'form' || view === 'success' ? 'bg-primary text-black font-bold' : 'text-white/40'}`}>
             <PlusCircle size={20} />
           </button>
-          <button onClick={() => setView('menu')} className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.5rem] transition-all ${view === 'menu' ? 'bg-primary text-black font-bold' : 'text-white/40'}`}>
-            <UtensilsCrossed size={20} />
+          <button onClick={() => setView('info')} className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.5rem] transition-all ${view === 'info' ? 'bg-primary text-black font-bold' : 'text-white/40'}`}>
+            <Info size={20} />
           </button>
           <button onClick={handleManagerClick} className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-[1.5rem] transition-all relative ${view === 'manager' ? 'bg-white text-black font-bold' : 'text-white/40'}`}>
             <LayoutDashboard size={20} />
@@ -134,3 +134,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
