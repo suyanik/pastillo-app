@@ -14,7 +14,7 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const translations = {
+  const translations: Record<Language, any> = {
     tr: {
       turnover: 'GÜNLÜK CİRO',
       expense: 'GİDER EKLE',
@@ -37,7 +37,7 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
       cash: 'Bargeldumsatz',
       card: 'Kartenzahlung',
       save: 'SPEICHERN',
-      scan: 'Beleg scannen (AI)',
+      scan: 'Beleg scannen (KI)',
       analyzing: 'KI analysiert...',
       amount: 'Betrag',
       category: 'Kategorie',
@@ -62,6 +62,22 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
       placeholderDesc: 'E.g.: Metro Market Groceries',
       add: 'ADD EXPENSE',
       catOptions: ['Salary/Advance', 'Supplier', 'Rent/Bills', 'Tax', 'Other']
+    },
+    es: {
+      turnover: 'TURNO DIARIO',
+      expense: 'AGREGAR GASTO',
+      cash: 'Efectivo',
+      card: 'Tarjeta',
+      save: 'GUARDAR',
+      scan: 'Escanear (AI)',
+      analyzing: 'AI analizando...',
+      amount: 'Monto',
+      category: 'Categoría',
+      desc: 'Descripción',
+      personnel: 'Personal',
+      placeholderDesc: 'Ej: Supermercado',
+      add: 'AGREGAR GASTO',
+      catOptions: ['Salario/Adelanto', 'Proveedor', 'Renta/Facturas', 'Impuestos', 'Otros']
     }
   };
 
@@ -86,7 +102,7 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
     const reader = new FileReader();
     reader.onloadend = async () => {
       const base64 = (reader.result as string).split(',')[1];
-      const result = await analyzeReceiptAI(base64);
+      const result = await analyzeReceiptAI(base64, lang);
       if (result) {
         setGider({
           ...gider,
@@ -196,7 +212,7 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
                     value={gider.category}
                     onChange={e => setGider({...gider, category: e.target.value})}
                   >
-                    {t.catOptions.map(opt => <option key={opt}>{opt}</option>)}
+                    {(t.catOptions as string[]).map((opt: string) => <option key={opt}>{opt}</option>)}
                   </select>
                 </div>
               </div>
@@ -212,7 +228,7 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
                 />
               </div>
 
-              {(gider.category.includes('Maaş') || gider.category.includes('Gehalt') || gider.category.includes('Salary')) && (
+              {(gider.category.includes('Maaş') || gider.category.includes('Gehalt') || gider.category.includes('Salary') || gider.category.includes('Salario')) && (
                 <div className="p-5 bg-primary/5 border border-primary/20 rounded-3xl space-y-4 animate-in zoom-in duration-300">
                    <div className="flex items-center gap-2 text-primary">
                       <Users size={18} strokeWidth={2.5} />
@@ -242,3 +258,4 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
 };
 
 export default EntryForm;
+
