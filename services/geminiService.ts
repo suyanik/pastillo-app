@@ -5,7 +5,7 @@ import { Language } from "../types";
 export const analyzeReceiptAI = async (base64Image: string, lang: Language = 'tr') => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  const prompts = {
+  const prompts: Record<string, string> = {
     tr: `Bu bir restoran harcama fişi/faturasıdır. Lütfen verileri analiz et ve JSON formatında döndür. 
          Çıkarılacak Veriler: 
          - totalAmount (Sadece sayı)
@@ -23,7 +23,13 @@ export const analyzeReceiptAI = async (base64Image: string, lang: Language = 'tr
          - totalAmount (Number only)
          - description (E.g.: Metro Market Groceries)
          - category ('Salary/Advance', 'Supplier', 'Rent/Bills', 'Tax', 'Other')
-         Return only JSON.`
+         Return only JSON.`,
+    es: `Este es un recibo/factura de gastos de un restaurante. Analice los datos y devuélvalos en formato JSON.
+         Datos:
+         - totalAmount (Solo número)
+         - description (Ej: Compras Supermercado)
+         - category ('Salario/Adelanto', 'Proveedor', 'Renta/Facturas', 'Impuestos', 'Otros')
+         Devolver solo JSON.`
   };
 
   const prompt = prompts[lang] || prompts.tr;
@@ -58,3 +64,4 @@ export const analyzeReceiptAI = async (base64Image: string, lang: Language = 'tr
     return null;
   }
 };
+
