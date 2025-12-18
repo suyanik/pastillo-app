@@ -258,4 +258,3 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
 };
 
 export default EntryForm;
-

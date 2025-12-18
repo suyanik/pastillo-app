@@ -144,4 +144,3 @@ const Dashboard: React.FC<Props> = ({ records, lang }) => {
 };
 
 export default Dashboard;
-

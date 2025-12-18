@@ -499,4 +499,3 @@ const PersonnelManagement: React.FC<Props> = ({ lang }) => {
 };
 
 export default PersonnelManagement;
-

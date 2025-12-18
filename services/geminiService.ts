@@ -64,4 +64,3 @@ export const analyzeReceiptAI = async (base64Image: string, lang: Language = 'tr
     return null;
   }
 };
-
