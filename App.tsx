@@ -34,8 +34,8 @@ const App: React.FC = () => {
 
   const translations = {
     tr: {
-      res: 'Rezervasyon',
-      fin: 'Finans',
+      res: 'Buchung',
+      fin: 'Finanz',
       staff: 'Personel',
       set: 'Ayar',
       adminTitle: 'YÖNETİM SÜİTİ',
@@ -66,12 +66,12 @@ const App: React.FC = () => {
 
   // Handle Admin Access
   if (view === 'admin' && !isAdminLoggedIn) {
-    return <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} onCancel={() => setView('public')} />;
+    return <AdminLogin onLogin={() => setIsAdminLoggedIn(true)} onCancel={() => setView('public')} lang={lang} />;
   }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-32 overflow-x-hidden">
-      <InstallPrompt />
+      <InstallPrompt lang={lang} />
       
       {/* Header */}
       <header className="sticky top-0 z-40 px-6 py-6 border-b border-white/5 bg-[#0a0a0a]/90 backdrop-blur-2xl">
@@ -86,7 +86,6 @@ const App: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            {/* Language Toggle */}
             <div className="flex bg-white/5 rounded-xl p-1 border border-white/10 mr-2">
               {(['tr', 'de', 'en'] as Language[]).map((l) => (
                 <button
@@ -146,8 +145,12 @@ const App: React.FC = () => {
             {adminView === 'settings' && (
               <div className="space-y-4">
                  <div className="glass p-6 rounded-[2rem] border border-white/5">
-                    <h3 className="text-lg font-black text-white mb-2">Restoran Ayarları</h3>
-                    <p className="text-white/40 text-sm">Burası yönetim ayarlarını yapacağınız bölüm.</p>
+                    <h3 className="text-lg font-black text-white mb-2">
+                      {lang === 'tr' ? 'Restoran Ayarları' : lang === 'de' ? 'Restaurant Einstellungen' : 'Restaurant Settings'}
+                    </h3>
+                    <p className="text-white/40 text-sm">
+                      {lang === 'tr' ? 'Burası yönetim ayarlarını yapacağınız bölüm.' : lang === 'de' ? 'Hier können Sie die Verwaltungseinstellungen vornehmen.' : 'This is where you can make management settings.'}
+                    </p>
                  </div>
               </div>
             )}
@@ -183,4 +186,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-

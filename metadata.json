@@ -1,5 +1,6 @@
+
 {
-  "name": "Pastillo",
-  "description": "Pastillo restoranı için akıllı rezervasyon ve yönetim uygulaması.",
-  "requestFramePermissions": []
+  "name": "Pastillo-Finance",
+  "description": "Intelligente Finanz- und Ausgabenverwaltung für Pastillo.",
+  "requestFramePermissions": ["camera"]
 }

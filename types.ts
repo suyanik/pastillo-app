@@ -1,13 +1,34 @@
 
 export type ExpenseCategory = 'Maaş/Avans' | 'Tedarikçi' | 'Kira/Fatura' | 'Vergi' | 'Diğer';
 
+export interface PersonnelPayment {
+  id: string;
+  type: 'salary' | 'advance';
+  amount: number;
+  date: string;
+  month: string; // format: YYYY-MM
+}
+
 export interface Personnel {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   role: string;
   phone: string;
+  dateOfBirth: string;
+  placeOfBirth: string;
+  address: string;
+  nationality: string;
+  healthInsurance: string;
+  taxId: string;
+  socialSecurityNumber: string;
+  bankName: string;
+  iban: string;
+  bic: string;
   startDate: string;
-  salary?: number;
+  endDate?: string;
+  baseSalary: number;
+  payments: PersonnelPayment[];
 }
 
 export interface Expense {
