@@ -1,67 +1,60 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { GeminiResponse, Reservation, Language } from "../types";
+import { Language } from "../types";
 
-export const processReservationAI = async (
-  reservation: Omit<Reservation, "id" | "createdAt" | "aiConfirmationMessage" | "aiChefNote" | "status">,
-  lang: Language = 'de'
-): Promise<GeminiResponse> => {
+export const analyzeReceiptAI = async (base64Image: string, lang: Language = 'tr') => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
+  const prompts = {
+    tr: `Bu bir restoran harcama fişi/faturasıdır. Lütfen verileri analiz et ve JSON formatında döndür. 
+         Çıkarılacak Veriler: 
+         - totalAmount (Sadece sayı)
+         - description (Örn: Metro Market Gıda)
+         - category ('Maaş/Avans', 'Tedarikçi', 'Kira/Fatura', 'Vergi', 'Diğer')
+         Lütfen sadece JSON döndür.`,
+    de: `Dies ist ein Kassenbeleg/Rechnung eines Restaurants. Bitte analysieren Sie die Daten und geben Sie sie im JSON-Format zurück.
+         Daten:
+         - totalAmount (Nur Zahl)
+         - description (Z.B.: Metro Markt Einkauf)
+         - category ('Gehalt/Vorschuss', 'Lieferant', 'Miete/Nebenkosten', 'Steuer', 'Sonstiges')
+         Nur JSON zurückgeben.`,
+    en: `This is a restaurant expense receipt/invoice. Please analyze the data and return it in JSON format.
+         Data:
+         - totalAmount (Number only)
+         - description (E.g.: Metro Market Groceries)
+         - category ('Salary/Advance', 'Supplier', 'Rent/Bills', 'Tax', 'Other')
+         Return only JSON.`
+  };
+
+  const prompt = prompts[lang] || prompts.tr;
+
   try {
-    const langMap: Record<Language, string> = {
-      tr: 'Türkisch',
-      de: 'Deutsch',
-      en: 'Englisch',
-      es: 'Spanisch'
-    };
-    const languageName = langMap[lang];
-    
-    const prompt = `
-      Analysiere die folgenden Details einer Restaurantreservierung für das Restaurant "Pastillo".
-      
-      Kunde: ${reservation.name}
-      Anzahl der Personen: ${reservation.guests}
-      Datum: ${reservation.date}
-      Uhrzeit: ${reservation.time}
-      Anmerkungen: ${reservation.notes || "Keine"}
-
-      Aufgaben:
-      1. Verfasse eine sehr höfliche, kurze und freundliche Bestätigungsnachricht für den Kunden auf ${languageName} (confirmationMessage).
-      2. Erstelle eine kurze Zusammenfassung für den Restaurantbesitzer/Koch (chefNote) auf ${languageName}. Hebe Allergien oder Sonderwünsche hervor. Wenn keine Anmerkungen vorhanden sind, schreibe "Standardtisch".
-
-      Antworte im JSON-Format.
-    `;
-
     const response = await ai.models.generateContent({
       model: "gemini-3-flash-preview",
-      contents: prompt,
+      contents: {
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType: "image/jpeg", data: base64Image } }
+        ]
+      },
       config: {
         responseMimeType: "application/json",
         responseSchema: {
           type: Type.OBJECT,
           properties: {
-            confirmationMessage: { type: Type.STRING },
-            chefNote: { type: Type.STRING },
+            totalAmount: { type: Type.NUMBER },
+            description: { type: Type.STRING },
+            category: { type: Type.STRING }
           },
-          required: ["confirmationMessage", "chefNote"],
-        },
-      },
+          required: ["totalAmount", "description", "category"]
+        }
+      }
     });
 
-    if (response.text) {
-      return JSON.parse(response.text) as GeminiResponse;
-    }
-
-    throw new Error("No response from AI");
+    const jsonStr = response.text?.trim();
+    return jsonStr ? JSON.parse(jsonStr) : null;
   } catch (error) {
-    console.error("Gemini Error:", error);
-    const fallbacks: Record<Language, GeminiResponse> = {
-      tr: { confirmationMessage: "Rezervasyonunuz alındı. Sizi bekliyoruz!", chefNote: reservation.notes || "Standart Masa" },
-      de: { confirmationMessage: "Ihre Reservierung wurde empfangen. Wir freuen uns auf Sie!", chefNote: reservation.notes || "Standardtisch" },
-      en: { confirmationMessage: "Reservation received. We look forward to seeing you!", chefNote: reservation.notes || "Standard Table" },
-      es: { confirmationMessage: "Reserva recibida. ¡Esperamos verte pronto!", chefNote: reservation.notes || "Mesa Estándar" }
-    };
-    return fallbacks[lang];
+    console.error("AI Receipt Error:", error);
+    return null;
   }
 };
