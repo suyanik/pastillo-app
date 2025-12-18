@@ -37,7 +37,7 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
       name: 'Ad Soyad',
       phone: 'Telefon',
       submit: 'Rezervasyon Yap',
-      monday: 'Pazartesi günleri kapalıyız.'
+      closedDay: 'Salı günleri kapalıyız.'
     },
     de: {
       date: 'Datum wählen',
@@ -46,7 +46,7 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
       name: 'Vor- und Nachname',
       phone: 'Telefonnummer',
       submit: 'Kostenpflichtig buchen',
-      monday: 'Montags haben wir Ruhetag.'
+      closedDay: 'Dienstags haben wir Ruhetag.'
     },
     en: {
       date: 'Select Date',
@@ -55,7 +55,7 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
       name: 'Full Name',
       phone: 'Phone Number',
       submit: 'Book Table',
-      monday: 'Closed on Mondays.'
+      closedDay: 'Closed on Tuesdays.'
     },
     es: {
       date: 'Seleccionar Fecha',
@@ -64,7 +64,7 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
       name: 'Nombre y Apellido',
       phone: 'Teléfono',
       submit: 'Reservar Mesa',
-      monday: 'Cerrado los lunes.'
+      closedDay: 'Cerrado los martes.'
     }
   };
 
@@ -80,9 +80,11 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedDate = e.target.value;
     if (!selectedDate) return;
+    
+    // getDay(): 0=Pazar, 1=Pazartesi, 2=Salı...
     const dayOfWeek = new Date(selectedDate).getDay();
-    if (dayOfWeek === 1) {
-      setDateError(t.monday);
+    if (dayOfWeek === 2) {
+      setDateError(t.closedDay);
       return;
     }
     setDateError(null);
@@ -92,8 +94,8 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
   const timeSlots = useMemo(() => {
     if (dateError) return [];
     const slots: string[] = [];
-    const startHour = 12;
-    const endHour = 22;
+    const startHour = 11; // Kullanıcı 11:00 dedi
+    const endHour = 22;   // 23:00'e kadar açık ama son rezervasyon 22:30 olabilir
     const isToday = formData.date === getLocalDate();
     const now = new Date();
     const currentHour = now.getHours();
@@ -103,7 +105,7 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
 
     for (let hour = startHour; hour <= endHour; hour++) {
       [":00", ":30"].forEach(m => {
-        if (hour === 22 && m === ":30") return;
+        // 22:30 son slot olabilir (23:00 kapanış için)
         const time = `${hour}${m}`;
         const slotHour = hour;
         const slotMinute = m === ":30" ? 30 : 0;
@@ -114,7 +116,7 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
             if (!isToday) {
                 slots.push(time);
             } else {
-                // Bugün için sadece 1 saat sonrasını göster
+                // Bugün için en az 1 saat sonrası
                 if (slotHour > currentHour + 1 || (slotHour === currentHour + 1 && slotMinute >= currentMinute)) {
                     slots.push(time);
                 }
@@ -132,7 +134,6 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
           <label className="flex items-center gap-2 text-sm font-medium text-white/80">
             <Calendar size={16} className="text-primary"/> {t.date}
           </label>
-          {/* iOS Taşma Düzeltmesi: block, w-full ve box-sizing eklendi */}
           <input 
             required 
             type="date" 
@@ -141,7 +142,7 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
             value={formData.date} 
             onChange={handleDateChange} 
           />
-          {dateError && <p className="text-red-400 text-sm flex items-center gap-2 mt-2"><AlertCircle size={14}/> {dateError}</p>}
+          {dateError && <p className="text-red-400 text-sm flex items-center gap-2 mt-2 font-medium"><AlertCircle size={14}/> {dateError}</p>}
         </div>
 
         <div className="space-y-3">
@@ -174,6 +175,9 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
               </button>
             ))}
           </div>
+          {timeSlots.length === 0 && !dateError && (
+             <p className="text-white/40 text-xs italic text-center mt-2">Bu tarih için müsait saat kalmadı.</p>
+          )}
         </div>
 
         <div className="space-y-4">
