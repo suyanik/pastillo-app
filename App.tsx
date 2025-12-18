@@ -32,7 +32,7 @@ const App: React.FC = () => {
     return () => unsubscribe();
   }, []);
 
-  const translations = {
+  const translations: Record<Language, any> = {
     tr: {
       res: 'Buchung',
       fin: 'Finanz',
@@ -59,6 +59,15 @@ const App: React.FC = () => {
       adminTitle: 'MANAGEMENT SUITE',
       customerTitle: 'PASTILLO BUTZBACH',
       customerSub: 'Table Reservation'
+    },
+    es: {
+      res: 'Reserva',
+      fin: 'Finanzas',
+      staff: 'Personal',
+      set: 'Ajustes',
+      adminTitle: 'SUITE DE GESTIÓN',
+      customerTitle: 'PASTILLO BUTZBACH',
+      customerSub: 'Reserva de Mesa'
     }
   };
 
@@ -87,7 +96,7 @@ const App: React.FC = () => {
           
           <div className="flex items-center gap-2">
             <div className="flex bg-white/5 rounded-xl p-1 border border-white/10 mr-2">
-              {(['tr', 'de', 'en'] as Language[]).map((l) => (
+              {(['tr', 'de', 'en', 'es'] as Language[]).map((l) => (
                 <button
                   key={l}
                   onClick={() => setLang(l)}
@@ -186,3 +195,4 @@ const App: React.FC = () => {
 };
 
 export default App;
+
