@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import {
-  Users, TrendingUp, Calendar,
+import { 
+  Users, TrendingUp, Calendar, 
   Settings, LogOut, UserCog, LayoutDashboard
 } from 'lucide-react';
 
@@ -18,18 +18,29 @@ import InfoView from './components/InfoView';
 
 // Services & Types
 import { Reservation, Language, AppSettings, DailyTurnover, Expense, UserRole, Personnel } from './types';
-import {
-  subscribeToReservations, addReservationToDB, updateReservationStatus,
+import { 
+  subscribeToReservations, addReservationToDB, updateReservationStatus, 
   deleteReservationFromDB, subscribeToSettings, subscribeToTurnover, subscribeToExpenses,
-  subscribeToPersonnel
+  subscribeToPersonnel 
 } from './services/firebase';
+
+interface AppTranslations {
+  ovw: string;
+  res: string;
+  fin: string;
+  staff: string;
+  set: string;
+  adminTitle: string;
+  staffTitle: string;
+  titleMap: Record<string, string>;
+}
 
 const App: React.FC = () => {
   const [userRole, setUserRole] = useState<UserRole>('none');
   const [adminView, setAdminView] = useState<'overview' | 'reservations' | 'finance' | 'personnel' | 'settings'>('overview');
   const [view, setView] = useState<'public' | 'admin'>('public');
   const [lang, setLang] = useState<Language>('de');
-
+  
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [turnovers, setTurnovers] = useState<DailyTurnover[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -62,7 +73,7 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const translations: Record<Language, any> = {
+  const translations: Record<Language, AppTranslations> = {
     tr: {
       ovw: 'PANEL', res: 'REZERVASYON', fin: 'FİNANS', staff: 'PERSONEL', set: 'AYARLAR',
       adminTitle: 'YÖNETİM SÜİTİ',
@@ -101,7 +112,7 @@ const App: React.FC = () => {
     }
   };
 
-  const t = translations[lang] || translations.de;
+  const t = translations[lang];
 
   const getHeaderTitle = () => {
     if (view === 'public') return "TISCHRESERVIERUNG";
@@ -115,13 +126,13 @@ const App: React.FC = () => {
   };
 
   if (view === 'admin' && userRole === 'none') {
-    return <AdminLogin onLogin={handleLogin} onCancel={() => setView('public')} lang={lang} settings={settings} />;
+    return <AdminLogin onLogin={handleLogin} onCancel={() => setView('public')} lang={lang} />;
   }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-32 overflow-x-hidden">
       <InstallPrompt lang={lang} />
-
+      
       <header className="sticky top-0 z-40 px-6 py-6 border-b border-white/5 bg-[#0a0a0a]/90 backdrop-blur-2xl">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
@@ -129,7 +140,7 @@ const App: React.FC = () => {
               {getHeaderTitle()}
             </h1>
           </div>
-
+          
           <div className="flex items-center gap-2">
             <div className="hidden sm:flex bg-white/5 rounded-xl p-1 border border-white/10 mr-2">
               {(['tr', 'de', 'en'] as Language[]).map((l: Language) => (
@@ -159,14 +170,14 @@ const App: React.FC = () => {
       <main className={`mx-auto p-5 animate-in fade-in duration-700 ${view === 'admin' && userRole === 'admin' ? 'max-w-7xl' : 'max-w-md'}`}>
         {view === 'public' ? (
           <div className="space-y-12">
-            <ReservationForm
-              lang={lang}
-              isLoading={false}
+            <ReservationForm 
+              lang={lang} 
+              isLoading={false} 
               onSubmit={async (data) => {
-                await addReservationToDB({ ...data, status: 'confirmed' });
+                await addReservationToDB({...data, status: 'confirmed'});
                 const msg = lang === 'tr' ? 'Rezervasyonunuz alındı!' : (lang === 'en' ? 'Reservation received!' : 'Reservierung erfolgreich!');
                 alert(msg);
-              }}
+              }} 
               existingReservations={reservations}
               settings={settings}
             />
@@ -175,7 +186,7 @@ const App: React.FC = () => {
         ) : (
           <div className="space-y-6">
             {adminView === 'overview' && userRole === 'admin' && (
-              <MasterDashboard
+              <MasterDashboard 
                 lang={lang}
                 reservations={reservations}
                 turnovers={turnovers}
@@ -185,17 +196,17 @@ const App: React.FC = () => {
               />
             )}
             {adminView === 'reservations' && (
-              <ManagerDashboard
-                lang={lang}
-                reservations={reservations}
-                onDelete={deleteReservationFromDB}
-                onStatusUpdate={updateReservationStatus}
+              <ManagerDashboard 
+                lang={lang} 
+                reservations={reservations} 
+                onDelete={deleteReservationFromDB} 
+                onStatusUpdate={updateReservationStatus} 
               />
             )}
             {userRole === 'admin' && (
               <>
                 {adminView === 'finance' && <Dashboard lang={lang} turnovers={turnovers} expenses={expenses} />}
-                {adminView === 'personnel' && <PersonnelManagement lang={lang} staff={staffList} settings={settings} />}
+                {adminView === 'personnel' && <PersonnelManagement lang={lang} />}
                 {adminView === 'settings' && <SettingsManager lang={lang} settings={settings} />}
               </>
             )}

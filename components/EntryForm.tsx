@@ -10,13 +10,30 @@ interface Props {
   lang: Language;
 }
 
+interface EntryTranslations {
+  turnover: string;
+  expense: string;
+  cash: string;
+  card: string;
+  lieferando: string;
+  save: string;
+  scan: string;
+  analyzing: string;
+  amount: string;
+  category: string;
+  desc: string;
+  add: string;
+  catOptions: string[];
+  fileHint: string;
+}
+
 const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
   const [activeTab, setActiveTab] = useState<'ciro' | 'gider'>('ciro');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const translations: Record<Language, any> = {
+  const translations: Record<Language, EntryTranslations> = {
     tr: {
       turnover: 'GÜNLÜK CİRO', expense: 'GİDER EKLE', cash: 'Nakit Ciro', card: 'Kredi Kartı Ciro', lieferando: 'Lieferando', save: 'KAYDET',
       scan: 'Taramayı Başlat (AI)', analyzing: 'AI Analiz Ediyor...', amount: 'Tutar', category: 'Kategori', desc: 'Açıklama',
@@ -34,7 +51,7 @@ const EntryForm: React.FC<Props> = ({ onSave, lang }) => {
     }
   };
 
-  const t = translations[lang] || translations.de;
+  const t = translations[lang];
 
   const [ciro, setCiro] = useState({ cash: '', card: '', lieferando: '' });
   const [gider, setGider] = useState({ amount: '', description: '', category: t.catOptions[0] });

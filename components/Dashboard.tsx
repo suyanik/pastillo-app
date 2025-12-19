@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import { 
   TrendingUp, TrendingDown, Wallet, CreditCard, ArrowRight, 
-  Receipt, ShoppingBag, Download, FileSpreadsheet, X
+  Receipt, ShoppingBag, FileSpreadsheet, X
 } from 'lucide-react';
 import { Language, DailyTurnover, Expense } from '../types';
 import EntryForm from './EntryForm';
@@ -13,16 +13,29 @@ interface Props {
   lang: Language;
 }
 
+interface DashboardTranslations {
+  net: string;
+  income: string;
+  expense: string;
+  cash: string;
+  card: string;
+  lieferando: string;
+  recent: string;
+  all: string;
+  add: string;
+  export: string;
+}
+
 const Dashboard: React.FC<Props> = ({ lang, turnovers, expenses }) => {
   const [showEntry, setShowEntry] = React.useState(false);
 
-  const translations: Record<Language, any> = {
+  const translations: Record<Language, DashboardTranslations> = {
     tr: { net: 'Bugünkü Net Kasa', income: 'Gelir', expense: 'Gider', cash: 'Nakit', card: 'Kredi Kartı', lieferando: 'Lieferando', recent: 'Son Harcamalar', all: 'TÜMÜ', add: 'İŞLEM EKLE', export: 'CSV AKTAR' },
     de: { net: 'Netto-Kasse Heute', income: 'Einnahmen', expense: 'Ausgaben', cash: 'Bargeld', card: 'Kreditkarte', lieferando: 'Lieferando', recent: 'Letzte Ausgaben', all: 'ALLE', add: 'BUCHUNG ERFASSEN', export: 'CSV EXPORT' },
     en: { net: 'Today\'s Net Cash', income: 'Income', expense: 'Expenses', cash: 'Cash', card: 'Credit Card', lieferando: 'Lieferando', recent: 'Recent Expenses', all: 'ALL', add: 'NEW ENTRY', export: 'EXPORT CSV' }
   };
 
-  const t = translations[lang] || translations.de;
+  const t = translations[lang];
 
   const handleExportCSV = () => {
     const headers = ["Date", "Type", "Amount", "Category", "Description"];

@@ -1,16 +1,15 @@
 
 import React, { useState } from 'react';
 import { Lock, Users, ShieldCheck, User, KeyRound, Delete, ChevronLeft } from 'lucide-react';
-import { Language, UserRole, AppSettings } from '../types';
+import { Language, UserRole } from '../types';
 
 interface Props {
   onLogin: (role: UserRole) => void;
   onCancel: () => void;
   lang: Language;
-  settings: AppSettings;
 }
 
-const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang, settings }) => {
+const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang }) => {
   const [mode, setMode] = useState<'select' | 'staff' | 'admin'>('select');
   const [pin, setPin] = useState('');
   const [staffUsername, setStaffUsername] = useState('');
@@ -63,9 +62,9 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang, settings }) => {
       const newPin = pin + num;
       setPin(newPin);
       setError(false);
-
+      
       if (newPin.length === 4) {
-        if (newPin === (settings?.adminPin || '2027')) {
+        if (newPin === '2027') {
           if (navigator.vibrate) navigator.vibrate([50, 30, 50]);
           onLogin('admin');
         } else {
@@ -98,7 +97,7 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang, settings }) => {
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            <button
+            <button 
               onClick={() => setMode('staff')}
               className="glass group p-8 rounded-[2.5rem] flex flex-col items-center gap-4 hover:bg-white/10 active:scale-95 transition-all border border-white/5"
             >
@@ -108,7 +107,7 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang, settings }) => {
               <span className="text-sm font-black text-white uppercase tracking-widest">{t.staff}</span>
             </button>
 
-            <button
+            <button 
               onClick={() => setMode('admin')}
               className="glass group p-8 rounded-[2.5rem] flex flex-col items-center gap-4 hover:bg-white/10 active:scale-95 transition-all border border-white/5"
             >
@@ -131,13 +130,13 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang, settings }) => {
     <div className="fixed inset-0 bg-[#0a0a0a]/95 backdrop-blur-2xl z-50 flex flex-col items-center justify-center p-8 animate-in slide-in-from-bottom duration-500">
       <div className="w-full max-w-xs space-y-10 text-center">
         <div className="relative">
-          <button
+          <button 
             onClick={() => { setMode('select'); setPin(''); setStaffPass(''); setError(false); }}
             className="absolute -top-12 -left-4 p-2 text-white/30 flex items-center gap-1 font-black text-[10px] uppercase tracking-widest"
           >
-            <ChevronLeft size={16} /> {t.back}
+            <ChevronLeft size={16}/> {t.back}
           </button>
-
+          
           <div className={`w-20 h-20 bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-white/10 transition-colors ${error ? 'border-red-500/50 text-red-500' : 'text-primary'}`}>
             {mode === 'admin' ? <Lock size={32} /> : <User size={32} />}
           </div>
@@ -159,7 +158,7 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang, settings }) => {
               ))}
               <div className="w-16 h-16"></div>
               <button onClick={() => handleAdminPin('0')} className="w-16 h-16 rounded-full bg-white/5 text-2xl font-black text-white border border-white/5 active:bg-primary active:text-black transition-all mx-auto flex items-center justify-center shadow-lg">0</button>
-              <button onClick={() => setPin(prev => prev.slice(0, -1))} className="w-16 h-16 flex items-center justify-center text-white/30 active:text-white mx-auto"><Delete size={24} /></button>
+              <button onClick={() => setPin(prev => prev.slice(0, -1))} className="w-16 h-16 flex items-center justify-center text-white/30 active:text-white mx-auto"><Delete size={24}/></button>
             </div>
           </div>
         ) : (
@@ -167,9 +166,9 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang, settings }) => {
             <div className="space-y-4">
               <div className="relative group">
                 <User className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
-                <input
-                  type="text"
-                  placeholder={t.user}
+                <input 
+                  type="text" 
+                  placeholder={t.user} 
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white font-bold focus:outline-none focus:border-primary/50 transition-all shadow-inner"
                   value={staffUsername}
                   onChange={e => setStaffUsername(e.target.value)}
@@ -177,16 +176,16 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang, settings }) => {
               </div>
               <div className="relative group">
                 <KeyRound className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
-                <input
-                  type="password"
-                  placeholder={t.pass}
+                <input 
+                  type="password" 
+                  placeholder={t.pass} 
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white font-bold focus:outline-none focus:border-primary/50 transition-all shadow-inner"
                   value={staffPass}
                   onChange={e => setStaffPass(e.target.value)}
                 />
               </div>
             </div>
-            <button
+            <button 
               onClick={handleStaffLogin}
               className="w-full bg-primary text-black py-5 rounded-2xl font-black text-sm tracking-widest active:scale-95 transition-all shadow-xl shadow-primary/20"
             >
