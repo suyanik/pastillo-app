@@ -4,7 +4,7 @@ import { Language } from "../types";
 
 export const analyzeReceiptAI = async (base64Data: string, mimeType: string = "image/jpeg", lang: Language = 'de') => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  
+
   const prompts: Record<Language, string> = {
     tr: `Bu bir restoran harcama fişi/faturasıdır (Görsel veya PDF). Lütfen verileri analiz et ve JSON formatında döndür. 
          Çıkarılacak Veriler: 
@@ -30,7 +30,7 @@ export const analyzeReceiptAI = async (base64Data: string, mimeType: string = "i
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash",
       contents: {
         parts: [
           { text: prompt },
