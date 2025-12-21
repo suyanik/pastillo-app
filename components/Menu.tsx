@@ -7,42 +7,52 @@ interface Props {
   lang: Language;
 }
 
-const menuData = {
+const menuData: Record<string, { title: string; categories: { name: string; icon: React.ReactNode; items: string[] }[] }> = {
   tr: {
     title: "Dijital Menü",
     categories: [
-      { name: "Antipasti", icon: <Utensils size={20}/>, items: ["Bruschetta Classica - 8.50€", "Carpaccio di Manzo - 14.50€", "Burrata & Pomodori - 12.00€"] },
-      { name: "Pizza", icon: <Pizza size={20}/>, items: ["Margherita - 10.50€", "Diavola - 13.50€", "Quattro Formaggi - 14.00€"] },
-      { name: "Pasta", icon: <Utensils size={20}/>, items: ["Carbonara - 12.50€", "Tagliatelle al Tartufo - 18.50€", "Lasagna Classica - 13.00€"] },
-      { name: "İçecekler", icon: <Wine size={20}/>, items: ["Aperol Spritz - 8.50€", "Espresso - 2.50€", "Vino della Casa (0.2l) - 6.50€"] }
+      { name: "Antipasti", icon: <Utensils size={20} />, items: ["Bruschetta Classica - 8.50€", "Carpaccio di Manzo - 14.50€", "Burrata & Pomodori - 12.00€"] },
+      { name: "Pizza", icon: <Pizza size={20} />, items: ["Margherita - 10.50€", "Diavola - 13.50€", "Quattro Formaggi - 14.00€"] },
+      { name: "Pasta", icon: <Utensils size={20} />, items: ["Carbonara - 12.50€", "Tagliatelle al Tartufo - 18.50€", "Lasagna Classica - 13.00€"] },
+      { name: "İçecekler", icon: <Wine size={20} />, items: ["Aperol Spritz - 8.50€", "Espresso - 2.50€", "Vino della Casa (0.2l) - 6.50€"] }
     ]
   },
   de: {
     title: "Speisekarte",
     categories: [
-      { name: "Antipasti", icon: <Utensils size={20}/>, items: ["Bruschetta Classica - 8.50€", "Carpaccio di Manzo - 14.50€", "Burrata & Pomodori - 12.00€"] },
-      { name: "Pizza", icon: <Pizza size={20}/>, items: ["Margherita - 10.50€", "Diavola - 13.50€", "Quattro Formaggi - 14.00€"] },
-      { name: "Pasta", icon: <Utensils size={20}/>, items: ["Carbonara - 12.50€", "Tagliatelle al Tartufo - 18.50€", "Lasagna Classica - 13.00€"] },
-      { name: "Getränke", icon: <Coffee size={20}/>, items: ["Aperol Spritz - 8.50€", "Espresso - 2.50€", "Hauswein (0.2l) - 6.50€"] }
+      { name: "Antipasti", icon: <Utensils size={20} />, items: ["Bruschetta Classica - 8.50€", "Carpaccio di Manzo - 14.50€", "Burrata & Pomodori - 12.00€"] },
+      { name: "Pizza", icon: <Pizza size={20} />, items: ["Margherita - 10.50€", "Diavola - 13.50€", "Quattro Formaggi - 14.00€"] },
+      { name: "Pasta", icon: <Utensils size={20} />, items: ["Carbonara - 12.50€", "Tagliatelle al Tartufo - 18.50€", "Lasagna Classica - 13.00€"] },
+      { name: "Getränke", icon: <Coffee size={20} />, items: ["Aperol Spritz - 8.50€", "Espresso - 2.50€", "Hauswein (0.2l) - 6.50€"] }
     ]
   },
   en: {
     title: "Digital Menu",
     categories: [
-      { name: "Antipasti", icon: <Utensils size={20}/>, items: ["Bruschetta Classica - 8.50€", "Carpaccio di Manzo - 14.50€", "Burrata & Pomodori - 12.00€"] },
-      { name: "Pizza", icon: <Pizza size={20}/>, items: ["Margherita - 10.50€", "Diavola - 13.50€", "Quattro Formaggi - 14.00€"] },
-      { name: "Pasta", icon: <Utensils size={20}/>, items: ["Carbonara - 12.50€", "Tagliatelle al Tartufo - 18.50€", "Lasagna Classica - 13.00€"] },
-      { name: "Drinks", icon: <Wine size={20}/>, items: ["Aperol Spritz - 8.50€", "Espresso - 2.50€", "House Wine (0.2l) - 6.50€"] }
+      { name: "Antipasti", icon: <Utensils size={20} />, items: ["Bruschetta Classica - 8.50€", "Carpaccio di Manzo - 14.50€", "Burrata & Pomodori - 12.00€"] },
+      { name: "Pizza", icon: <Pizza size={20} />, items: ["Margherita - 10.50€", "Diavola - 13.50€", "Quattro Formaggi - 14.00€"] },
+      { name: "Pasta", icon: <Utensils size={20} />, items: ["Carbonara - 12.50€", "Tagliatelle al Tartufo - 18.50€", "Lasagna Classica - 13.00€"] },
+      { name: "Drinks", icon: <Wine size={20} />, items: ["Aperol Spritz - 8.50€", "Espresso - 2.50€", "House Wine (0.2l) - 6.50€"] }
+    ]
+  },
+  es: {
+    title: "Menú Digital",
+    categories: [
+      { name: "Antipasti", icon: <Utensils size={20} />, items: ["Bruschetta Classica - 8.50€", "Carpaccio di Manzo - 14.50€", "Burrata & Pomodori - 12.00€"] },
+      { name: "Pizza", icon: <Pizza size={20} />, items: ["Margherita - 10.50€", "Diavola - 13.50€", "Quattro Formaggi - 14.00€"] },
+      { name: "Pasta", icon: <Utensils size={20} />, items: ["Carbonara - 12.50€", "Tagliatelle al Tartufo - 18.50€", "Lasagna Classica - 13.00€"] },
+      { name: "Bebidas", icon: <Wine size={20} />, items: ["Aperol Spritz - 8.50€", "Espresso - 2.50€", "Vino de la Casa (0.2l) - 6.50€"] }
     ]
   }
 };
 
 const Menu: React.FC<Props> = ({ lang }) => {
   const data = menuData[lang] || menuData.de;
-  const subtitles = {
+  const subtitles: Record<string, string> = {
     tr: 'Pastillo lezzetlerini keşfedin.',
     de: 'Entdecken Sie unsere Spezialitäten.',
-    en: 'Discover our specialties.'
+    en: 'Discover our specialties.',
+    es: 'Descubre nuestras especialidades.'
   };
 
   return (

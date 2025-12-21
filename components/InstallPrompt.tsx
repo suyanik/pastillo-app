@@ -28,6 +28,12 @@ const InstallPrompt: React.FC<Props> = ({ lang }) => {
       desc: 'Add Pastillo to your home screen for the best experience.',
       step1: '1. Tap the Share button below',
       step2: '2. Select "Add to Home Screen"'
+    },
+    es: {
+      title: 'Instalar App',
+      desc: 'Añade Pastillo a tu pantalla de inicio para la mejor experiencia.',
+      step1: '1. Toca el botón Compartir abajo',
+      step2: '2. Selecciona "Añadir a Inicio"'
     }
   };
 
@@ -56,7 +62,7 @@ const InstallPrompt: React.FC<Props> = ({ lang }) => {
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 p-4 animate-in slide-in-from-bottom duration-500">
       <div className="bg-[#1c1c1c]/90 backdrop-blur-md border border-white/10 rounded-2xl p-5 shadow-2xl relative max-w-md mx-auto">
-        <button 
+        <button
           onClick={handleClose}
           className="absolute top-3 right-3 text-white/30 hover:text-white transition-colors"
         >
@@ -65,7 +71,7 @@ const InstallPrompt: React.FC<Props> = ({ lang }) => {
 
         <div className="flex items-start gap-4">
           <div className="bg-primary rounded-xl p-3 shrink-0">
-             <img src="https://cdn-icons-png.flaticon.com/512/706/706164.png" className="w-8 h-8 invert-0" alt="Icon" />
+            <img src="https://cdn-icons-png.flaticon.com/512/706/706164.png" className="w-8 h-8 invert-0" alt="Icon" />
           </div>
           <div className="space-y-1">
             <h3 className="font-bold text-white text-base">{t.title}</h3>
@@ -74,18 +80,18 @@ const InstallPrompt: React.FC<Props> = ({ lang }) => {
         </div>
 
         <div className="mt-4 pt-4 border-t border-white/10 flex flex-col gap-2">
-           <div className="flex items-center gap-3 text-sm text-white/60">
-             <span className="flex items-center justify-center w-6 h-6">
-                <Share size={18} className="text-primary" />
-             </span>
-             <span>{t.step1}</span>
-           </div>
-           <div className="flex items-center gap-3 text-sm text-white/60">
-             <span className="flex items-center justify-center w-6 h-6">
-                <PlusSquare size={18} className="text-primary" />
-             </span>
-             <span>{t.step2}</span>
-           </div>
+          <div className="flex items-center gap-3 text-sm text-white/60">
+            <span className="flex items-center justify-center w-6 h-6">
+              <Share size={18} className="text-primary" />
+            </span>
+            <span>{t.step1}</span>
+          </div>
+          <div className="flex items-center gap-3 text-sm text-white/60">
+            <span className="flex items-center justify-center w-6 h-6">
+              <PlusSquare size={18} className="text-primary" />
+            </span>
+            <span>{t.step2}</span>
+          </div>
         </div>
         <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-[#1c1c1c]/90 border-r border-b border-white/10 rotate-45 transform"></div>
       </div>

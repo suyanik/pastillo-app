@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { 
-  Instagram, MapPin, Phone, Clock, Globe, 
-  Facebook, ExternalLink, ChevronRight 
+import {
+  Instagram, MapPin, Phone, Clock, Globe,
+  Facebook, ExternalLink, ChevronRight
 } from 'lucide-react';
 import { Language, AppSettings } from '../types';
 
@@ -42,32 +42,42 @@ const InfoView: React.FC<Props> = ({ lang, settings }) => {
       web: 'Website',
       contact: 'Quick Contact',
       call: 'Call Us'
+    },
+    es: {
+      title: 'Contacto e Info',
+      sub: 'Contáctenos',
+      address: 'Dirección',
+      hours: 'Horario',
+      social: 'Redes Sociales',
+      web: 'Sitio Web',
+      contact: 'Contacto Rápido',
+      call: 'Llamar'
     }
   };
 
   const t = translations[lang] || translations.de;
 
   const socialLinks = [
-    { 
-      label: 'Instagram', 
-      value: '@Pastillo_butzbach', 
-      icon: <Instagram size={18} />, 
+    {
+      label: 'Instagram',
+      value: '@Pastillo_butzbach',
+      icon: <Instagram size={18} />,
       url: 'https://instagram.com/Pastillo_butzbach',
-      color: 'text-pink-500' 
+      color: 'text-pink-500'
     },
-    { 
-      label: 'Facebook', 
-      value: 'Pastillo Butzbach', 
-      icon: <Facebook size={18} />, 
+    {
+      label: 'Facebook',
+      value: 'Pastillo Butzbach',
+      icon: <Facebook size={18} />,
       url: 'https://facebook.com/profile.php?id=100086382436854', // Standart bir arama veya bilinen ID
-      color: 'text-blue-500' 
+      color: 'text-blue-500'
     },
-    { 
-      label: t.web, 
-      value: 'www.pastillo.de', 
-      icon: <Globe size={18} />, 
+    {
+      label: t.web,
+      value: 'www.pastillo.de',
+      icon: <Globe size={18} />,
       url: 'https://www.pastillo.de',
-      color: 'text-primary' 
+      color: 'text-primary'
     }
   ];
 
@@ -96,7 +106,7 @@ const InfoView: React.FC<Props> = ({ lang, settings }) => {
             <div>
               <h3 className="text-[10px] font-black text-white/20 uppercase tracking-widest">{t.address}</h3>
               <p className="text-sm font-bold text-white/80 mt-1 leading-snug">{settings.address}</p>
-              <a 
+              <a
                 href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -139,7 +149,7 @@ const InfoView: React.FC<Props> = ({ lang, settings }) => {
         <div className="glass p-5 rounded-[2rem] border border-white/5 space-y-2">
           <h3 className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-3 ml-1">{t.social}</h3>
           {socialLinks.map((link, idx) => (
-            <a 
+            <a
               key={idx}
               href={link.url}
               target="_blank"
@@ -160,7 +170,7 @@ const InfoView: React.FC<Props> = ({ lang, settings }) => {
           ))}
         </div>
       </div>
-      
+
       {/* Footer minimal tag */}
       <p className="text-center text-[8px] font-black text-white/10 uppercase tracking-[0.5em] mt-4">
         © Pastillo Butzbach

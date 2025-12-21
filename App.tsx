@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
-import { 
-  Users, TrendingUp, Calendar, 
+import {
+  Users, TrendingUp, Calendar,
   Settings, LogOut, UserCog, LayoutDashboard
 } from 'lucide-react';
 
@@ -18,29 +18,18 @@ import InfoView from './components/InfoView';
 
 // Services & Types
 import { Reservation, Language, AppSettings, DailyTurnover, Expense, UserRole, Personnel } from './types';
-import { 
-  subscribeToReservations, addReservationToDB, updateReservationStatus, 
+import {
+  subscribeToReservations, addReservationToDB, updateReservationStatus,
   deleteReservationFromDB, subscribeToSettings, subscribeToTurnover, subscribeToExpenses,
-  subscribeToPersonnel 
+  subscribeToPersonnel
 } from './services/firebase';
-
-interface AppTranslations {
-  ovw: string;
-  res: string;
-  fin: string;
-  staff: string;
-  set: string;
-  adminTitle: string;
-  staffTitle: string;
-  titleMap: Record<string, string>;
-}
 
 const App: React.FC = () => {
   const [userRole, setUserRole] = useState<UserRole>('none');
   const [adminView, setAdminView] = useState<'overview' | 'reservations' | 'finance' | 'personnel' | 'settings'>('overview');
   const [view, setView] = useState<'public' | 'admin'>('public');
   const [lang, setLang] = useState<Language>('de');
-  
+
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [turnovers, setTurnovers] = useState<DailyTurnover[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -73,7 +62,7 @@ const App: React.FC = () => {
     };
   }, []);
 
-  const translations: Record<Language, AppTranslations> = {
+  const translations: Record<Language, any> = {
     tr: {
       ovw: 'PANEL', res: 'REZERVASYON', fin: 'FİNANS', staff: 'PERSONEL', set: 'AYARLAR',
       adminTitle: 'YÖNETİM SÜİTİ',
@@ -109,15 +98,27 @@ const App: React.FC = () => {
         personnel: 'PERSONNEL',
         settings: 'SETTINGS'
       }
+    },
+    es: {
+      ovw: 'PANEL', res: 'RESERVA', fin: 'FINANZAS', staff: 'PERSONAL', set: 'AJUSTES',
+      adminTitle: 'SUITE DE GESTIÓN',
+      staffTitle: 'PANEL DE PERSONAL',
+      titleMap: {
+        overview: 'RESUMEN',
+        reservations: 'RESERVAS',
+        finance: 'FINANZAS',
+        personnel: 'PERSONAL',
+        settings: 'AJUSTES'
+      }
     }
   };
 
-  const t = translations[lang];
+  const t = translations[lang] || translations.de;
 
   const getHeaderTitle = () => {
     if (view === 'public') return "TISCHRESERVIERUNG";
-    if (userRole === 'staff') return t.staffTitle;
-    return t.titleMap[adminView] || t.adminTitle;
+    if (userRole === 'staff') return t.staffTitle || "STAFF";
+    return (t.titleMap && t.titleMap[adminView]) || t.adminTitle || "ADMIN";
   };
 
   const handleLogin = (role: UserRole) => {
@@ -126,13 +127,13 @@ const App: React.FC = () => {
   };
 
   if (view === 'admin' && userRole === 'none') {
-    return <AdminLogin onLogin={handleLogin} onCancel={() => setView('public')} lang={lang} />;
+    return <AdminLogin onLogin={handleLogin} onCancel={() => setView('public')} lang={lang} settings={settings} />;
   }
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] text-white font-sans pb-32 overflow-x-hidden">
       <InstallPrompt lang={lang} />
-      
+
       <header className="sticky top-0 z-40 px-6 py-6 border-b border-white/5 bg-[#0a0a0a]/90 backdrop-blur-2xl">
         <div className="flex justify-between items-center max-w-7xl mx-auto">
           <div className="flex items-center gap-3">
@@ -140,7 +141,7 @@ const App: React.FC = () => {
               {getHeaderTitle()}
             </h1>
           </div>
-          
+
           <div className="flex items-center gap-2">
             <div className="hidden sm:flex bg-white/5 rounded-xl p-1 border border-white/10 mr-2">
               {(['tr', 'de', 'en'] as Language[]).map((l: Language) => (
@@ -170,14 +171,14 @@ const App: React.FC = () => {
       <main className={`mx-auto p-5 animate-in fade-in duration-700 ${view === 'admin' && userRole === 'admin' ? 'max-w-7xl' : 'max-w-md'}`}>
         {view === 'public' ? (
           <div className="space-y-12">
-            <ReservationForm 
-              lang={lang} 
-              isLoading={false} 
+            <ReservationForm
+              lang={lang}
+              isLoading={false}
               onSubmit={async (data) => {
-                await addReservationToDB({...data, status: 'confirmed'});
+                await addReservationToDB({ ...data, status: 'confirmed' });
                 const msg = lang === 'tr' ? 'Rezervasyonunuz alındı!' : (lang === 'en' ? 'Reservation received!' : 'Reservierung erfolgreich!');
                 alert(msg);
-              }} 
+              }}
               existingReservations={reservations}
               settings={settings}
             />
@@ -186,7 +187,7 @@ const App: React.FC = () => {
         ) : (
           <div className="space-y-6">
             {adminView === 'overview' && userRole === 'admin' && (
-              <MasterDashboard 
+              <MasterDashboard
                 lang={lang}
                 reservations={reservations}
                 turnovers={turnovers}
@@ -196,17 +197,17 @@ const App: React.FC = () => {
               />
             )}
             {adminView === 'reservations' && (
-              <ManagerDashboard 
-                lang={lang} 
-                reservations={reservations} 
-                onDelete={deleteReservationFromDB} 
-                onStatusUpdate={updateReservationStatus} 
+              <ManagerDashboard
+                lang={lang}
+                reservations={reservations}
+                onDelete={deleteReservationFromDB}
+                onStatusUpdate={updateReservationStatus}
               />
             )}
             {userRole === 'admin' && (
               <>
                 {adminView === 'finance' && <Dashboard lang={lang} turnovers={turnovers} expenses={expenses} />}
-                {adminView === 'personnel' && <PersonnelManagement lang={lang} />}
+                {adminView === 'personnel' && <PersonnelManagement lang={lang} staff={staffList} settings={settings} />}
                 {adminView === 'settings' && <SettingsManager lang={lang} settings={settings} />}
               </>
             )}
@@ -214,24 +215,28 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {view === 'admin' && userRole === 'admin' && (
+      {view === 'admin' && (userRole === 'admin' || userRole === 'staff') && (
         <nav className="fixed bottom-8 left-6 right-6 z-50 max-w-xl mx-auto">
           <div className="glass bg-[#161616]/95 p-2 rounded-[2.5rem] shadow-2xl flex justify-between items-center border border-white/10">
-            <button onClick={() => setAdminView('overview')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'overview' ? 'bg-primary text-black' : 'text-white/30'}`}>
+            <button onClick={() => setAdminView('overview')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${(adminView === 'overview' || (userRole === 'staff' && adminView === 'reservations')) ? 'bg-primary text-black' : 'text-white/30'}`}>
               <LayoutDashboard size={18} /><span className="text-[8px] font-black uppercase tracking-widest">{t.ovw}</span>
             </button>
             <button onClick={() => setAdminView('reservations')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'reservations' ? 'bg-primary text-black' : 'text-white/30'}`}>
               <Calendar size={18} /><span className="text-[8px] font-black uppercase tracking-widest">{t.res}</span>
             </button>
-            <button onClick={() => setAdminView('finance')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'finance' ? 'bg-primary text-black' : 'text-white/30'}`}>
-              <TrendingUp size={18} /><span className="text-[8px] font-black uppercase tracking-widest">{t.fin}</span>
-            </button>
-            <button onClick={() => setAdminView('personnel')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'personnel' ? 'bg-primary text-black' : 'text-white/30'}`}>
-              <Users size={18} /><span className="text-[8px] font-black uppercase tracking-widest">{t.staff}</span>
-            </button>
-            <button onClick={() => setAdminView('settings')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'settings' ? 'bg-primary text-black' : 'text-white/30'}`}>
-              <Settings size={18} /><span className="text-[8px] font-black uppercase tracking-widest">{t.set}</span>
-            </button>
+            {userRole === 'admin' && (
+              <>
+                <button onClick={() => setAdminView('finance')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'finance' ? 'bg-primary text-black' : 'text-white/30'}`}>
+                  <TrendingUp size={18} /><span className="text-[8px] font-black uppercase tracking-widest">{t.fin}</span>
+                </button>
+                <button onClick={() => setAdminView('personnel')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'personnel' ? 'bg-primary text-black' : 'text-white/30'}`}>
+                  <Users size={18} /><span className="text-[8px] font-black uppercase tracking-widest">{t.staff}</span>
+                </button>
+                <button onClick={() => setAdminView('settings')} className={`flex-1 flex flex-col items-center gap-1 py-3.5 rounded-[2.2rem] transition-all ${adminView === 'settings' ? 'bg-primary text-black' : 'text-white/30'}`}>
+                  <Settings size={18} /><span className="text-[8px] font-black uppercase tracking-widest">{t.set}</span>
+                </button>
+              </>
+            )}
           </div>
         </nav>
       )}

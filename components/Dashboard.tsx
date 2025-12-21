@@ -1,8 +1,8 @@
 
 import React, { useMemo } from 'react';
-import { 
-  TrendingUp, TrendingDown, Wallet, CreditCard, ArrowRight, 
-  Receipt, ShoppingBag, FileSpreadsheet, X
+import {
+  TrendingUp, TrendingDown, Wallet, CreditCard, ArrowRight,
+  Receipt, ShoppingBag, Download, FileSpreadsheet, X
 } from 'lucide-react';
 import { Language, DailyTurnover, Expense } from '../types';
 import EntryForm from './EntryForm';
@@ -13,35 +13,23 @@ interface Props {
   lang: Language;
 }
 
-interface DashboardTranslations {
-  net: string;
-  income: string;
-  expense: string;
-  cash: string;
-  card: string;
-  lieferando: string;
-  recent: string;
-  all: string;
-  add: string;
-  export: string;
-}
-
 const Dashboard: React.FC<Props> = ({ lang, turnovers, expenses }) => {
   const [showEntry, setShowEntry] = React.useState(false);
 
-  const translations: Record<Language, DashboardTranslations> = {
+  const translations: Record<Language, any> = {
     tr: { net: 'Bugünkü Net Kasa', income: 'Gelir', expense: 'Gider', cash: 'Nakit', card: 'Kredi Kartı', lieferando: 'Lieferando', recent: 'Son Harcamalar', all: 'TÜMÜ', add: 'İŞLEM EKLE', export: 'CSV AKTAR' },
     de: { net: 'Netto-Kasse Heute', income: 'Einnahmen', expense: 'Ausgaben', cash: 'Bargeld', card: 'Kreditkarte', lieferando: 'Lieferando', recent: 'Letzte Ausgaben', all: 'ALLE', add: 'BUCHUNG ERFASSEN', export: 'CSV EXPORT' },
-    en: { net: 'Today\'s Net Cash', income: 'Income', expense: 'Expenses', cash: 'Cash', card: 'Credit Card', lieferando: 'Lieferando', recent: 'Recent Expenses', all: 'ALL', add: 'NEW ENTRY', export: 'EXPORT CSV' }
+    en: { net: 'Today\'s Net Cash', income: 'Income', expense: 'Expenses', cash: 'Cash', card: 'Credit Card', lieferando: 'Lieferando', recent: 'Recent Expenses', all: 'ALL', add: 'NEW ENTRY', export: 'EXPORT CSV' },
+    es: { net: 'Caja Neta Hoy', income: 'Ingresos', expense: 'Gastos', cash: 'Efectivo', card: 'Tarjeta', lieferando: 'Lieferando', recent: 'Gastos Recientes', all: 'TODO', add: 'NUEVA ENTRADA', export: 'EXPORTAR CSV' }
   };
 
-  const t = translations[lang];
+  const t = translations[lang] || translations.de;
 
   const handleExportCSV = () => {
     const headers = ["Date", "Type", "Amount", "Category", "Description"];
-    const turnoverRows = turnovers.map(to => [to.date, "Turnover", to.total, "Revenue", `Cash: ${to.cash}, Card: ${to.creditCard}`]);
-    const expenseRows = expenses.map(ex => [ex.date, "Expense", ex.amount, ex.category, ex.description]);
-    
+    const turnoverRows = turnovers.map((to: DailyTurnover) => [to.date, "Turnover", to.total, "Revenue", `Cash: ${to.cash}, Card: ${to.creditCard}`]);
+    const expenseRows = expenses.map((ex: Expense) => [ex.date, "Expense", ex.amount, ex.category, ex.description]);
+
     const csvContent = [headers, ...turnoverRows, ...expenseRows]
       .map(row => row.join(","))
       .join("\n");
@@ -59,8 +47,8 @@ const Dashboard: React.FC<Props> = ({ lang, turnovers, expenses }) => {
   const todayStr = new Date().toISOString().split('T')[0];
 
   const todayStats = useMemo(() => {
-    const turn = turnovers.find(t => t.date === todayStr) || { cash: 0, creditCard: 0, lieferando: 0, total: 0 };
-    const todayExps = expenses.filter(e => e.date === todayStr).reduce((sum, e) => sum + e.amount, 0);
+    const turn = turnovers.find((t: DailyTurnover) => t.date === todayStr) || { cash: 0, creditCard: 0, lieferando: 0, total: 0 };
+    const todayExps = expenses.filter((e: Expense) => e.date === todayStr).reduce((sum: number, e: Expense) => sum + e.amount, 0);
     return {
       income: turn.total,
       cash: turn.cash,
@@ -76,7 +64,7 @@ const Dashboard: React.FC<Props> = ({ lang, turnovers, expenses }) => {
       <div className="space-y-6 animate-in slide-in-from-bottom-4 duration-300">
         <div className="flex justify-between items-center">
           <h2 className="text-xl font-black text-white">{t.add}</h2>
-          <button onClick={() => setShowEntry(false)} className="p-2 bg-white/5 rounded-full"><X size={16}/></button>
+          <button onClick={() => setShowEntry(false)} className="p-2 bg-white/5 rounded-full"><X size={16} /></button>
         </div>
         <EntryForm lang={lang} onSave={() => setShowEntry(false)} />
       </div>
@@ -136,21 +124,21 @@ const Dashboard: React.FC<Props> = ({ lang, turnovers, expenses }) => {
       <div className="space-y-4 pt-2">
         <div className="flex justify-between items-center px-1">
           <h3 className="text-xs font-black uppercase tracking-[0.2em] text-white/50">{t.recent}</h3>
-          <button className="text-primary text-[10px] font-black flex items-center gap-1">{t.all} <ArrowRight size={14}/></button>
+          <button className="text-primary text-[10px] font-black flex items-center gap-1">{t.all} <ArrowRight size={14} /></button>
         </div>
         <div className="space-y-3">
-           {expenses.slice(0, 5).map((item, i) => (
-             <div key={i} className="glass p-5 rounded-[1.8rem] flex items-center justify-between border border-white/5">
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/20"><Receipt size={22} /></div>
-                  <div>
-                    <p className="text-sm font-bold text-white tracking-tight">{item.description}</p>
-                    <p className="text-[10px] text-white/40 font-black uppercase tracking-widest mt-0.5">{item.category} • {item.date}</p>
-                  </div>
+          {expenses.slice(0, 5).map((item: Expense, i: number) => (
+            <div key={i} className="glass p-5 rounded-[1.8rem] flex items-center justify-between border border-white/5">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-white/20"><Receipt size={22} /></div>
+                <div>
+                  <p className="text-sm font-bold text-white tracking-tight">{item.description}</p>
+                  <p className="text-[10px] text-white/40 font-black uppercase tracking-widest mt-0.5">{item.category} • {item.date}</p>
                 </div>
-                <p className="font-black text-red-400">€{item.amount}</p>
-             </div>
-           ))}
+              </div>
+              <p className="font-black text-red-400">€{item.amount}</p>
+            </div>
+          ))}
         </div>
       </div>
     </div>
