@@ -1,12 +1,12 @@
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
-import { Reservation, ReservationStatus, DailyTurnover, Expense, AppSettings, Personnel } from "../types";
+import { Reservation, ReservationStatus, DailyTurnover, Expense, AppSettings, Personnel, PersonnelPayment } from "../types";
 
 const keyParts = ["AIzaSyCdu", "-FAv6bQiaFJGZdescMJJKcq7a8vre8"];
 
 const firebaseConfig = {
-  apiKey: keyParts.join(""), 
+  apiKey: keyParts.join(""),
   authDomain: "pastillo-app.firebaseapp.com",
   projectId: "pastillo-app",
   storageBucket: "pastillo-app.firebasestorage.app",
@@ -20,9 +20,8 @@ const db = app.firestore();
 
 // Only apply settings if they haven't been applied before to avoid the "overriding host" warning
 try {
-  db.settings({ 
-    experimentalForceLongPolling: true,
-    merge: true // This satisfies the Firestore 12.6 requirement mentioned in your warning
+  db.settings({
+    experimentalForceLongPolling: true
   });
 } catch (e) {
   // Settings already applied, safe to ignore
@@ -78,10 +77,10 @@ export const addReservationToDB = async (reservation: Omit<Reservation, "id" | "
       ...reservation,
       createdAt: Date.now()
     });
-    
+
     // Simulate Email Notification trigger
     console.log(`Notification: New Reservation for ${reservation.name} on ${reservation.date} at ${reservation.time}. Emailing info@pastillo.de...`);
-    
+
     return res.id;
   } catch (error) {
     console.error("Error adding reservation: ", error);
@@ -145,9 +144,34 @@ export const subscribeToExpenses = (callback: (data: Expense[]) => void) => {
 };
 
 // --- Personnel ---
-// Fixed: Added missing subscribeToPersonnel export
 export const subscribeToPersonnel = (callback: (data: Personnel[]) => void) => {
   return db.collection(COLL_PERSONNEL).onSnapshot(snap => {
     callback(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Personnel[]);
   });
+};
+
+export const addPersonnel = async (personnel: Omit<Personnel, "id" | "payments">) => {
+  await db.collection(COLL_PERSONNEL).add({
+    ...personnel,
+    payments: []
+  });
+};
+
+export const updatePersonnel = async (id: string, personnel: Partial<Personnel>) => {
+  await db.collection(COLL_PERSONNEL).doc(id).update(personnel);
+};
+
+export const deletePersonnel = async (id: string) => {
+  await db.collection(COLL_PERSONNEL).doc(id).delete();
+};
+
+export const addPersonnelPayment = async (personnelId: string, payment: Omit<PersonnelPayment, "id">) => {
+  const personnelDoc = await db.collection(COLL_PERSONNEL).doc(personnelId).get();
+  if (personnelDoc.exists) {
+    const data = personnelDoc.data() as Personnel;
+    const newPayment = { ...payment, id: Math.random().toString() }; // Simple ID for sub-items
+    await db.collection(COLL_PERSONNEL).doc(personnelId).update({
+      payments: [...(data.payments || []), newPayment]
+    });
+  }
 };

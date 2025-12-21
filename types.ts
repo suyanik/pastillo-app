@@ -68,7 +68,7 @@ export interface AppSettings {
   managerEmail: string;
 }
 
-export type Language = 'tr' | 'de' | 'en';
+export type Language = 'tr' | 'de' | 'en' | 'es';
 export type ReservationStatus = 'confirmed' | 'seated' | 'cancelled';
 
 export interface Reservation {
