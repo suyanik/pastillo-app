@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Users, Phone, User, Loader2, Minus, Plus, Calendar, Clock, AlertCircle } from 'lucide-react';
 import { Reservation, Language, AppSettings } from '../types';
 
@@ -25,11 +24,11 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
 
   const [dateError, setDateError] = useState<string | null>(null);
 
-  const translations = {
-    tr: { date: 'Tarih Seçin', guests: 'Kişi Sayısı', time: 'Müsait Saatler', name: 'Ad Soyad', phone: 'Telefon', submit: 'Rezervasyon Yap', holiday: 'Restoran bu tarihte kapalıdır.' },
-    de: { date: 'Datum wählen', guests: 'Personenanzahl', time: 'Verfügbare Zeiten', name: 'Vor- und Nachname', phone: 'Telefonnummer', submit: 'Kostenpflichtig buchen', holiday: 'Das Restaurant ist an diesem Tag geschlossen.' },
-    en: { date: 'Select Date', guests: 'Number of Guests', time: 'Available Times', name: 'Full Name', phone: 'Phone Number', submit: 'Book Table', holiday: 'The restaurant is closed on this date.' },
-    es: { date: 'Seleccionar fecha', guests: 'Número de personas', time: 'Horas disponibles', name: 'Nombre y apellido', phone: 'Número de teléfono', submit: 'Reservar mesa', holiday: 'El restaurante está cerrado en esta fecha.' }
+  const translations: Record<Language, Record<string, string>> = {
+    tr: { title: 'REZERVASYON', date: 'Tarih Seçin', guests: 'Kişi Sayısı', time: 'Müsait Saatler', name: 'Ad Soyad', phone: 'Telefon', submit: 'Rezervasyon Yap', holiday: 'Restoran bu tarihte kapalıdır.' },
+    de: { title: 'RESERVIERUNG', date: 'Datum wählen', guests: 'Personenanzahl', time: 'Verfügbare Zeiten', name: 'Vor- und Nachname', phone: 'Telefonnummer', submit: 'Kostenpflichtig buchen', holiday: 'Das Restaurant ist an diesem Tag geschlossen.' },
+    en: { title: 'RESERVATION', date: 'Select Date', guests: 'Number of Guests', time: 'Available Times', name: 'Full Name', phone: 'Phone Number', submit: 'Book Table', holiday: 'The restaurant is closed on this date.' },
+    es: { title: 'RESERVA', date: 'Seleccionar fecha', guests: 'Número de personas', time: 'Horas disponibles', name: 'Nombre y apellido', phone: 'Número de teléfono', submit: 'Reservar mesa', holiday: 'El restaurante está cerrado en esta fecha.' }
   };
 
   const t = translations[lang] || translations.de;
@@ -72,53 +71,127 @@ const ReservationForm: React.FC<Props> = ({ onSubmit, isLoading, existingReserva
   }, [formData.date, formData.guests, existingReservations, dateError, settings.maxCapacityPerSlot]);
 
   return (
-    <div className="glass p-6 sm:p-8 rounded-xl w-full mb-12 box-border">
-      <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-8 max-w-full overflow-hidden">
-        <div className="space-y-3 w-full">
-          <label className="flex items-center gap-2 text-sm font-medium text-white/80"><Calendar size={16} className="text-primary" /> {t.date}</label>
-          <input required type="date" min={getLocalDate()} className="block w-full bg-white/5 border border-white/10 rounded-xl py-4 px-4 text-white text-base [color-scheme:dark] focus:ring-1 focus:ring-primary focus:outline-none" value={formData.date} onChange={handleDateChange} />
-          {dateError && <p className="text-red-400 text-sm flex items-center gap-2 mt-2 font-medium"><AlertCircle size={14} /> {dateError}</p>}
+    <div className="relative p-[2px] bg-primary cut-corners-lg">
+      <div className="bg-white cut-corners-lg p-6 sm:p-8">
+        {/* Title */}
+        <div className="text-center mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 tracking-wider">{t.title}</h2>
+          <p className="text-gray-500 text-sm mt-1">Pastillo Restaurant & Bar</p>
         </div>
 
-        <div className="space-y-3">
-          <label className="flex items-center gap-2 text-sm font-medium text-white/80"><Users size={16} className="text-primary" /> {t.guests}</label>
-          <div className="flex items-center gap-4 bg-white/5 border border-white/10 rounded-xl p-2">
-            <button type="button" onClick={() => setFormData(p => ({ ...p, guests: Math.max(1, p.guests - 1) }))} className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center text-white active:scale-95 transition-all"><Minus size={20} /></button>
-            <div className="flex-1 text-center"><span className="text-2xl font-bold text-white">{formData.guests}</span></div>
-            <button type="button" onClick={() => setFormData(p => ({ ...p, guests: p.guests + 1 }))} className="w-12 h-12 rounded-lg bg-white/10 flex items-center justify-center text-white active:scale-95 transition-all"><Plus size={20} /></button>
+        <form onSubmit={(e) => { e.preventDefault(); onSubmit(formData); }} className="space-y-6">
+          {/* Date */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-bold text-gray-700 uppercase tracking-widest">
+              <Calendar size={16} className="text-primary" /> {t.date}
+            </label>
+            <div className="relative">
+              <div className="absolute inset-0 border-2 border-gray-300 cut-corners pointer-events-none"></div>
+              <input
+                required
+                type="date"
+                min={getLocalDate()}
+                className="relative w-full bg-transparent py-4 px-4 text-gray-900 text-base cut-corners focus:outline-none"
+                value={formData.date}
+                onChange={handleDateChange}
+              />
+            </div>
+            {dateError && <p className="text-red-500 text-sm flex items-center gap-2 font-medium"><AlertCircle size={14} /> {dateError}</p>}
           </div>
-        </div>
 
-        <div className="space-y-3">
-          <label className="flex items-center gap-2 text-sm font-medium text-white/80"><Clock size={16} className="text-primary" /> {t.time}</label>
-          <div className="grid grid-cols-3 gap-2">
-            {timeSlots.map(s => (
+          {/* Guests Counter */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-bold text-gray-700 uppercase tracking-widest">
+              <Users size={16} className="text-primary" /> {t.guests}
+            </label>
+            <div className="flex items-center gap-4 border-2 border-gray-200 p-2 cut-corners">
               <button
-                key={s} type="button"
-                onClick={() => setFormData({ ...formData, time: s })}
-                className={`py-3 rounded-xl text-sm font-bold border transition-all ${formData.time === s ? 'bg-primary text-black border-primary scale-[1.02] shadow-lg shadow-primary/20' : 'bg-white/5 text-white border-white/10'}`}
+                type="button"
+                onClick={() => setFormData(p => ({ ...p, guests: Math.max(1, p.guests - 1) }))}
+                className="w-12 h-12 bg-gray-100 flex items-center justify-center text-gray-600 active:scale-95 transition-all hover:bg-primary hover:text-gray-900 cut-corners"
               >
-                {s}
+                <Minus size={20} />
               </button>
-            ))}
+              <div className="flex-1 text-center">
+                <span className="text-3xl font-bold text-gray-900">{formData.guests}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormData(p => ({ ...p, guests: p.guests + 1 }))}
+                className="w-12 h-12 bg-gray-100 flex items-center justify-center text-gray-600 active:scale-95 transition-all hover:bg-primary hover:text-gray-900 cut-corners"
+              >
+                <Plus size={20} />
+              </button>
+            </div>
           </div>
-        </div>
 
-        <div className="space-y-4">
-          <div className="relative">
-            <User className="absolute left-3 top-4 text-white/40" size={18} />
-            <input required type="text" placeholder={t.name} className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-10 pr-4 text-white text-base focus:ring-1 focus:ring-primary focus:outline-none" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+          {/* Time Slots */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-bold text-gray-700 uppercase tracking-widest">
+              <Clock size={16} className="text-primary" /> {t.time}
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              {timeSlots.map(s => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setFormData({ ...formData, time: s })}
+                  className={`py-3 font-bold text-sm border-2 transition-all cut-corners ${formData.time === s
+                      ? 'bg-primary text-gray-900 border-primary shadow-neon'
+                      : 'bg-white text-gray-700 border-gray-200 hover:border-primary'
+                    }`}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
           </div>
-          <div className="relative">
-            <Phone className="absolute left-3 top-4 text-white/40" size={18} />
-            <input required type="tel" placeholder={t.phone} className="w-full bg-white/5 border border-white/10 rounded-xl py-4 pl-10 pr-4 text-white text-base focus:ring-1 focus:ring-primary focus:outline-none" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} />
-          </div>
-        </div>
 
-        <button type="submit" disabled={isLoading || !formData.time} className="w-full bg-primary hover:bg-primary/90 text-black py-4 rounded-xl font-extrabold text-lg disabled:opacity-50 active:scale-[0.98] transition-all shadow-xl shadow-primary/10">
-          {isLoading ? <Loader2 className="animate-spin mx-auto" /> : t.submit}
-        </button>
-      </form>
+          {/* Name & Phone */}
+          <div className="space-y-4">
+            <div className="relative">
+              <div className="absolute inset-0 border-2 border-gray-300 cut-corners pointer-events-none"></div>
+              <div className="relative flex items-center">
+                <User className="absolute left-3 text-gray-400" size={18} />
+                <input
+                  required
+                  type="text"
+                  placeholder={t.name}
+                  className="w-full bg-transparent py-4 pl-10 pr-4 text-gray-900 placeholder-gray-400 cut-corners focus:outline-none"
+                  value={formData.name}
+                  onChange={e => setFormData({ ...formData, name: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-0 border-2 border-gray-300 cut-corners pointer-events-none"></div>
+              <div className="relative flex items-center">
+                <Phone className="absolute left-3 text-gray-400" size={18} />
+                <input
+                  required
+                  type="tel"
+                  placeholder={t.phone}
+                  className="w-full bg-transparent py-4 pl-10 pr-4 text-gray-900 placeholder-gray-400 cut-corners focus:outline-none"
+                  value={formData.phone}
+                  onChange={e => setFormData({ ...formData, phone: e.target.value })}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading || !formData.time}
+            className="relative group w-full bg-primary text-gray-900 py-4 font-bold text-lg uppercase tracking-wider disabled:opacity-50 active:scale-[0.98] transition-all hover:shadow-neon cut-corners overflow-hidden"
+          >
+            <span className="relative z-10">
+              {isLoading ? <Loader2 className="animate-spin mx-auto" /> : t.submit}
+            </span>
+            <div className="absolute inset-0 h-full w-full bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

@@ -41,9 +41,9 @@ const PersonnelManagement: React.FC<Props> = ({ lang, staff, settings }) => {
       employmentInfo: 'İş Bilgileri', firstName: 'Adı', lastName: 'Soyadı', dob: 'Doğum Tarihi',
       pob: 'Doğum Yeri', address: 'Adres', nationality: 'Uyruk', healthIns: 'Krankkasse (Sağlık Sig.)',
       taxId: 'Steuer ID (Vergi No)', ssn: 'SSN (Sosyal Güvenlik)', bank: 'Banka Adı', iban: 'IBAN', bic: 'BIC/SWIFT',
-      startDate: 'İşe Giriş Tarihi', baseSalary: 'Net Maaş', advances: 'Ödenen', remaining: 'Kalan',
+      startDate: 'İşe Giriş Tarihi', endDate: 'İşten Ayrılış Tarihi', baseSalary: 'Net Maaş', advances: 'Ödenen', remaining: 'Kalan',
       save: 'KAYDI TAMAMLA', update: 'GÜNCELLEMELERİ KAYDET', cancel: 'İPTAL', roles: ['Şef', 'Garson', 'Mutfak', 'Komi', 'Barista', 'Temizlik'],
-      deleteConfirm: 'Bu personel kaydı silinsin mi?', photo: 'Profil Fotoğrafı',
+      deleteConfirm: 'Bu personel kaydı silinsin mi?', deleteButton: 'SİCİL KAYDINI KALICI OLARAK SİL', photo: 'Profil Fotoğrafı',
       paySalary: 'Maaş Öde', giveAdvance: 'Avans Ver', paymentHistory: 'Ödeme Geçmişi',
       type: { salary: 'Maaş', advance: 'Avans' }, paid: 'ÖDENDİ', addPayment: 'Ödeme Ekle',
       noHistory: 'Bu aya ait ödeme kaydı yok.',
@@ -55,9 +55,9 @@ const PersonnelManagement: React.FC<Props> = ({ lang, staff, settings }) => {
       employmentInfo: 'Arbeitsverhältnis', firstName: 'Vorname', lastName: 'Nachname', dob: 'Geburtsdatum',
       pob: 'Geburtsort', address: 'Anschrift', nationality: 'Staatsangehörigkeit', healthIns: 'Krankkasse',
       taxId: 'Steuer ID', ssn: 'Sozialvers.Nr.', bank: 'Bankname', iban: 'IBAN', bic: 'BIC',
-      startDate: 'Eintrittsdatum', baseSalary: 'Netto-Gehalt', advances: 'Gezahlt', remaining: 'Rest',
+      startDate: 'Eintrittsdatum', endDate: 'Austrittsdatum', baseSalary: 'Netto-Gehalt', advances: 'Gezahlt', remaining: 'Rest',
       save: 'REGISTRIERUNG ABSCHLIESSEN', update: 'ÄNDERUNGEN SPEICHERN', cancel: 'ABBRECHEN', roles: ['Küchenchef', 'Kellner', 'Küche', 'Hilfskraft', 'Barista', 'Reinigung'],
-      deleteConfirm: 'Mitarbeiter gerçekten silinsin mi?', photo: 'Profilbild',
+      deleteConfirm: 'Diesen Mitarbeiter wirklich löschen?', deleteButton: 'DATENSATZ DAUERHAFT LÖSCHEN', photo: 'Profilbild',
       paySalary: 'Gehalt zahlen', giveAdvance: 'Vorschuss geben', paymentHistory: 'Zahlungshistorie',
       type: { salary: 'Gehalt', advance: 'Vorschuss' }, paid: 'BEZAHLT', addPayment: 'Zahlung erfassen',
       noHistory: 'Keine Zahlungen in diesem Monat.',
@@ -69,9 +69,9 @@ const PersonnelManagement: React.FC<Props> = ({ lang, staff, settings }) => {
       employmentInfo: 'Employment Details', firstName: 'First Name', lastName: 'Last Name', dob: 'Date of Birth',
       pob: 'Place of Birth', address: 'Address', nationality: 'Nationality', healthIns: 'Health Insurance',
       taxId: 'Tax ID', ssn: 'SSN (Social Security)', bank: 'Bank Name', iban: 'IBAN', bic: 'BIC',
-      startDate: 'Start Date', baseSalary: 'Net Salary', advances: 'Paid', remaining: 'Remaining',
+      startDate: 'Start Date', endDate: 'End Date', baseSalary: 'Net Salary', advances: 'Paid', remaining: 'Remaining',
       save: 'COMPLETE REGISTRATION', update: 'SAVE UPDATES', cancel: 'CANCEL', roles: ['Chef', 'Waiter', 'Kitchen', 'Assistant', 'Barista', 'Cleaning'],
-      deleteConfirm: 'Delete this staff record?', photo: 'Profile Photo',
+      deleteConfirm: 'Delete this staff record?', deleteButton: 'PERMANENTLY DELETE RECORD', photo: 'Profile Photo',
       paySalary: 'Pay Salary', giveAdvance: 'Give Advance', paymentHistory: 'Payment History',
       type: { salary: 'Salary', advance: 'Advance' }, paid: 'PAID', addPayment: 'Add Payment',
       noHistory: 'No payments for this month.',
@@ -83,9 +83,9 @@ const PersonnelManagement: React.FC<Props> = ({ lang, staff, settings }) => {
       employmentInfo: 'Información laboral', firstName: 'Nombre', lastName: 'Apellido', dob: 'Fecha de nacimiento',
       pob: 'Lugar de nacimiento', address: 'Dirección', nationality: 'Nacionalidad', healthIns: 'Seguro de salud',
       taxId: 'ID fiscal', ssn: 'Seguro Social', bank: 'Nombre del banco', iban: 'IBAN', bic: 'BIC',
-      startDate: 'Fecha de inicio', baseSalary: 'Salario neto', advances: 'Pagado', remaining: 'Restante',
+      startDate: 'Fecha de inicio', endDate: 'Fecha de salida', baseSalary: 'Salario neto', advances: 'Pagado', remaining: 'Restante',
       save: 'COMPLETAR REGISTRO', update: 'GUARDAR CAMBIOS', cancel: 'CANCELAR', roles: ['Chef', 'Camarero', 'Cocina', 'Ayudante', 'Barista', 'Limpieza'],
-      deleteConfirm: '¿Eliminar este registro de personal?', photo: 'Foto de perfil',
+      deleteConfirm: '¿Eliminar este registro de personal?', deleteButton: 'ELIMINAR REGISTRO PERMANENTEMENTE', photo: 'Foto de perfil',
       paySalary: 'Pagar salario', giveAdvance: 'Dar adelanto', paymentHistory: 'Historial de pagos',
       type: { salary: 'Salario', advance: 'Adelanto' }, paid: 'PAGADO', addPayment: 'Añadir pago',
       noHistory: 'No hay pagos para este mes.',
@@ -95,6 +95,13 @@ const PersonnelManagement: React.FC<Props> = ({ lang, staff, settings }) => {
 
   const t = translations[lang] || translations.de;
 
+  // Date formatting function (DD.MM.YYYY)
+  const formatDate = (dateString: string) => {
+    if (!dateString) return '-';
+    const parts = dateString.split('-');
+    if (parts.length !== 3) return dateString;
+    return `${parts[2]}.${parts[1]}.${parts[0]}`;
+  };
 
   const [formPerson, setFormPerson] = useState<Partial<Personnel>>({
     firstName: '', lastName: '', dateOfBirth: '', placeOfBirth: '', address: '',
@@ -290,79 +297,85 @@ const PersonnelManagement: React.FC<Props> = ({ lang, staff, settings }) => {
         )}
 
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-black text-white uppercase tracking-tighter">{isEditing ? t.edit : t.add}</h2>
-          <button onClick={() => setShowForm(false)} className="p-3 bg-white/5 rounded-full border border-white/5"><X size={20} /></button>
+          <h2 className="text-2xl font-bold text-gray-900 uppercase tracking-tighter">{isEditing ? t.edit : t.add}</h2>
+          <button onClick={() => setShowForm(false)} className="p-3 bg-primary/20 border-2 border-primary hover:bg-primary/30 transition-colors cut-corners"><X size={24} className="text-primary" /></button>
         </div>
 
         <div className="flex flex-col items-center mb-6">
-          <div onClick={() => fileInputRef.current?.click()} className="w-32 h-32 rounded-[2.5rem] bg-white/5 border-2 border-dashed border-white/10 flex flex-col items-center justify-center overflow-hidden relative active:scale-95 transition-all group">
-            {formPerson.photo ? <img src={formPerson.photo} className="w-full h-full object-cover" alt="Staff" /> : <ImageIcon className="text-white/20" size={40} />}
+          <div onClick={() => fileInputRef.current?.click()} className="w-32 h-32 rounded-full bg-gray-100 border-2 border-dashed border-gray-300 flex flex-col items-center justify-center overflow-hidden relative active:scale-95 transition-all group">
+            {formPerson.photo ? <img src={formPerson.photo} className="w-full h-full object-cover" alt="Staff" /> : <ImageIcon className="text-gray-400" size={40} />}
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <Camera size={24} className="text-primary" />
             </div>
           </div>
           <input type="file" ref={fileInputRef} hidden accept="image/*" onChange={handlePhotoSelect} />
-          <p className="mt-3 text-[10px] font-black text-white/30 uppercase tracking-widest">{t.photo}</p>
+          <p className="mt-3 text-[10px] font-bold text-gray-500 uppercase tracking-widest">{t.photo}</p>
         </div>
 
         <div className="space-y-6">
-          <section className="glass p-6 rounded-[2.5rem] space-y-4 shadow-xl">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2"><User size={14} /> {t.personalInfo}</h3>
+          <section className="bg-white p-6 border-2 border-gray-200 space-y-4 cut-corners-lg">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2"><User size={14} /> {t.personalInfo}</h3>
             <div className="grid grid-cols-2 gap-4">
-              <input placeholder={t.firstName} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.firstName} onChange={e => setFormPerson({ ...formPerson, firstName: e.target.value })} />
-              <input placeholder={t.lastName} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.lastName} onChange={e => setFormPerson({ ...formPerson, lastName: e.target.value })} />
+              <input placeholder={t.firstName} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.firstName} onChange={e => setFormPerson({ ...formPerson, firstName: e.target.value })} />
+              <input placeholder={t.lastName} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.lastName} onChange={e => setFormPerson({ ...formPerson, lastName: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-[8px] font-black text-white/20 uppercase ml-2">{t.dob}</label>
-                <input type="date" className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold [color-scheme:dark] outline-none" value={formPerson.dateOfBirth} onChange={e => setFormPerson({ ...formPerson, dateOfBirth: e.target.value })} />
+                <label className="text-[8px] font-bold text-gray-500 uppercase ml-2">{t.dob}</label>
+                <input type="date" className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold outline-none cut-corners" value={formPerson.dateOfBirth} onChange={e => setFormPerson({ ...formPerson, dateOfBirth: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <label className="text-[8px] font-black text-white/20 uppercase ml-2">{t.nationality}</label>
-                <input placeholder={t.nationality} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.nationality} onChange={e => setFormPerson({ ...formPerson, nationality: e.target.value })} />
+                <label className="text-[8px] font-bold text-gray-500 uppercase ml-2">{t.nationality}</label>
+                <input placeholder={t.nationality} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.nationality} onChange={e => setFormPerson({ ...formPerson, nationality: e.target.value })} />
               </div>
             </div>
-            <input placeholder={t.pob} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.placeOfBirth} onChange={e => setFormPerson({ ...formPerson, placeOfBirth: e.target.value })} />
-            <input placeholder={t.address} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.address} onChange={e => setFormPerson({ ...formPerson, address: e.target.value })} />
+            <input placeholder={t.pob} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.placeOfBirth} onChange={e => setFormPerson({ ...formPerson, placeOfBirth: e.target.value })} />
+            <input placeholder={t.address} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.address} onChange={e => setFormPerson({ ...formPerson, address: e.target.value })} />
           </section>
 
-          <section className="glass p-6 rounded-[2.5rem] space-y-4 shadow-xl">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2"><ShieldCheck size={14} /> {t.legalInfo}</h3>
-            <input placeholder={t.healthIns} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.healthInsurance} onChange={e => setFormPerson({ ...formPerson, healthInsurance: e.target.value })} />
+          <section className="bg-white p-6 border-2 border-gray-200 space-y-4 cut-corners-lg">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2"><ShieldCheck size={14} /> {t.legalInfo}</h3>
+            <input placeholder={t.healthIns} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.healthInsurance} onChange={e => setFormPerson({ ...formPerson, healthInsurance: e.target.value })} />
             <div className="grid grid-cols-2 gap-4">
-              <input placeholder={t.taxId} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.taxId} onChange={e => setFormPerson({ ...formPerson, taxId: e.target.value })} />
-              <input placeholder={t.ssn} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.socialSecurityNumber} onChange={e => setFormPerson({ ...formPerson, socialSecurityNumber: e.target.value })} />
+              <input placeholder={t.taxId} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.taxId} onChange={e => setFormPerson({ ...formPerson, taxId: e.target.value })} />
+              <input placeholder={t.ssn} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.socialSecurityNumber} onChange={e => setFormPerson({ ...formPerson, socialSecurityNumber: e.target.value })} />
             </div>
           </section>
 
-          <section className="glass p-6 rounded-[2.5rem] space-y-4 shadow-xl">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2"><Landmark size={14} /> {t.bankInfo}</h3>
-            <input placeholder={t.bank} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.bankName} onChange={e => setFormPerson({ ...formPerson, bankName: e.target.value })} />
-            <input placeholder={t.iban} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.iban} onChange={e => setFormPerson({ ...formPerson, iban: e.target.value })} />
-            <input placeholder={t.bic} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.bic} onChange={e => setFormPerson({ ...formPerson, bic: e.target.value })} />
+          <section className="bg-white p-6 border-2 border-gray-200 space-y-4 cut-corners-lg">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2"><Landmark size={14} /> {t.bankInfo}</h3>
+            <input placeholder={t.bank} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.bankName} onChange={e => setFormPerson({ ...formPerson, bankName: e.target.value })} />
+            <input placeholder={t.iban} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.iban} onChange={e => setFormPerson({ ...formPerson, iban: e.target.value })} />
+            <input placeholder={t.bic} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.bic} onChange={e => setFormPerson({ ...formPerson, bic: e.target.value })} />
           </section>
 
-          <section className="glass p-6 rounded-[2.5rem] space-y-4 shadow-xl">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2"><Briefcase size={14} /> {t.employmentInfo}</h3>
+          <section className="bg-white p-6 border-2 border-gray-200 space-y-4 cut-corners-lg">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2"><Briefcase size={14} /> {t.employmentInfo}</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="text-[8px] font-black text-white/20 uppercase ml-2">{t.startDate}</label>
-                <input type="date" className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold [color-scheme:dark] outline-none" value={formPerson.startDate} onChange={e => setFormPerson({ ...formPerson, startDate: e.target.value })} />
+                <label className="text-[8px] font-bold text-gray-500 uppercase ml-2">{t.startDate}</label>
+                <input type="date" className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold outline-none cut-corners" value={formPerson.startDate} onChange={e => setFormPerson({ ...formPerson, startDate: e.target.value })} />
               </div>
               <div className="space-y-1">
-                <label className="text-[8px] font-black text-white/20 uppercase ml-2">{t.baseSalary}</label>
-                <input type="number" placeholder="0" className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.baseSalary || ''} onChange={e => setFormPerson({ ...formPerson, baseSalary: Number(e.target.value) })} />
+                <label className="text-[8px] font-bold text-gray-500 uppercase ml-2">{t.endDate}</label>
+                <input type="date" className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold outline-none cut-corners" value={formPerson.endDate || ''} onChange={e => setFormPerson({ ...formPerson, endDate: e.target.value })} />
               </div>
             </div>
-            <select className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold outline-none appearance-none" value={formPerson.role} onChange={e => setFormPerson({ ...formPerson, role: e.target.value })}>
-              {t.roles.map((r: string) => <option key={r} value={r} className="bg-background-dark">{r}</option>)}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-[8px] font-bold text-gray-500 uppercase ml-2">{t.baseSalary}</label>
+                <input type="number" placeholder="0" className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.baseSalary || ''} onChange={e => setFormPerson({ ...formPerson, baseSalary: Number(e.target.value) })} />
+              </div>
+            </div>
+            <select className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold outline-none appearance-none cut-corners" value={formPerson.role} onChange={e => setFormPerson({ ...formPerson, role: e.target.value })}>
+              {t.roles.map((r: string) => <option key={r} value={r}>{r}</option>)}
             </select>
-            <input placeholder={t.phone} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-4 text-white font-bold focus:border-primary transition-all outline-none" value={formPerson.phone} onChange={e => setFormPerson({ ...formPerson, phone: e.target.value })} />
+            <input placeholder={t.phone} className="w-full bg-white border-2 border-gray-200 py-4 px-4 text-gray-900 font-bold focus:border-primary transition-all outline-none cut-corners" value={formPerson.phone} onChange={e => setFormPerson({ ...formPerson, phone: e.target.value })} />
           </section>
 
           <button
             onClick={handleFormSubmit}
-            className="w-full bg-primary text-black py-6 rounded-3xl font-black text-lg shadow-xl active:scale-95 transition-all"
+            className="w-full bg-primary text-gray-900 py-6 font-bold text-lg shadow-xl active:scale-95 transition-all hover:shadow-neon cut-corners"
           >
             {isEditing ? t.update : t.save}
           </button>
@@ -378,8 +391,8 @@ const PersonnelManagement: React.FC<Props> = ({ lang, staff, settings }) => {
       <div className="space-y-6 pb-24 animate-in zoom-in duration-300">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <button onClick={() => setSelectedPersonnel(null)} className="p-3 bg-white/5 rounded-full border border-white/5"><X size={20} /></button>
-            <h2 className="text-xl font-black text-white uppercase tracking-tight truncate max-w-[180px]">{selectedPersonnel.firstName} {selectedPersonnel.lastName}</h2>
+            <button onClick={() => setSelectedPersonnel(null)} className="p-3 bg-primary/20 border-2 border-primary hover:bg-primary/30 transition-colors cut-corners"><X size={24} className="text-primary" /></button>
+            <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight truncate max-w-[180px]">{selectedPersonnel.firstName} {selectedPersonnel.lastName}</h2>
           </div>
           <button onClick={handleOpenEditForm} className="flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-xl text-primary active:scale-95 transition-all">
             <Edit3 size={18} />
@@ -388,8 +401,8 @@ const PersonnelManagement: React.FC<Props> = ({ lang, staff, settings }) => {
         </div>
 
         <div className="flex justify-center mb-6">
-          <div className="w-32 h-32 rounded-[2.5rem] border-4 border-primary/20 p-1 overflow-hidden shadow-2xl">
-            {selectedPersonnel.photo ? <img src={selectedPersonnel.photo} className="w-full h-full object-cover rounded-[2.2rem]" alt="Staff" /> : <div className="w-full h-full bg-white/5 flex items-center justify-center rounded-[2.2rem] text-primary font-black text-4xl">{selectedPersonnel.firstName.charAt(0)}</div>}
+          <div className="w-32 h-32 rounded-full border-4 border-primary/20 p-1 overflow-hidden shadow-2xl">
+            {selectedPersonnel.photo ? <img src={selectedPersonnel.photo} className="w-full h-full object-cover rounded-full" alt="Staff" /> : <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-full text-primary font-bold text-4xl">{selectedPersonnel.firstName.charAt(0)}</div>}
           </div>
         </div>
 
@@ -427,27 +440,27 @@ const PersonnelManagement: React.FC<Props> = ({ lang, staff, settings }) => {
         </section>
 
         {/* --- PAYMENT HISTORY --- */}
-        <section className="glass p-6 rounded-[2.5rem] space-y-4 shadow-xl">
+        <section className="bg-white p-6 border-2 border-gray-200 space-y-4 cut-corners-lg">
           <div className="flex justify-between items-center">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-2"><History size={14} /> {t.paymentHistory}</h3>
-            <span className="text-[9px] font-black text-white/30 uppercase">{new Date().toLocaleDateString(lang === 'tr' ? 'tr-TR' : 'de-DE', { month: 'long' })}</span>
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2"><History size={14} /> {t.paymentHistory}</h3>
+            <span className="text-[9px] font-bold text-gray-400 uppercase">{new Date().toLocaleDateString(lang === 'tr' ? 'tr-TR' : 'de-DE', { month: 'long' })}</span>
           </div>
           <div className="space-y-3">
             {selectedPersonnel.payments.filter(pm => pm.month === currentMonth).length === 0 ? (
-              <p className="text-center py-6 text-white/20 text-[10px] font-black uppercase tracking-widest">{t.noHistory}</p>
+              <p className="text-center py-6 text-gray-400 text-[10px] font-bold uppercase tracking-widest">{t.noHistory}</p>
             ) : (
               selectedPersonnel.payments.filter(pm => pm.month === currentMonth).map(pm => (
-                <div key={pm.id} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 animate-in fade-in slide-in-from-right-4">
+                <div key={pm.id} className="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 cut-corners animate-in fade-in slide-in-from-right-4">
                   <div className="flex items-center gap-3">
-                    <div className={`p-2 rounded-xl ${pm.type === 'salary' ? 'bg-green-500/10 text-green-500' : 'bg-orange-500/10 text-orange-500'}`}>
+                    <div className={`p-2 rounded-xl ${pm.type === 'salary' ? 'bg-green-500/10 text-green-600' : 'bg-orange-500/10 text-orange-600'}`}>
                       {pm.type === 'salary' ? <ArrowDownRight size={14} /> : <ArrowUpRight size={14} />}
                     </div>
                     <div>
-                      <p className="text-white font-bold text-xs uppercase">{t.type[pm.type]}</p>
-                      <p className="text-[8px] text-white/30 font-black uppercase mt-0.5">{pm.date}</p>
+                      <p className="text-gray-900 font-bold text-xs uppercase">{t.type[pm.type]}</p>
+                      <p className="text-[8px] text-gray-400 font-bold uppercase mt-0.5">{pm.date}</p>
                     </div>
                   </div>
-                  <p className="text-sm font-black text-white tracking-tight">€{pm.amount.toLocaleString()}</p>
+                  <p className="text-sm font-bold text-gray-900 tracking-tight">€{pm.amount.toLocaleString()}</p>
                 </div>
               ))
             )}
@@ -456,45 +469,47 @@ const PersonnelManagement: React.FC<Props> = ({ lang, staff, settings }) => {
 
         {/* --- THE 4 DETAILED INFO SECTIONS --- */}
         <div className="space-y-4">
-          <section className="glass p-6 rounded-[2.5rem] space-y-4 shadow-xl border border-white/5">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-white/40 flex items-center gap-2"><User size={12} /> {t.personalInfo}</h3>
+          <section className="bg-white p-6 border-2 border-gray-200 space-y-4 cut-corners-lg">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2"><User size={12} /> {t.personalInfo}</h3>
             <div className="space-y-3">
-              <div className="flex justify-between items-center"><span className="text-white/20 text-[10px] font-black uppercase">{t.dob}</span><span className="text-white font-bold text-sm tracking-tight">{selectedPersonnel.dateOfBirth}</span></div>
-              <div className="flex justify-between items-center"><span className="text-white/20 text-[10px] font-black uppercase">{t.pob}</span><span className="text-white font-bold text-sm tracking-tight">{selectedPersonnel.placeOfBirth}</span></div>
-              <div className="flex justify-between items-center"><span className="text-white/20 text-[10px] font-black uppercase">{t.nationality}</span><span className="text-white font-bold text-sm tracking-tight">{selectedPersonnel.nationality}</span></div>
-              <div className="pt-3 mt-1 border-t border-white/5 text-white/40 text-[11px] font-medium leading-relaxed italic">{selectedPersonnel.address}</div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.dob}</span><span className="text-gray-900 font-bold text-sm tracking-tight">{formatDate(selectedPersonnel.dateOfBirth)}</span></div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.pob}</span><span className="text-gray-900 font-bold text-sm tracking-tight">{selectedPersonnel.placeOfBirth}</span></div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.nationality}</span><span className="text-gray-900 font-bold text-sm tracking-tight">{selectedPersonnel.nationality}</span></div>
+              <div className="pt-3 mt-1 border-t border-gray-200 text-gray-500 text-[11px] font-medium leading-relaxed italic">{selectedPersonnel.address}</div>
             </div>
           </section>
 
-          <section className="glass p-6 rounded-[2.5rem] space-y-4 shadow-xl border border-white/5">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-white/40 flex items-center gap-2"><ShieldCheck size={12} /> {t.legalInfo}</h3>
+          <section className="bg-white p-6 border-2 border-gray-200 space-y-4 cut-corners-lg">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2"><ShieldCheck size={12} /> {t.legalInfo}</h3>
             <div className="space-y-3">
-              <div className="flex justify-between items-center"><span className="text-white/20 text-[10px] font-black uppercase">{t.healthIns}</span><span className="text-white font-bold text-sm tracking-tight">{selectedPersonnel.healthInsurance}</span></div>
-              <div className="flex justify-between items-center"><span className="text-white/20 text-[10px] font-black uppercase">{t.taxId}</span><span className="text-white font-bold text-sm tracking-tight">{selectedPersonnel.taxId}</span></div>
-              <div className="flex justify-between items-center"><span className="text-white/20 text-[10px] font-black uppercase">{t.ssn}</span><span className="text-white font-bold text-sm tracking-tight">{selectedPersonnel.socialSecurityNumber}</span></div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.healthIns}</span><span className="text-gray-900 font-bold text-sm tracking-tight">{selectedPersonnel.healthInsurance}</span></div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.taxId}</span><span className="text-gray-900 font-bold text-sm tracking-tight">{selectedPersonnel.taxId}</span></div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.ssn}</span><span className="text-gray-900 font-bold text-sm tracking-tight">{selectedPersonnel.socialSecurityNumber}</span></div>
             </div>
           </section>
 
-          <section className="glass p-6 rounded-[2.5rem] space-y-4 shadow-xl border border-white/5">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-white/40 flex items-center gap-2"><Landmark size={12} /> {t.bankInfo}</h3>
+          <section className="bg-white p-6 border-2 border-gray-200 space-y-4 cut-corners-lg">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2"><Landmark size={12} /> {t.bankInfo}</h3>
             <div className="space-y-3">
-              <div className="flex justify-between items-center"><span className="text-white/20 text-[10px] font-black uppercase">{t.bank}</span><span className="text-white font-bold text-sm tracking-tight">{selectedPersonnel.bankName}</span></div>
-              <div className="text-[13px] font-mono font-black text-primary bg-white/5 p-4 rounded-2xl break-all border border-white/5 ring-1 ring-white/10 leading-relaxed tracking-wider">{selectedPersonnel.iban}</div>
-              <div className="flex justify-between items-center"><span className="text-white/20 text-[10px] font-black uppercase">{t.bic}</span><span className="text-white font-bold text-sm tracking-tight">{selectedPersonnel.bic}</span></div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.bank}</span><span className="text-gray-900 font-bold text-sm tracking-tight">{selectedPersonnel.bankName}</span></div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.iban}</span></div>
+              <div className="text-[13px] font-mono font-bold text-primary bg-primary/10 p-4 border border-primary/20 cut-corners break-all leading-relaxed tracking-wider">{selectedPersonnel.iban}</div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.bic}</span><span className="text-gray-900 font-bold text-sm tracking-tight">{selectedPersonnel.bic}</span></div>
             </div>
           </section>
 
-          <section className="glass p-6 rounded-[2.5rem] space-y-4 shadow-xl border border-white/5">
-            <h3 className="text-[10px] font-black uppercase tracking-widest text-white/40 flex items-center gap-2"><Briefcase size={12} /> {t.employmentInfo}</h3>
+          <section className="bg-white p-6 border-2 border-gray-200 space-y-4 cut-corners-lg">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-primary flex items-center gap-2"><Briefcase size={12} /> {t.employmentInfo}</h3>
             <div className="space-y-3">
-              <div className="flex justify-between items-center"><span className="text-white/20 text-[10px] font-black uppercase">{t.startDate}</span><span className="text-white font-bold text-sm tracking-tight">{selectedPersonnel.startDate}</span></div>
-              <div className="flex justify-between items-center"><span className="text-white/20 text-[10px] font-black uppercase">{t.phone}</span><a href={`tel:${selectedPersonnel.phone}`} className="text-primary font-bold text-sm flex items-center gap-1 tracking-tight"><Phone size={12} /> {selectedPersonnel.phone}</a></div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.startDate}</span><span className="text-gray-900 font-bold text-sm tracking-tight">{formatDate(selectedPersonnel.startDate)}</span></div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.endDate}</span><span className="text-gray-900 font-bold text-sm tracking-tight">{selectedPersonnel.endDate ? formatDate(selectedPersonnel.endDate) : '-'}</span></div>
+              <div className="flex justify-between items-center"><span className="text-gray-500 text-[10px] font-bold uppercase">{t.phone}</span><a href={`tel:${selectedPersonnel.phone}`} className="text-primary font-bold text-sm flex items-center gap-1 tracking-tight"><Phone size={12} /> {selectedPersonnel.phone}</a></div>
             </div>
           </section>
         </div>
 
-        <button onClick={async () => { if (window.confirm(t.deleteConfirm)) { await deletePersonnel(selectedPersonnel.id); setSelectedPersonnel(null); } }} className="w-full bg-red-500/10 text-red-500 py-5 rounded-3xl font-black text-[10px] uppercase tracking-widest border border-red-500/20 mt-8 flex items-center justify-center gap-2 active:scale-95 transition-all">
-          <Trash2 size={14} /> SİCİL KAYDINI KALICI OLARAK SİL
+        <button onClick={async () => { if (window.confirm(t.deleteConfirm)) { await deletePersonnel(selectedPersonnel.id); setSelectedPersonnel(null); } }} className="w-full bg-red-500/10 text-red-500 py-5 font-bold text-[10px] uppercase tracking-widest border-2 border-red-500/20 mt-8 flex items-center justify-center gap-2 active:scale-95 transition-all cut-corners">
+          <Trash2 size={14} /> {t.deleteButton}
         </button>
 
         {showPaymentModal && (
@@ -531,40 +546,40 @@ const PersonnelManagement: React.FC<Props> = ({ lang, staff, settings }) => {
     <div className="space-y-6 animate-in fade-in duration-500">
       <div className="flex justify-between items-end mb-2">
         <div>
-          <h2 className="text-3xl font-black tracking-tighter text-white uppercase leading-none">{t.title}</h2>
-          <p className="text-[10px] text-white/30 font-black uppercase tracking-[0.2em] mt-1.5">{t.count}: {staff.length}</p>
+          <h2 className="text-3xl font-bold tracking-tighter text-gray-900 uppercase leading-none">{t.title}</h2>
+          <p className="text-xs text-gray-600 font-bold uppercase tracking-widest mt-1.5 flex items-center gap-2">{t.count}: <span className="bg-primary text-gray-900 px-2 py-0.5 font-bold cut-corners">{staff.length}</span></p>
         </div>
-        <button onClick={handleOpenAddForm} className="bg-primary p-3.5 rounded-2xl text-black shadow-lg shadow-primary/10 active:scale-90 transition-all border border-primary/20"><UserPlus size={24} /></button>
+        <button onClick={handleOpenAddForm} className="bg-primary p-3.5 text-gray-900 shadow-lg active:scale-90 transition-all border-2 border-primary hover:shadow-neon cut-corners"><UserPlus size={24} /></button>
       </div>
 
       <div className="relative group">
-        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
-        <input type="text" placeholder={t.search} className="w-full bg-white/5 border border-white/10 rounded-2xl py-4.5 pl-14 pr-6 text-white font-bold focus:outline-none focus:border-primary/50 transition-all shadow-inner" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={18} />
+        <input type="text" placeholder={t.search} className="w-full bg-gray-100 border-2 border-gray-200 py-4.5 pl-14 pr-6 text-gray-900 font-bold focus:outline-none focus:border-primary transition-all cut-corners" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
       </div>
 
       <div className="space-y-3">
         {filteredStaff.length === 0 ? (
-          <div className="text-center py-20 bg-white/5 rounded-[2.5rem] border border-dashed border-white/10">
-            <Users className="mx-auto text-white/10 mb-3" size={48} />
-            <p className="text-white/20 text-[10px] font-black uppercase tracking-widest">Arama sonucu bulunamadı</p>
+          <div className="text-center py-20 bg-gray-100 border-2 border-dashed border-gray-300 cut-corners-lg">
+            <Users className="mx-auto text-gray-300 mb-3" size={48} />
+            <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">Arama sonucu bulunamadı</p>
           </div>
         ) : (
           filteredStaff.map((person: Personnel) => (
-            <div key={person.id} onClick={() => setSelectedPersonnel(person)} className="glass p-5 rounded-[2.2rem] border border-white/5 flex items-center justify-between group cursor-pointer active:scale-[0.98] transition-all hover:bg-white/[0.08] shadow-lg">
+            <div key={person.id} onClick={() => setSelectedPersonnel(person)} className="bg-white p-5 border-2 border-gray-200 flex items-center justify-between group cursor-pointer active:scale-[0.98] transition-all hover:border-primary shadow-lg cut-corners">
               <div className="flex items-center gap-5">
-                <div className="w-16 h-16 rounded-2xl overflow-hidden border border-white/5 shadow-inner">
+                <div className="w-16 h-16 overflow-hidden border-2 border-gray-200 shadow-inner cut-corners">
                   {person.photo ? <img src={person.photo} className="w-full h-full object-cover" alt="Staff" /> : <div className="w-full h-full bg-gradient-to-br from-primary/20 to-transparent flex items-center justify-center text-primary font-black text-2xl">{person.firstName.charAt(0)}</div>}
                 </div>
                 <div>
-                  <h3 className="text-white font-bold text-lg tracking-tight leading-tight">{person.firstName} {person.lastName}</h3>
+                  <h3 className="text-gray-900 font-bold text-lg tracking-tight leading-tight">{person.firstName} {person.lastName}</h3>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[8px] bg-primary/10 text-primary px-2 py-0.5 rounded-md font-black uppercase border border-primary/10 tracking-widest">{person.role}</span>
-                    <span className="text-[8px] text-white/30 font-bold uppercase tracking-widest">€{person.baseSalary.toLocaleString()}</span>
+                    <span className="text-[8px] text-gray-600 font-bold uppercase tracking-widest">€{person.baseSalary.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
-              <div className="bg-white/5 p-2.5 rounded-xl group-hover:bg-primary/20 transition-all">
-                <ChevronRight className="text-white/20 group-hover:text-primary transition-colors" size={20} />
+              <div className="bg-gray-100 p-2.5 group-hover:bg-primary/20 transition-all cut-corners">
+                <ChevronRight className="text-gray-400 group-hover:text-primary transition-colors" size={20} />
               </div>
             </div>
           ))

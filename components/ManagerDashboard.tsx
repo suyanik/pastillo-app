@@ -2,7 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import { Reservation, ReservationStatus, Language } from '../types';
 import { getGoogleCalendarUrl } from '../utils/calendarUtils';
-import { Trash2, XCircle, Users, CalendarCheck, CalendarDays, FilterX, UserCheck, CheckCircle2, Phone, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import { sendReservationConfirmation } from '../services/whatsappService';
+import { Trash2, XCircle, Users, CalendarCheck, CalendarDays, FilterX, UserCheck, CheckCircle2, Phone, ArrowUpDown, ArrowUp, ArrowDown, MessageCircle } from 'lucide-react';
 
 interface Props {
   reservations: Reservation[];
@@ -179,34 +180,34 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
   return (
     <div className="flex flex-col gap-6 animate-in fade-in zoom-in duration-300 mb-24">
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-card-dark border border-white/5 rounded-xl p-5 shadow-lg relative overflow-hidden group">
-          <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-1">
+        <div className="bg-white border-2 border-gray-200 p-5 shadow-lg relative overflow-hidden cut-corners">
+          <p className="text-gray-500 text-xs font-bold uppercase tracking-wider mb-1">
             {t.guests}
           </p>
           <div className="flex items-baseline gap-1">
-            <h3 className="text-4xl font-black text-white">{stats.seatedGuests}<span className="text-white/30 text-2xl">/{stats.totalGuests}</span></h3>
+            <h3 className="text-4xl font-bold text-gray-900">{stats.seatedGuests}<span className="text-gray-400 text-2xl">/{stats.totalGuests}</span></h3>
           </div>
           <p className="text-xs text-green-500 mt-1 font-medium">
             {stats.totalGuests > 0 ? Math.round((stats.seatedGuests / stats.totalGuests) * 100) : 0}% {t.present}
           </p>
         </div>
 
-        <div className="bg-card-dark border border-white/5 rounded-xl p-5 shadow-lg relative overflow-hidden group">
+        <div className="bg-white border-2 border-gray-200 p-5 shadow-lg relative overflow-hidden cut-corners">
           <p className="text-white/50 text-xs font-bold uppercase tracking-wider mb-1">
             {t.tables}
           </p>
           <div className="flex items-baseline gap-1">
-            <h3 className="text-4xl font-black text-white">{stats.totalTables}</h3>
+            <h3 className="text-4xl font-bold text-gray-900">{stats.totalTables}</h3>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col rounded-xl bg-card-dark shadow-2xl border border-white/5">
+      <div className="flex flex-col bg-white shadow-lg border-2 border-primary cut-corners-lg">
         <div className="p-6 sm:p-8">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-6">
             <div>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tighter text-white">{t.title}</h2>
-              <p className="text-sm sm:text-base font-normal text-gray-400">
+              <h2 className="text-2xl sm:text-3xl font-bold tracking-tighter text-gray-900">{t.title}</h2>
+              <p className="text-sm sm:text-base font-normal text-gray-500">
                 {dateFilter
                   ? `${t.subTitle}: ${new Date(dateFilter).toLocaleDateString(lang === 'tr' ? 'tr-TR' : 'de-DE')}`
                   : t.all}
@@ -218,12 +219,12 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
                 type="date"
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
-                className="bg-white/5 border border-white/10 text-white text-sm rounded-lg focus:ring-primary focus:border-primary block w-full p-2.5 [color-scheme:dark]"
+                className="bg-gray-100 border-2 border-gray-200 text-gray-900 text-sm focus:ring-primary focus:border-primary block w-full p-2.5 cut-corners"
               />
               {dateFilter && (
                 <button
                   onClick={() => setDateFilter('')}
-                  className="p-2.5 text-gray-400 hover:text-white bg-white/5 rounded-lg border border-white/10 transition-colors"
+                  className="p-2.5 text-gray-500 hover:text-primary bg-gray-100 border-2 border-gray-200 transition-colors cut-corners"
                 >
                   <FilterX size={20} />
                 </button>
@@ -236,7 +237,7 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
               <input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full rounded-lg border border-white/10 bg-white/5 text-white placeholder-gray-400 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none h-12 pl-4 pr-4 text-base transition-all"
+                className="w-full border-2 border-gray-200 bg-gray-100 text-gray-900 placeholder-gray-400 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none h-12 pl-4 pr-4 text-base transition-all cut-corners"
                 placeholder={t.search}
                 type="text"
               />
@@ -244,7 +245,7 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="w-full rounded-lg border border-white/10 bg-white/5 text-white h-12 px-4 text-base sm:w-auto [color-scheme:dark]"
+              className="w-full border-2 border-gray-200 bg-gray-100 text-gray-900 h-12 px-4 text-base sm:w-auto cut-corners"
             >
               <option value="Alle">{t.allStatus}</option>
               <option value="confirmed">{t.confirmed}</option>
@@ -256,8 +257,9 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px] text-left text-sm">
-            <thead className="border-b border-t border-white/10 bg-white/5 text-xs uppercase text-gray-400">
+            <thead className="border-b border-t border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
               <tr>
+                <th className="px-6 py-4 font-medium">{t.colGuests}</th>
                 <th
                   className="px-6 py-4 font-medium cursor-pointer hover:bg-white/10 transition-colors select-none"
                   onClick={() => handleSort('time')}
@@ -276,12 +278,11 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
                 >
                   <div className="flex items-center">{t.colName} <SortIcon field="name" /></div>
                 </th>
-                <th className="px-6 py-4 font-medium">{t.colGuests}</th>
                 <th className="px-6 py-4 font-medium">Status</th>
                 <th className="px-6 py-4 font-medium text-right">{t.actions}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/10">
+            <tbody className="divide-y divide-gray-200">
               {sortedReservations.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
@@ -290,16 +291,16 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
                 </tr>
               ) : (
                 sortedReservations.map((res) => (
-                  <tr key={res.id} className={`hover:bg-white/5 transition-colors ${res.status === 'seated' ? 'bg-success/5' : ''}`}>
-                    <td className="px-6 py-4 text-white font-bold text-base">{res.time}</td>
-                    <td className="px-6 py-4 text-gray-400 font-medium">
+                  <tr key={res.id} className={`hover:bg-gray-50 transition-colors ${res.status === 'seated' ? 'bg-green-50' : ''}`}>
+                    <td className="px-6 py-4 text-gray-600">
+                      <span className="bg-primary/20 px-3 py-1.5 text-sm font-bold text-gray-900 cut-corners">{res.guests}</span>
+                    </td>
+                    <td className="px-6 py-4 text-gray-900 font-bold text-base">{res.time}</td>
+                    <td className="px-6 py-4 text-gray-500 font-medium">
                       {new Date(res.date).toLocaleDateString(lang === 'tr' ? 'tr-TR' : 'de-DE', { day: '2-digit', month: '2-digit' })}
                     </td>
-                    <td className="px-6 py-4 text-white font-medium">
+                    <td className="px-6 py-4 text-gray-900 font-medium">
                       {res.name}
-                    </td>
-                    <td className="px-6 py-4 text-gray-300">
-                      <span className="bg-white/10 px-2 py-1 rounded text-xs font-bold">{res.guests}</span>
                     </td>
                     <td className="px-6 py-4">
                       {(!res.status || res.status === 'confirmed') && (
@@ -329,6 +330,9 @@ const ManagerDashboard: React.FC<Props> = ({ reservations, onDelete, onStatusUpd
                           </button>
                         )}
                         <a href={`tel:${res.phone}`} className="w-8 h-8 flex items-center justify-center text-gray-400 hover:text-white"><Phone size={16} /></a>
+                        <button onClick={() => sendReservationConfirmation(res, lang)} className="w-8 h-8 flex items-center justify-center text-green-500 hover:text-green-400" title="WhatsApp">
+                          <MessageCircle size={16} />
+                        </button>
                         <button onClick={() => handleDelete(res.id)} className="w-8 h-8 flex items-center justify-center text-error hover:text-red-400"><Trash2 size={16} /></button>
                       </div>
                     </td>

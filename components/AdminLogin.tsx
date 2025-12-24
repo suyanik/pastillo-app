@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Lock, Users, ShieldCheck, User, KeyRound, Delete, ChevronLeft } from 'lucide-react';
+import { Lock, Users, ShieldCheck, User, Delete, ChevronLeft, Mail } from 'lucide-react';
 import { Language, UserRole, AppSettings } from '../types';
 
 interface Props {
@@ -17,54 +16,62 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang, settings }) => {
   const [staffPass, setStaffPass] = useState('');
   const [error, setError] = useState(false);
 
-  const translations = {
+  const translations: Record<Language, Record<string, string>> = {
     tr: {
-      title: 'Giriş Yap',
+      title: 'STAFF PORTAL',
+      subtitle: 'Restaurant Staff Management',
       staff: 'Personel Girişi',
       admin: 'Yönetici Girişi',
-      user: 'Kullanıcı Adı',
+      user: 'Email',
       pass: 'Şifre',
-      pin: 'PIN Kodunu Girin',
+      pin: 'PIN Kodu',
       login: 'GİRİŞ YAP',
       cancel: 'Vazgeç',
       wrong: 'Hatalı bilgiler!',
-      back: 'Geri'
+      back: 'Geri',
+      forgot: 'Şifremi Unuttum?'
     },
     de: {
-      title: 'Anmeldung',
+      title: 'STAFF PORTAL',
+      subtitle: 'Restaurant Staff Management',
       staff: 'Personal-Login',
       admin: 'Manager-Login',
-      user: 'Benutzername',
+      user: 'Email',
       pass: 'Passwort',
-      pin: 'PIN-Code eingeben',
+      pin: 'PIN-Code',
       login: 'ANMELDEN',
       cancel: 'Abbrechen',
       wrong: 'Falsche Daten!',
-      back: 'Zurück'
+      back: 'Zurück',
+      forgot: 'Passwort vergessen?'
     },
     en: {
-      title: 'Login',
+      title: 'STAFF PORTAL',
+      subtitle: 'Restaurant Staff Management',
       staff: 'Staff Login',
-      admin: 'Manager Login',
-      user: 'Username',
+      admin: 'Admin Login',
+      user: 'Email',
       pass: 'Password',
-      pin: 'Enter PIN Code',
-      login: 'LOGIN',
+      pin: 'PIN Code',
+      login: 'LOG IN',
       cancel: 'Cancel',
-      wrong: 'Invalid credentials!',
-      back: 'Back'
+      wrong: 'Wrong credentials!',
+      back: 'Back',
+      forgot: 'Forgot Password?'
     },
     es: {
-      title: 'Iniciar Sesión',
+      title: 'STAFF PORTAL',
+      subtitle: 'Restaurant Staff Management',
       staff: 'Acceso Personal',
-      admin: 'Acceso Gerente',
-      user: 'Usuario',
+      admin: 'Acceso Administrador',
+      user: 'Email',
       pass: 'Contraseña',
-      pin: 'Ingrese el PIN',
-      login: 'ENTRAR',
+      pin: 'Código PIN',
+      login: 'INICIAR SESIÓN',
       cancel: 'Cancelar',
-      wrong: '¡Credenciales inválidas!',
-      back: 'Volver'
+      wrong: '¡Datos incorrectos!',
+      back: 'Volver',
+      forgot: '¿Olvidaste la contraseña?'
     }
   };
 
@@ -100,112 +107,182 @@ const AdminLogin: React.FC<Props> = ({ onLogin, onCancel, lang, settings }) => {
     }
   };
 
+  // Hexagon Logo SVG
+  const HexLogo = () => (
+    <svg className="w-16 h-16 text-primary fill-none stroke-current stroke-[4]" viewBox="0 0 100 100">
+      <path d="M50 5 L95 27.5 L95 72.5 L50 95 L5 72.5 L5 27.5 Z" />
+      <path d="M50 35 L50 80 M35 45 L35 70 M65 45 L65 70" strokeLinecap="round" strokeWidth="3" />
+      <path className="fill-white stroke-primary" d="M30 25 Q50 5 70 25" strokeWidth="3" />
+    </svg>
+  );
+
   if (mode === 'select') {
     return (
-      <div className="fixed inset-0 bg-[#0a0a0a]/95 backdrop-blur-2xl z-50 flex items-center justify-center p-6 animate-in fade-in duration-500">
-        <div className="w-full max-w-sm space-y-8 text-center">
-          <div className="space-y-3">
-            <h1 className="text-4xl font-black text-white uppercase tracking-tighter">{t.title}</h1>
-            <p className="text-white/30 text-[10px] font-black uppercase tracking-[0.3em]">Pastillo Management Suite</p>
-          </div>
-
-          <div className="grid grid-cols-1 gap-4">
-            <button
-              onClick={() => setMode('staff')}
-              className="glass group p-8 rounded-[2.5rem] flex flex-col items-center gap-4 hover:bg-white/10 active:scale-95 transition-all border border-white/5"
-            >
-              <div className="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center text-white/40 group-hover:text-primary group-hover:bg-primary/10 transition-all">
-                <Users size={32} />
+      <div className="fixed inset-0 bg-background-light hex-pattern z-50 flex items-center justify-center p-6 animate-in fade-in duration-500">
+        <div className="w-full max-w-md">
+          {/* Card with cut corners */}
+          <div className="relative p-[2px] bg-primary cut-corners-lg">
+            <div className="bg-white cut-corners-lg p-8 md:p-12 flex flex-col items-center">
+              {/* Logo */}
+              <div className="mb-2 flex items-center justify-center space-x-3">
+                <HexLogo />
+                <div className="flex flex-col">
+                  <h1 className="text-3xl font-bold tracking-wider text-gray-900 leading-none">STAFF</h1>
+                  <h1 className="text-3xl font-bold tracking-wider text-gray-900 leading-none">PORTAL</h1>
+                </div>
               </div>
-              <span className="text-sm font-black text-white uppercase tracking-widest">{t.staff}</span>
-            </button>
+              <p className="text-sm text-gray-500 mb-10 tracking-wide uppercase">{t.subtitle}</p>
 
-            <button
-              onClick={() => setMode('admin')}
-              className="glass group p-8 rounded-[2.5rem] flex flex-col items-center gap-4 hover:bg-white/10 active:scale-95 transition-all border border-white/5"
-            >
-              <div className="w-16 h-16 bg-white/5 rounded-3xl flex items-center justify-center text-white/40 group-hover:text-primary group-hover:bg-primary/10 transition-all">
-                <ShieldCheck size={32} />
+              {/* Login Buttons */}
+              <div className="w-full space-y-4">
+                <button
+                  onClick={() => setMode('staff')}
+                  className="group w-full bg-white border-2 border-gray-200 p-4 flex items-center gap-4 hover:border-primary transition-all cut-corners"
+                >
+                  <div className="w-12 h-12 bg-gray-100 flex items-center justify-center text-gray-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                    <Users size={24} />
+                  </div>
+                  <span className="text-sm font-bold text-gray-700 uppercase tracking-widest">{t.staff}</span>
+                </button>
+
+                <button
+                  onClick={() => setMode('admin')}
+                  className="group w-full bg-white border-2 border-gray-200 p-4 flex items-center gap-4 hover:border-primary transition-all cut-corners"
+                >
+                  <div className="w-12 h-12 bg-gray-100 flex items-center justify-center text-gray-400 group-hover:text-primary group-hover:bg-primary/10 transition-all">
+                    <ShieldCheck size={24} />
+                  </div>
+                  <span className="text-sm font-bold text-gray-700 uppercase tracking-widest">{t.admin}</span>
+                </button>
               </div>
-              <span className="text-sm font-black text-white uppercase tracking-widest">{t.admin}</span>
-            </button>
-          </div>
 
-          <button onClick={onCancel} className="text-white/30 font-black text-[10px] uppercase tracking-widest hover:text-white transition-colors">
-            {t.cancel}
-          </button>
+              <button onClick={onCancel} className="mt-8 text-gray-400 font-bold text-xs uppercase tracking-widest hover:text-primary transition-colors">
+                {t.cancel}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="fixed inset-0 bg-[#0a0a0a]/95 backdrop-blur-2xl z-50 flex flex-col items-center justify-center p-8 animate-in slide-in-from-bottom duration-500">
-      <div className="w-full max-w-xs space-y-10 text-center">
-        <div className="relative">
-          <button
-            onClick={() => { setMode('select'); setPin(''); setStaffPass(''); setError(false); }}
-            className="absolute -top-12 -left-4 p-2 text-white/30 flex items-center gap-1 font-black text-[10px] uppercase tracking-widest"
-          >
-            <ChevronLeft size={16} /> {t.back}
-          </button>
-
-          <div className={`w-20 h-20 bg-white/5 rounded-[2rem] flex items-center justify-center mx-auto mb-6 border border-white/10 transition-colors ${error ? 'border-red-500/50 text-red-500' : 'text-primary'}`}>
-            {mode === 'admin' ? <Lock size={32} /> : <User size={32} />}
-          </div>
-          <h2 className="text-2xl font-black text-white uppercase tracking-tighter">{mode === 'admin' ? t.admin : t.staff}</h2>
-          {error && <p className="text-red-500 text-[10px] font-black uppercase tracking-widest mt-2 animate-bounce">{t.wrong}</p>}
-        </div>
-
-        {mode === 'admin' ? (
-          <div className="space-y-10">
-            <div className="flex justify-center gap-5 h-4">
-              {[0, 1, 2, 3].map((i) => (
-                <div key={i} className={`w-3.5 h-3.5 rounded-full transition-all duration-300 ${pin.length > i ? (error ? 'bg-red-500' : 'bg-primary scale-125 shadow-[0_0_15px_rgba(255,193,7,0.5)]') : 'bg-white/10 shadow-inner'}`} />
-              ))}
-            </div>
-
-            <div className="grid grid-cols-3 gap-y-6 gap-x-8">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                <button key={num} onClick={() => handleAdminPin(num.toString())} className="w-16 h-16 rounded-full bg-white/5 text-2xl font-black text-white border border-white/5 active:bg-primary active:text-black transition-all mx-auto flex items-center justify-center shadow-lg">{num}</button>
-              ))}
-              <div className="w-16 h-16"></div>
-              <button onClick={() => handleAdminPin('0')} className="w-16 h-16 rounded-full bg-white/5 text-2xl font-black text-white border border-white/5 active:bg-primary active:text-black transition-all mx-auto flex items-center justify-center shadow-lg">0</button>
-              <button onClick={() => setPin(prev => prev.slice(0, -1))} className="w-16 h-16 flex items-center justify-center text-white/30 active:text-white mx-auto"><Delete size={24} /></button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            <div className="space-y-4">
-              <div className="relative group">
-                <User className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
-                <input
-                  type="text"
-                  placeholder={t.user}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white font-bold focus:outline-none focus:border-primary/50 transition-all shadow-inner"
-                  value={staffUsername}
-                  onChange={e => setStaffUsername(e.target.value)}
-                />
-              </div>
-              <div className="relative group">
-                <KeyRound className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 group-focus-within:text-primary transition-colors" size={18} />
-                <input
-                  type="password"
-                  placeholder={t.pass}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 pl-14 pr-6 text-white font-bold focus:outline-none focus:border-primary/50 transition-all shadow-inner"
-                  value={staffPass}
-                  onChange={e => setStaffPass(e.target.value)}
-                />
-              </div>
-            </div>
+    <div className="fixed inset-0 bg-background-light hex-pattern z-50 flex items-center justify-center p-6 animate-in fade-in duration-500">
+      <div className="w-full max-w-md">
+        {/* Card with cut corners */}
+        <div className="relative p-[2px] bg-primary cut-corners-lg">
+          <div className="bg-white cut-corners-lg p-8 md:p-12 flex flex-col items-center">
+            {/* Back button */}
             <button
-              onClick={handleStaffLogin}
-              className="w-full bg-primary text-black py-5 rounded-2xl font-black text-sm tracking-widest active:scale-95 transition-all shadow-xl shadow-primary/20"
+              onClick={() => { setMode('select'); setPin(''); setStaffPass(''); setError(false); }}
+              className="absolute top-4 left-4 p-2 text-gray-400 flex items-center gap-1 font-bold text-xs uppercase tracking-widest hover:text-primary transition-colors"
             >
-              {t.login}
+              <ChevronLeft size={16} /> {t.back}
             </button>
+
+            {/* Logo */}
+            <div className="mb-2 flex items-center justify-center space-x-3">
+              <HexLogo />
+              <div className="flex flex-col">
+                <h1 className="text-3xl font-bold tracking-wider text-gray-900 leading-none">STAFF</h1>
+                <h1 className="text-3xl font-bold tracking-wider text-gray-900 leading-none">PORTAL</h1>
+              </div>
+            </div>
+            <p className="text-sm text-gray-500 mb-8 tracking-wide uppercase">{t.subtitle}</p>
+
+            {error && (
+              <div className="mb-4 px-4 py-2 bg-red-50 border border-red-200 text-red-600 text-xs font-bold uppercase tracking-widest animate-pulse">
+                {t.wrong}
+              </div>
+            )}
+
+            {mode === 'admin' ? (
+              <div className="w-full space-y-8">
+                {/* PIN Display */}
+                <div className="flex justify-center gap-4">
+                  {[0, 1, 2, 3].map((i) => (
+                    <div key={i} className={`w-4 h-4 transition-all duration-300 ${pin.length > i ? (error ? 'bg-red-500' : 'bg-primary shadow-neon') : 'bg-gray-200'}`} style={{ clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)' }} />
+                  ))}
+                </div>
+
+                {/* PIN Keypad */}
+                <div className="grid grid-cols-3 gap-3">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                    <button
+                      key={num}
+                      onClick={() => handleAdminPin(num.toString())}
+                      className="w-16 h-16 mx-auto bg-gray-100 text-xl font-bold text-gray-700 border-2 border-gray-200 hover:border-primary hover:text-primary active:bg-primary active:text-white transition-all cut-corners"
+                    >
+                      {num}
+                    </button>
+                  ))}
+                  <div className="w-16 h-16"></div>
+                  <button
+                    onClick={() => handleAdminPin('0')}
+                    className="w-16 h-16 mx-auto bg-gray-100 text-xl font-bold text-gray-700 border-2 border-gray-200 hover:border-primary hover:text-primary active:bg-primary active:text-white transition-all cut-corners"
+                  >
+                    0
+                  </button>
+                  <button
+                    onClick={() => setPin(prev => prev.slice(0, -1))}
+                    className="w-16 h-16 mx-auto flex items-center justify-center text-gray-400 hover:text-primary transition-colors"
+                  >
+                    <Delete size={24} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form className="w-full space-y-6" onSubmit={(e) => { e.preventDefault(); handleStaffLogin(); }}>
+                {/* Email Input */}
+                <div className="relative">
+                  <div className="absolute inset-0 border-2 border-gray-300 cut-corners pointer-events-none"></div>
+                  <div className="relative flex items-center">
+                    <span className="material-icons absolute left-3 text-gray-400">email</span>
+                    <input
+                      type="text"
+                      value={staffUsername}
+                      onChange={(e) => setStaffUsername(e.target.value)}
+                      className="w-full bg-transparent border-none text-gray-900 pl-10 pr-4 py-3 focus:ring-0 placeholder-gray-400 cut-corners outline-none"
+                      placeholder={t.user}
+                    />
+                  </div>
+                </div>
+
+                {/* Password Input */}
+                <div className="relative">
+                  <div className="absolute inset-0 border-2 border-gray-300 cut-corners pointer-events-none"></div>
+                  <div className="relative flex items-center">
+                    <span className="material-icons absolute left-3 text-gray-400">lock</span>
+                    <input
+                      type="password"
+                      value={staffPass}
+                      onChange={(e) => setStaffPass(e.target.value)}
+                      className="w-full bg-transparent border-none text-gray-900 pl-10 pr-4 py-3 focus:ring-0 placeholder-gray-400 cut-corners outline-none"
+                      placeholder={t.pass}
+                    />
+                  </div>
+                </div>
+
+                {/* Login Button */}
+                <button
+                  type="submit"
+                  className="relative group w-full bg-primary text-gray-900 font-bold py-3 px-6 uppercase tracking-wider transition-all duration-300 hover:bg-primary-hover hover:shadow-neon cut-corners overflow-hidden"
+                >
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {t.login}
+                  </span>
+                  <div className="absolute inset-0 h-full w-full bg-white/20 transform -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out"></div>
+                </button>
+
+                <div className="text-center">
+                  <a href="#" className="text-primary hover:text-primary-hover transition-colors text-sm underline">
+                    {t.forgot}
+                  </a>
+                </div>
+              </form>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

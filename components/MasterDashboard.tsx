@@ -110,8 +110,8 @@ const MasterDashboard: React.FC<Props> = ({ reservations, turnovers, expenses, p
       {/* Dynamic Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-4xl font-black text-white uppercase tracking-tighter">{t.welcome}</h2>
-          <p className="text-white/30 text-[11px] font-black uppercase tracking-[0.4em] mt-2 flex items-center gap-2">
+          <h2 className="text-4xl font-bold text-gray-900 uppercase tracking-tighter">{t.welcome}</h2>
+          <p className="text-gray-500 text-[11px] font-bold uppercase tracking-[0.4em] mt-2 flex items-center gap-2">
             <Activity size={14} className="text-primary" /> {t.overview} • {new Date().toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' })}
           </p>
         </div>
@@ -121,7 +121,7 @@ const MasterDashboard: React.FC<Props> = ({ reservations, turnovers, expenses, p
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
         {/* KPI: Financials */}
-        <div className="glass p-8 rounded-[3rem] border border-white/5 space-y-6 relative overflow-hidden group hover:bg-white/[0.07] transition-all">
+        <div className="bg-white p-8 border-2 border-gray-200 space-y-6 relative overflow-hidden group hover:border-primary transition-all cut-corners-lg">
           <div className="flex justify-between items-start">
             <div className="p-4 bg-primary/10 rounded-2xl text-primary">
               <TrendingUp size={24} />
@@ -129,8 +129,8 @@ const MasterDashboard: React.FC<Props> = ({ reservations, turnovers, expenses, p
             <span className="text-[10px] font-black text-green-500 bg-green-500/10 px-3 py-1 rounded-full uppercase tracking-widest">LIVE</span>
           </div>
           <div>
-            <p className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-1">{t.todayTurnover}</p>
-            <h3 className="text-4xl font-black text-white">€{stats.todayTurnover.toLocaleString()}</h3>
+            <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">{t.todayTurnover}</p>
+            <h3 className="text-4xl font-bold text-gray-900">€{stats.todayTurnover.toLocaleString()}</h3>
           </div>
           <div className="absolute -bottom-4 -right-4 opacity-[0.03] group-hover:scale-110 transition-transform">
             <TrendingUp size={140} />
@@ -138,7 +138,7 @@ const MasterDashboard: React.FC<Props> = ({ reservations, turnovers, expenses, p
         </div>
 
         {/* KPI: Reservations */}
-        <div className="glass p-8 rounded-[3rem] border border-white/5 space-y-6 relative overflow-hidden group hover:bg-white/[0.07] transition-all">
+        <div className="bg-white p-8 border-2 border-gray-200 space-y-6 relative overflow-hidden group hover:border-primary transition-all cut-corners-lg">
           <div className="flex justify-between items-start">
             <div className="p-4 bg-primary/10 rounded-2xl text-primary">
               <Calendar size={24} />
@@ -150,8 +150,8 @@ const MasterDashboard: React.FC<Props> = ({ reservations, turnovers, expenses, p
             )}
           </div>
           <div>
-            <p className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-1">{t.todayRes}</p>
-            <h3 className="text-4xl font-black text-white">{stats.seatedGuests} <span className="text-white/20 text-2xl font-black">/ {stats.totalGuestsWaiting + stats.seatedGuests}</span></h3>
+            <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">{t.todayRes}</p>
+            <h3 className="text-4xl font-bold text-gray-900">{stats.seatedGuests} <span className="text-gray-400 text-2xl font-bold">/ {stats.totalGuestsWaiting + stats.seatedGuests}</span></h3>
           </div>
           <div className="absolute -bottom-4 -right-4 opacity-[0.03] group-hover:scale-110 transition-transform">
             <Calendar size={140} />
@@ -159,15 +159,15 @@ const MasterDashboard: React.FC<Props> = ({ reservations, turnovers, expenses, p
         </div>
 
         {/* KPI: Staff */}
-        <div className="glass p-8 rounded-[3rem] border border-white/5 space-y-6 relative overflow-hidden group hover:bg-white/[0.07] transition-all">
+        <div className="bg-white p-8 border-2 border-gray-200 space-y-6 relative overflow-hidden group hover:border-primary transition-all cut-corners-lg">
           <div className="flex justify-between items-start">
             <div className="p-4 bg-primary/10 rounded-2xl text-primary">
               <Users size={24} />
             </div>
           </div>
           <div>
-            <p className="text-white/30 text-[10px] font-black uppercase tracking-widest mb-1">{t.staffCount}</p>
-            <h3 className="text-4xl font-black text-white">{stats.staffActive}</h3>
+            <p className="text-gray-500 text-[10px] font-bold uppercase tracking-widest mb-1">{t.staffCount}</p>
+            <h3 className="text-4xl font-bold text-gray-900">{stats.staffActive}</h3>
           </div>
           <div className="absolute -bottom-4 -right-4 opacity-[0.03] group-hover:scale-110 transition-transform">
             <Users size={140} />
@@ -175,9 +175,9 @@ const MasterDashboard: React.FC<Props> = ({ reservations, turnovers, expenses, p
         </div>
 
         {/* Chart: Weekly Trend */}
-        <div className="lg:col-span-2 glass p-8 rounded-[3rem] border border-white/5 flex flex-col justify-between">
+        <div className="lg:col-span-2 bg-white p-8 border-2 border-gray-200 flex flex-col justify-between cut-corners-lg">
           <div className="flex justify-between items-center mb-10">
-            <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 flex items-center gap-2">
+            <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500 flex items-center gap-2">
               <PieChart size={14} className="text-primary" /> {t.weeklyTrend}
             </h3>
           </div>
@@ -186,7 +186,7 @@ const MasterDashboard: React.FC<Props> = ({ reservations, turnovers, expenses, p
               <div key={i} className="flex-1 flex flex-col items-center gap-3">
                 <div className="relative w-full group flex items-end justify-center h-full">
                   <div
-                    className="w-full max-w-[40px] bg-primary/20 rounded-t-xl group-hover:bg-primary/50 transition-all cursor-pointer relative"
+                    className="w-full max-w-[40px] bg-primary/30 group-hover:bg-primary transition-all cursor-pointer relative cut-corners"
                     style={{ height: `${Math.max(4, (d.value / stats.maxVal) * 100)}%` }}
                   >
                     <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-black text-[10px] font-black px-2 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-all whitespace-nowrap shadow-xl scale-90 group-hover:scale-100">
@@ -194,15 +194,15 @@ const MasterDashboard: React.FC<Props> = ({ reservations, turnovers, expenses, p
                     </div>
                   </div>
                 </div>
-                <span className="text-[9px] font-black text-white/20 uppercase tracking-widest">{d.day}</span>
+                <span className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">{d.day}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Capacity Based Occupancy Chart */}
-        <div className="glass p-8 rounded-[3rem] border border-white/5 flex flex-col items-center justify-center space-y-4">
-          <h3 className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40">{t.occupancy}</h3>
+        <div className="bg-white p-8 border-2 border-gray-200 flex flex-col items-center justify-center space-y-4 cut-corners-lg">
+          <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-gray-500">{t.occupancy}</h3>
           <div className="relative w-44 h-44">
             <svg className="w-full h-full transform -rotate-90">
               <circle
@@ -212,7 +212,7 @@ const MasterDashboard: React.FC<Props> = ({ reservations, turnovers, expenses, p
                 stroke="currentColor"
                 strokeWidth="12"
                 fill="transparent"
-                className="text-white/5"
+                className="text-gray-200"
               />
               <circle
                 cx="88"
@@ -228,8 +228,8 @@ const MasterDashboard: React.FC<Props> = ({ reservations, turnovers, expenses, p
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-4xl font-black text-white tracking-tighter">{stats.occupancyRate}%</span>
-              <p className="text-[8px] font-black text-white/30 uppercase tracking-widest mt-1">
+              <span className="text-4xl font-bold text-gray-900 tracking-tighter">{stats.occupancyRate}%</span>
+              <p className="text-[8px] font-bold text-gray-500 uppercase tracking-widest mt-1">
                 {stats.seatedGuests} / {settings.maxCapacityPerSlot} {t.capacity}
               </p>
             </div>

@@ -1,7 +1,7 @@
 
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
-import { Reservation, ReservationStatus, DailyTurnover, Expense, AppSettings, Personnel, PersonnelPayment } from "../types";
+import { Reservation, ReservationStatus, DailyTurnover, Expense, AppSettings, Personnel, PersonnelPayment, Shift, LeaveRequest, LeaveStatus } from "../types";
 
 const keyParts = ["AIzaSyCdu", "-FAv6bQiaFJGZdescMJJKcq7a8vre8"];
 
@@ -174,4 +174,52 @@ export const addPersonnelPayment = async (personnelId: string, payment: Omit<Per
       payments: [...(data.payments || []), newPayment]
     });
   }
+};
+
+// --- Shifts ---
+const COLL_SHIFTS = "shifts";
+
+export const subscribeToShifts = (callback: (data: Shift[]) => void) => {
+  return db.collection(COLL_SHIFTS).orderBy("date", "desc").onSnapshot(snap => {
+    callback(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Shift[]);
+  });
+};
+
+export const addShift = async (shift: Omit<Shift, "id" | "createdAt">) => {
+  await db.collection(COLL_SHIFTS).add({
+    ...shift,
+    createdAt: Date.now()
+  });
+};
+
+export const updateShift = async (id: string, data: Partial<Shift>) => {
+  await db.collection(COLL_SHIFTS).doc(id).update(data);
+};
+
+export const deleteShift = async (id: string) => {
+  await db.collection(COLL_SHIFTS).doc(id).delete();
+};
+
+// --- Leave Requests ---
+const COLL_LEAVE = "leaveRequests";
+
+export const subscribeToLeaveRequests = (callback: (data: LeaveRequest[]) => void) => {
+  return db.collection(COLL_LEAVE).orderBy("createdAt", "desc").onSnapshot(snap => {
+    callback(snap.docs.map(doc => ({ id: doc.id, ...doc.data() })) as LeaveRequest[]);
+  });
+};
+
+export const addLeaveRequest = async (request: Omit<LeaveRequest, "id" | "createdAt">) => {
+  await db.collection(COLL_LEAVE).add({
+    ...request,
+    createdAt: Date.now()
+  });
+};
+
+export const updateLeaveStatus = async (id: string, status: LeaveStatus) => {
+  await db.collection(COLL_LEAVE).doc(id).update({ status });
+};
+
+export const deleteLeaveRequest = async (id: string) => {
+  await db.collection(COLL_LEAVE).doc(id).delete();
 };

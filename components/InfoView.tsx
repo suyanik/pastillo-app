@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Instagram, MapPin, Phone, Clock, Globe,
@@ -12,7 +11,7 @@ interface Props {
 }
 
 const InfoView: React.FC<Props> = ({ lang, settings }) => {
-  const translations = {
+  const translations: Record<Language, Record<string, string>> = {
     tr: {
       title: 'İletişim & Bilgi',
       sub: 'Bize ulaşın',
@@ -61,118 +60,118 @@ const InfoView: React.FC<Props> = ({ lang, settings }) => {
     {
       label: 'Instagram',
       value: '@Pastillo_butzbach',
-      icon: <Instagram size={18} />,
+      icon: <Instagram size={20} />,
       url: 'https://instagram.com/Pastillo_butzbach',
-      color: 'text-pink-500'
+      color: 'text-pink-500',
+      bgColor: 'bg-pink-50'
     },
     {
       label: 'Facebook',
       value: 'Pastillo Butzbach',
-      icon: <Facebook size={18} />,
-      url: 'https://facebook.com/profile.php?id=100086382436854', // Standart bir arama veya bilinen ID
-      color: 'text-blue-500'
+      icon: <Facebook size={20} />,
+      url: 'https://facebook.com/profile.php?id=100086382436854',
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50'
     },
     {
       label: t.web,
       value: 'www.pastillo.de',
-      icon: <Globe size={18} />,
+      icon: <Globe size={20} />,
       url: 'https://www.pastillo.de',
-      color: 'text-primary'
+      color: 'text-primary',
+      bgColor: 'bg-primary/10'
     }
   ];
 
   return (
-    <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20 px-1">
-      {/* Header - More Elegant */}
-      <div className="text-center space-y-2 mb-2">
-        {settings.restaurantLogo && (
-          <img src={settings.restaurantLogo} className="h-10 w-auto mx-auto mb-4 opacity-80" alt="Logo" />
-        )}
-        <h2 className="text-xl font-black text-white uppercase tracking-tighter">{settings.restaurantName || t.title}</h2>
-        <div className="flex items-center justify-center gap-2">
-          <span className="h-[1px] w-8 bg-white/10"></span>
-          <p className="text-[10px] text-white/30 font-black uppercase tracking-[0.3em]">{t.sub}</p>
-          <span className="h-[1px] w-8 bg-white/10"></span>
+    <div className="flex flex-col gap-4 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-20">
+      {/* Header Card */}
+      <div className="relative p-[2px] bg-primary cut-corners-lg">
+        <div className="bg-white cut-corners-lg p-6 text-center">
+          {settings.restaurantLogo && (
+            <img src={settings.restaurantLogo} className="h-12 w-auto mx-auto mb-3" alt="Logo" />
+          )}
+          <h2 className="text-xl font-bold text-gray-900 uppercase tracking-tight">
+            {settings.restaurantName || t.title}
+          </h2>
+          <p className="text-xs text-gray-500 font-medium mt-1">{t.sub}</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3">
-        {/* Address & Hours - More Compact */}
-        <div className="glass p-5 rounded-[2rem] border border-white/5 space-y-5">
-          <div className="flex items-start gap-4">
-            <div className="p-2.5 bg-white/5 rounded-xl text-primary">
-              <MapPin size={20} />
-            </div>
-            <div>
-              <h3 className="text-[10px] font-black text-white/20 uppercase tracking-widest">{t.address}</h3>
-              <p className="text-sm font-bold text-white/80 mt-1 leading-snug">{settings.address}</p>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-[10px] font-black text-primary uppercase tracking-widest mt-2 hover:opacity-70 transition-opacity"
-              >
-                Maps <ExternalLink size={10} />
-              </a>
-            </div>
+      {/* Info List */}
+      <div className="bg-white border-2 border-gray-200 cut-corners-lg divide-y divide-gray-100">
+        {/* Address */}
+        <a
+          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
+        >
+          <div className="w-12 h-12 bg-primary/10 flex items-center justify-center text-primary cut-corners">
+            <MapPin size={22} />
           </div>
+          <div className="flex-1">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{t.address}</p>
+            <p className="text-sm font-bold text-gray-900 mt-0.5">{settings.address}</p>
+          </div>
+          <ChevronRight size={18} className="text-gray-400" />
+        </a>
 
-          <div className="h-[1px] bg-white/5 w-full"></div>
-
-          <div className="flex items-start gap-4">
-            <div className="p-2.5 bg-white/5 rounded-xl text-primary">
-              <Clock size={20} />
-            </div>
-            <div>
-              <h3 className="text-[10px] font-black text-white/20 uppercase tracking-widest">{t.hours}</h3>
-              <p className="text-sm font-bold text-white/80 mt-1">{settings.openingHours}</p>
-              <p className="text-[11px] font-bold text-red-500/60 mt-0.5">{settings.closedDay}</p>
-            </div>
+        {/* Hours */}
+        <div className="flex items-center gap-4 p-4">
+          <div className="w-12 h-12 bg-primary/10 flex items-center justify-center text-primary cut-corners">
+            <Clock size={22} />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{t.hours}</p>
+            <p className="text-sm font-bold text-gray-900 mt-0.5">{settings.openingHours}</p>
+            <p className="text-xs font-bold text-red-500 mt-0.5">{settings.closedDay}</p>
           </div>
         </div>
 
-        {/* Contact - Refined */}
-        <div className="glass p-5 rounded-[2rem] border border-white/5">
-          <h3 className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-4 ml-1">{t.contact}</h3>
-          <a href={`tel:${settings.phone}`} className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/5 hover:bg-white/10 active:scale-[0.98] transition-all">
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                <Phone size={16} />
-              </div>
-              <span className="text-xs font-bold text-white/70">{t.call}</span>
+        {/* Phone */}
+        <a
+          href={`tel:${settings.phone}`}
+          className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
+        >
+          <div className="w-12 h-12 bg-green-50 flex items-center justify-center text-green-600 cut-corners">
+            <Phone size={22} />
+          </div>
+          <div className="flex-1">
+            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{t.call}</p>
+            <p className="text-sm font-bold text-gray-900 mt-0.5">{settings.phone}</p>
+          </div>
+          <ChevronRight size={18} className="text-gray-400" />
+        </a>
+      </div>
+
+      {/* Social Links */}
+      <div className="bg-white border-2 border-gray-200 cut-corners-lg divide-y divide-gray-100">
+        <div className="p-4 border-b border-gray-100">
+          <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">{t.social}</p>
+        </div>
+
+        {socialLinks.map((link, idx) => (
+          <a
+            key={idx}
+            href={link.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-4 p-4 hover:bg-gray-50 transition-colors"
+          >
+            <div className={`w-10 h-10 ${link.bgColor} flex items-center justify-center ${link.color} cut-corners`}>
+              {link.icon}
             </div>
-            <span className="text-sm font-black text-white tracking-tight">{settings.phone}</span>
+            <div className="flex-1">
+              <p className="text-sm font-bold text-gray-900">{link.value}</p>
+            </div>
+            <ExternalLink size={16} className="text-gray-400" />
           </a>
-        </div>
-
-        {/* Social & Web - Clean List */}
-        <div className="glass p-5 rounded-[2rem] border border-white/5 space-y-2">
-          <h3 className="text-[10px] font-black text-white/20 uppercase tracking-widest mb-3 ml-1">{t.social}</h3>
-          {socialLinks.map((link, idx) => (
-            <a
-              key={idx}
-              href={link.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-3.5 bg-white/[0.02] hover:bg-white/5 rounded-2xl border border-white/5 transition-all group"
-            >
-              <div className="flex items-center gap-3">
-                <div className={`p-2 rounded-xl bg-white/5 ${link.color} transition-transform group-hover:scale-110`}>
-                  {link.icon}
-                </div>
-                <div>
-                  <p className="text-[9px] font-black text-white/30 uppercase tracking-widest">{link.label}</p>
-                  <p className="text-xs font-bold text-white/70">{link.value}</p>
-                </div>
-              </div>
-              <ChevronRight size={14} className="text-white/10 group-hover:text-primary transition-colors" />
-            </a>
-          ))}
-        </div>
+        ))}
       </div>
 
-      {/* Footer minimal tag */}
-      <p className="text-center text-[8px] font-black text-white/10 uppercase tracking-[0.5em] mt-4">
+      {/* Footer */}
+      <p className="text-center text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">
         © Pastillo Butzbach
       </p>
     </div>
